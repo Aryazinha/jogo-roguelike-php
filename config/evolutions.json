@@ -1,0 +1,48 @@
+{
+  "_meta": {
+    "arquivo": "evolutions.json",
+    "requisitos": ["RF37"],
+    "nota": "O RF37 exige no minimo 2 combinacoes e cita exatamente as duas abaixo como exemplo. As condicoes de nivel e os atributos das armas evoluidas sao provisorios."
+  },
+  "evolucoes": [
+    {
+      "id": "enchanted_stone_sword",
+      "nome": "Enchanted Stone Sword",
+      "requer": {
+        "arma": { "id": "stone_sword", "nivelMinimo": 5 },
+        "passivo": { "id": "sharpness", "nivelMinimo": 3 }
+      },
+      "resultado": {
+        "substituiArma": "stone_sword",
+        "dano": 9.0,
+        "cooldownSegundos": 1.4,
+        "mira": "direcao_do_olhar",
+        "formato": "meia_lua",
+        "alcance": 140,
+        "anguloGraus": 220
+      },
+      "_fonte": "enunciado",
+      "_nota": "A combinacao vem do RF37; os atributos do resultado sao provisorios."
+    },
+    {
+      "id": "mega_tnt",
+      "nome": "Mega TNT",
+      "requer": {
+        "arma": { "id": "tnt", "nivelMinimo": 5 },
+        "passivo": { "id": "gunpowder", "nivelMinimo": 3 }
+      },
+      "resultado": {
+        "substituiArma": "tnt",
+        "dano": 18.0,
+        "cooldownSegundos": 3.2,
+        "mira": "inimigo_aleatorio",
+        "formato": "area",
+        "alcance": 320,
+        "raioExplosao": 220,
+        "atrasoDetonacaoSegundos": 0.6
+      },
+      "_fonte": "enunciado",
+      "_nota": "A combinacao vem do RF37; os atributos do resultado sao provisorios."
+    }
+  ]
+}

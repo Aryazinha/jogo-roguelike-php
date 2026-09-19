@@ -1,0 +1,115 @@
+{
+  "_meta": {
+    "arquivo": "enemies.json",
+    "requisitos": ["RF05", "RF22-a", "RF22-b", "RF28", "RF36"],
+    "nota": "RF22-a exige no minimo 3 inimigos comuns com atributos proprios. RF36 exige no minimo 2 inimigos especiais. RF22-b exige um boss com atributos distintos dos comuns."
+  },
+  "comuns": {
+    "zombie": {
+      "nome": "Zombie",
+      "vida": 13,
+      "dano": 3,
+      "xp": { "min": 3, "max": 4 },
+      "nivelMinimoAparicao": 6,
+      "velocidade": 55,
+      "raioColisao": 14,
+      "comportamento": "perseguir",
+      "_fonte": "enunciado",
+      "_nota": "Vida, dano, XP e nivel de aparicao vem do RF22. Velocidade e raio sao provisorios."
+    },
+    "spider": {
+      "nome": "Spider",
+      "vida": 8,
+      "dano": 2,
+      "xp": { "min": 2, "max": 3 },
+      "nivelMinimoAparicao": 1,
+      "velocidade": 95,
+      "raioColisao": 12,
+      "comportamento": "perseguir",
+      "_fonte": "provisorio",
+      "_nota": "Rapido e fragil, para o inicio da partida."
+    },
+    "husk": {
+      "nome": "Husk",
+      "vida": 34,
+      "dano": 6,
+      "xp": { "min": 7, "max": 10 },
+      "nivelMinimoAparicao": 12,
+      "velocidade": 38,
+      "raioColisao": 18,
+      "comportamento": "perseguir",
+      "_fonte": "provisorio",
+      "_nota": "Lento e resistente, para o meio da partida."
+    }
+  },
+  "especiais": {
+    "slime": {
+      "nome": "Slime",
+      "vida": 20,
+      "dano": 4,
+      "xp": { "min": 4, "max": 6 },
+      "nivelMinimoAparicao": 8,
+      "velocidade": 60,
+      "raioColisao": 20,
+      "comportamento": "perseguir",
+      "aoMorrer": { "gera": "slime_pequeno", "quantidade": 2 },
+      "_fonte": "enunciado",
+      "_nota": "O RF36 cita o Slime que se aproxima e deixa inimigos menores ao morrer. Os numeros sao provisorios."
+    },
+    "slime_pequeno": {
+      "nome": "Slime pequeno",
+      "vida": 6,
+      "dano": 2,
+      "xp": { "min": 1, "max": 2 },
+      "nivelMinimoAparicao": 8,
+      "velocidade": 80,
+      "raioColisao": 11,
+      "comportamento": "perseguir",
+      "geradoApenasPorDivisao": true,
+      "_fonte": "provisorio"
+    },
+    "skeleton": {
+      "nome": "Skeleton",
+      "vida": 16,
+      "dano": 3,
+      "xp": { "min": 5, "max": 7 },
+      "nivelMinimoAparicao": 10,
+      "velocidade": 50,
+      "raioColisao": 14,
+      "comportamento": "manter_distancia",
+      "distanciaIdeal": 200,
+      "margemHisterese": 40,
+      "cooldownTiroSegundos": 2.2,
+      "_fonte": "provisorio",
+      "_nota": "Inimigo a distancia, o segundo especial exigido pelo RF36."
+    }
+  },
+  "boss": {
+    "warden": {
+      "nome": "Warden",
+      "vida": 900,
+      "dano": 18,
+      "xp": { "min": 150, "max": 150 },
+      "surgeAosSegundos": 600,
+      "velocidade": 45,
+      "raioColisao": 46,
+      "comportamento": "boss_em_fases",
+      "fases": {
+        "telegrafando": { "duracaoSegundos": 0.8 },
+        "investindo": { "duracaoSegundos": 1.0, "multiplicadorVelocidade": 3.0 },
+        "recuperando": { "duracaoSegundos": 1.0 },
+        "cooldownInvestidaSegundos": 8.0,
+        "invocando": { "emVidaPercentual": [0.7, 0.4], "quantidade": 8, "tipo": "zombie" },
+        "enfurecido": {
+          "emVidaPercentual": 0.25,
+          "modificadores": [
+            { "atributo": "velocidade", "tipo": "PERCENT", "valor": 0.3 },
+            { "atributo": "cooldown", "tipo": "PERCENT", "valor": -0.3 }
+          ]
+        }
+      },
+      "_fonte": "provisorio",
+      "_nota": "O RF22-b exige um boss com atributos distintos dos comuns; os numeros e as fases sao escolha da equipe. Surge aos 10 minutos, conforme a condicao de vitoria definida no plano."
+    }
+  }
+}

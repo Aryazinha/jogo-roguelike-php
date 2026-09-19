@@ -1,0 +1,47 @@
+{
+  "_meta": {
+    "arquivo": "passives.json",
+    "requisitos": ["RF21", "RF37"],
+    "nota": "O RF21 exige itens passivos adquiridos no level up, mas nao define quais. Todos os valores sao provisorios. Cada item e um conjunto de StatModifier, o mesmo mecanismo dos upgrades de arma."
+  },
+  "itens": {
+    "sharpness": {
+      "nome": "Sharpness",
+      "descricao": "Aumenta o dano de todas as armas",
+      "niveisMaximos": 5,
+      "modificadoresPorNivel": [{ "atributo": "dano", "tipo": "PERCENT", "valor": 0.08 }],
+      "_nota": "Citado no RF37 como componente da evolucao especial Enchanted Stone Sword."
+    },
+    "gunpowder": {
+      "nome": "Gunpowder",
+      "descricao": "Aumenta a area de efeito",
+      "niveisMaximos": 5,
+      "modificadoresPorNivel": [{ "atributo": "raioExplosao", "tipo": "PERCENT", "valor": 0.1 }],
+      "_nota": "Citado no RF37 como componente da evolucao especial Mega TNT."
+    },
+    "feather": {
+      "nome": "Feather",
+      "descricao": "Aumenta a velocidade de movimento",
+      "niveisMaximos": 5,
+      "modificadoresPorNivel": [{ "atributo": "velocidadeJogador", "tipo": "PERCENT", "valor": 0.06 }]
+    },
+    "golden_apple": {
+      "nome": "Golden Apple",
+      "descricao": "Aumenta a vida maxima",
+      "niveisMaximos": 5,
+      "modificadoresPorNivel": [{ "atributo": "vidaMaxima", "tipo": "FLAT", "valor": 2 }]
+    },
+    "clock": {
+      "nome": "Clock",
+      "descricao": "Reduz o cooldown de todas as armas",
+      "niveisMaximos": 5,
+      "modificadoresPorNivel": [{ "atributo": "cooldown", "tipo": "PERCENT", "valor": -0.05 }]
+    },
+    "magnet": {
+      "nome": "Magnet",
+      "descricao": "Aumenta o raio de coleta de experiencia",
+      "niveisMaximos": 5,
+      "modificadoresPorNivel": [{ "atributo": "raioColeta", "tipo": "PERCENT", "valor": 0.15 }]
+    }
+  }
+}

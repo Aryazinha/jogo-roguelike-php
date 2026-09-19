@@ -1,0 +1,33 @@
+{
+  "_meta": {
+    "arquivo": "upgrades.json",
+    "requisitos": ["RF19"],
+    "nota": "O RF19 lista o que um upgrade pode alterar: dano, cooldown, alcance, quantidade de projeteis, area de efeito e velocidade dos projeteis. Os valores sao provisorios. Todo upgrade e um StatModifier, resolvido na ordem base -> soma dos FLAT -> produto dos PERCENT."
+  },
+  "upgrades": {
+    "stone_sword": [
+      { "nivel": 2, "descricao": "Lamina afiada", "modificadores": [{ "atributo": "dano", "tipo": "FLAT", "valor": 1.0 }] },
+      { "nivel": 3, "descricao": "Golpe rapido", "modificadores": [{ "atributo": "cooldown", "tipo": "PERCENT", "valor": -0.15 }] },
+      { "nivel": 4, "descricao": "Arco amplo", "modificadores": [{ "atributo": "anguloGraus", "tipo": "FLAT", "valor": 60 }] },
+      { "nivel": 5, "descricao": "Alcance estendido", "modificadores": [{ "atributo": "alcance", "tipo": "PERCENT", "valor": 0.25 }] }
+    ],
+    "bow": [
+      { "nivel": 2, "descricao": "Ponta de ferro", "modificadores": [{ "atributo": "dano", "tipo": "FLAT", "valor": 1.2 }] },
+      { "nivel": 3, "descricao": "Flecha dupla", "modificadores": [{ "atributo": "projeteis", "tipo": "FLAT", "valor": 1 }] },
+      { "nivel": 4, "descricao": "Corda tensa", "modificadores": [{ "atributo": "velocidadeProjetil", "tipo": "PERCENT", "valor": 0.3 }] },
+      { "nivel": 5, "descricao": "Disparo veloz", "modificadores": [{ "atributo": "cooldown", "tipo": "PERCENT", "valor": -0.2 }] }
+    ],
+    "tnt": [
+      { "nivel": 2, "descricao": "Carga maior", "modificadores": [{ "atributo": "dano", "tipo": "PERCENT", "valor": 0.25 }] },
+      { "nivel": 3, "descricao": "Estilhaco", "modificadores": [{ "atributo": "raioExplosao", "tipo": "PERCENT", "valor": 0.3 }] },
+      { "nivel": 4, "descricao": "Pavio curto", "modificadores": [{ "atributo": "atrasoDetonacaoSegundos", "tipo": "FLAT", "valor": -0.4 }] },
+      { "nivel": 5, "descricao": "Banca dupla", "modificadores": [{ "atributo": "cooldown", "tipo": "PERCENT", "valor": -0.25 }] }
+    ],
+    "torch": [
+      { "nivel": 2, "descricao": "Chama intensa", "modificadores": [{ "atributo": "dano", "tipo": "PERCENT", "valor": 0.3 }] },
+      { "nivel": 3, "descricao": "Aura ampla", "modificadores": [{ "atributo": "alcance", "tipo": "FLAT", "valor": 30 }] },
+      { "nivel": 4, "descricao": "Pulso rapido", "modificadores": [{ "atributo": "cooldown", "tipo": "PERCENT", "valor": -0.2 }] },
+      { "nivel": 5, "descricao": "Brasa persistente", "modificadores": [{ "atributo": "dano", "tipo": "PERCENT", "valor": 0.3 }] }
+    ]
+  }
+}

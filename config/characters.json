@@ -1,0 +1,38 @@
+{
+  "_meta": {
+    "arquivo": "characters.json",
+    "requisitos": ["RF02", "RF16", "RF17", "RF39"],
+    "nota": "Campos com _fonte = enunciado vem do documento do professor e NAO podem ser alterados. Campos com _fonte = provisorio sao escolha da equipe e existem para balanceamento."
+  },
+  "personagens": {
+    "steve": {
+      "nome": "Steve",
+      "vida": 20,
+      "regeneracao": { "hp": 1, "intervaloSegundos": 30 },
+      "armaInicial": "stone_sword",
+      "_fonte": "enunciado",
+      "passiva": {
+        "id": "encantamento_de_dano",
+        "descricao": "Ganha encantamento de dano a cada N niveis",
+        "aCadaNiveis": 5,
+        "modificador": { "atributo": "dano", "tipo": "PERCENT", "valor": 0.1 },
+        "_fonte": "provisorio",
+        "_nota": "O RF39 exige a passiva e define o efeito, mas nao o intervalo de niveis nem o valor. Ambos sao escolha da equipe."
+      }
+    },
+    "alex": {
+      "nome": "Alex",
+      "vida": 16,
+      "regeneracao": { "hp": 1, "intervaloSegundos": 15 },
+      "armaInicial": "bow",
+      "_fonte": "enunciado",
+      "passiva": {
+        "id": "reducao_de_cooldown",
+        "descricao": "Reduz o cooldown das armas em 0,2 s a cada 4 niveis",
+        "aCadaNiveis": 4,
+        "modificador": { "atributo": "cooldown", "tipo": "FLAT", "valor": -0.2 },
+        "_fonte": "enunciado"
+      }
+    }
+  }
+}

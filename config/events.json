@@ -1,0 +1,37 @@
+{
+  "_meta": {
+    "arquivo": "events.json",
+    "requisitos": ["RF35"],
+    "nota": "O RF35 exige no minimo 2 eventos aleatorios e cita Horda, Chuva de XP e Tesouro como exemplos. A equipe implementa os tres. Duracoes e probabilidades sao provisorias."
+  },
+  "intervaloEntreEventosSegundos": { "min": 60, "max": 120 },
+  "eventos": {
+    "horda": {
+      "nome": "Horda",
+      "descricao": "Grande quantidade de inimigos surge durante um periodo",
+      "peso": 40,
+      "duracaoSegundos": 20,
+      "efeitos": [
+        { "atributo": "inimigosPorSpawn", "tipo": "PERCENT", "valor": 2.0 },
+        { "atributo": "intervaloSpawnSegundos", "tipo": "PERCENT", "valor": -0.5 }
+      ],
+      "_fonte": "enunciado"
+    },
+    "chuva_de_xp": {
+      "nome": "Chuva de XP",
+      "descricao": "Inimigos derrotados deixam mais experiencia",
+      "peso": 40,
+      "duracaoSegundos": 30,
+      "efeitos": [{ "atributo": "xpDropado", "tipo": "PERCENT", "valor": 1.0 }],
+      "_fonte": "enunciado"
+    },
+    "tesouro": {
+      "nome": "Tesouro",
+      "descricao": "Aumenta temporariamente a chance de encontrar baus",
+      "peso": 20,
+      "duracaoSegundos": 45,
+      "efeitos": [{ "atributo": "chanceDeBau", "tipo": "PERCENT", "valor": 1.5 }],
+      "_fonte": "enunciado"
+    }
+  }
+}

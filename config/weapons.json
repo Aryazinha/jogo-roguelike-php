@@ -1,0 +1,54 @@
+{
+  "_meta": {
+    "arquivo": "weapons.json",
+    "requisitos": ["RF07", "RF18", "RF20"],
+    "nota": "O RF07 exige no minimo 4 armas, cada uma com forma propria de escolher alvo. As quatro miras abaixo correspondem as quatro implementacoes de TargetingStrategy previstas no plano."
+  },
+  "armas": {
+    "stone_sword": {
+      "nome": "Stone Sword",
+      "dano": 2.5,
+      "cooldownSegundos": 2.0,
+      "mira": "direcao_do_olhar",
+      "formato": "meia_lua",
+      "alcance": 90,
+      "anguloGraus": 120,
+      "_fonte": "enunciado",
+      "_nota": "Dano, cooldown e comportamento vem do RF18. Alcance e angulo sao provisorios."
+    },
+    "bow": {
+      "nome": "Bow and Arrow",
+      "dano": 3.2,
+      "cooldownSegundos": 1.8,
+      "mira": "inimigo_mais_proximo",
+      "formato": "projetil",
+      "alcance": 320,
+      "projeteis": 1,
+      "velocidadeProjetil": 420,
+      "_fonte": "enunciado",
+      "_nota": "Dano, cooldown e comportamento vem do RF18. Alcance, quantidade e velocidade sao provisorios."
+    },
+    "tnt": {
+      "nome": "TNT",
+      "dano": 6.0,
+      "cooldownSegundos": 4.0,
+      "mira": "inimigo_aleatorio",
+      "formato": "area",
+      "alcance": 260,
+      "raioExplosao": 110,
+      "atrasoDetonacaoSegundos": 1.0,
+      "_fonte": "provisorio",
+      "_nota": "Arma da equipe. O RF37 cita TNT + Gunpowder como exemplo de evolucao especial, entao ela precisa existir."
+    },
+    "torch": {
+      "nome": "Torch",
+      "dano": 1.2,
+      "cooldownSegundos": 0.8,
+      "mira": "area_ao_redor",
+      "formato": "pulso",
+      "alcance": 70,
+      "_fonte": "provisorio",
+      "_nota": "Arma da equipe, para cobrir a quarta estrategia de mira."
+    }
+  }
+}

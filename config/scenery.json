@@ -1,0 +1,60 @@
+{
+  "_meta": {
+    "arquivo": "scenery.json",
+    "requisitos": ["RF27", "RF38"],
+    "nota": "O RF38 exige elementos do cenario que, quando quebrados, deixam itens: Steak, itens especiais e bonus temporarios. Os tres tipos abaixo cobrem os tres casos. Quantidades e probabilidades sao provisorias."
+  },
+  "densidadePorMil": 8,
+  "_notaDensidade": "Elementos quebraveis por mil unidades quadradas de mapa, no inicio da partida.",
+  "elementos": {
+    "grass": {
+      "nome": "Tufo de grama",
+      "vida": 1,
+      "raioColisao": 12,
+      "bloqueiaMovimento": false,
+      "drops": [
+        { "item": "nenhum", "probabilidade": 0.7 },
+        { "item": "steak", "probabilidade": 0.2 },
+        { "item": "xp_pequeno", "probabilidade": 0.1 }
+      ]
+    },
+    "crate": {
+      "nome": "Caixote",
+      "vida": 3,
+      "raioColisao": 18,
+      "bloqueiaMovimento": true,
+      "drops": [
+        { "item": "steak", "probabilidade": 0.45 },
+        { "item": "bonus_temporario", "probabilidade": 0.35 },
+        { "item": "item_especial", "probabilidade": 0.2 }
+      ]
+    },
+    "ore": {
+      "nome": "Minerio",
+      "vida": 8,
+      "raioColisao": 20,
+      "bloqueiaMovimento": true,
+      "drops": [
+        { "item": "item_especial", "probabilidade": 0.6 },
+        { "item": "bonus_temporario", "probabilidade": 0.4 }
+      ]
+    }
+  },
+  "bonusTemporarios": {
+    "furia": {
+      "nome": "Furia",
+      "duracaoSegundos": 15,
+      "modificadores": [{ "atributo": "dano", "tipo": "PERCENT", "valor": 0.5 }]
+    },
+    "pressa": {
+      "nome": "Pressa",
+      "duracaoSegundos": 15,
+      "modificadores": [{ "atributo": "cooldown", "tipo": "PERCENT", "valor": -0.3 }]
+    },
+    "agilidade": {
+      "nome": "Agilidade",
+      "duracaoSegundos": 15,
+      "modificadores": [{ "atributo": "velocidadeJogador", "tipo": "PERCENT", "valor": 0.3 }]
+    }
+  }
+}

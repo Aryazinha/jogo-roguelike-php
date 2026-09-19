@@ -1,0 +1,56 @@
+{
+  "_meta": {
+    "arquivo": "waves.json",
+    "requisitos": ["RF05", "RF28", "RF29"],
+    "nota": "Todos os valores sao provisorios: o enunciado exige o escalonamento e as ondas, mas nao define numeros. A calibragem e feita pelo simulador, nao por palpite."
+  },
+  "diretorAdaptativo": false,
+  "_notaDiretor": "Melhoria pendente de decisao na semana 7. Quando desligado, vale apenas a curva fixa abaixo, que e o que o RF28 e o RF29 exigem.",
+  "limites": {
+    "inimigosSimultaneosMaximo": 300,
+    "_nota": "Teto do RNF06. Acima disso, o spawn e segurado ate abrir espaco."
+  },
+  "faixas": [
+    {
+      "deSegundos": 0,
+      "ateSegundos": 120,
+      "intervaloSpawnSegundos": 2.0,
+      "inimigosPorSpawn": 2,
+      "tipos": ["spider"]
+    },
+    {
+      "deSegundos": 120,
+      "ateSegundos": 300,
+      "intervaloSpawnSegundos": 1.5,
+      "inimigosPorSpawn": 3,
+      "tipos": ["spider", "zombie"]
+    },
+    {
+      "deSegundos": 300,
+      "ateSegundos": 480,
+      "intervaloSpawnSegundos": 1.1,
+      "inimigosPorSpawn": 4,
+      "tipos": ["zombie", "slime", "skeleton"]
+    },
+    {
+      "deSegundos": 480,
+      "ateSegundos": 600,
+      "intervaloSpawnSegundos": 0.8,
+      "inimigosPorSpawn": 5,
+      "tipos": ["zombie", "husk", "slime", "skeleton"]
+    },
+    {
+      "deSegundos": 600,
+      "ateSegundos": null,
+      "intervaloSpawnSegundos": 0.7,
+      "inimigosPorSpawn": 6,
+      "tipos": ["zombie", "husk", "slime", "skeleton"],
+      "_nota": "Modo livre apos o boss. ateSegundos null significa ate o fim da partida."
+    }
+  ],
+  "escalonamentoPorNivel": {
+    "_nota": "Aplicado por cima da faixa de tempo, conforme o RF28 permite escalonar por tempo OU nivel. Aqui os dois se somam.",
+    "vidaPorNivel": { "tipo": "PERCENT", "valor": 0.04 },
+    "danoPorNivel": { "tipo": "PERCENT", "valor": 0.03 }
+  }
+}

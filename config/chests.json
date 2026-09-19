@@ -1,0 +1,38 @@
+{
+  "_meta": {
+    "arquivo": "chests.json",
+    "requisitos": ["RF19", "RF26", "RF27"],
+    "nota": "O RF26 manda gerar baus apos derrotar o boss e da madeira (85%) e bronze (10%) como exemplo. Os 5% restantes nao estao no enunciado; a equipe acrescentou o bau de ouro para fechar 100%."
+  },
+  "raridades": [
+    {
+      "id": "madeira",
+      "nome": "Bau de Madeira",
+      "probabilidade": 0.85,
+      "recompensa": { "tipo": "upgrade_de_arma", "quantidade": 1 },
+      "_fonte": "enunciado"
+    },
+    {
+      "id": "bronze",
+      "nome": "Bau de Bronze",
+      "probabilidade": 0.10,
+      "recompensa": { "tipo": "upgrade_de_arma", "quantidade": 2 },
+      "_fonte": "enunciado"
+    },
+    {
+      "id": "ouro",
+      "nome": "Bau de Ouro",
+      "probabilidade": 0.05,
+      "recompensa": { "tipo": "upgrade_de_arma", "quantidade": 3 },
+      "_fonte": "provisorio",
+      "_nota": "Acrescentado pela equipe para que as probabilidades somem 1.0."
+    }
+  ],
+  "cura": {
+    "_nota": "RF27: item que cura a vida do jogador. Aparece dentro do bau e como drop de cenario.",
+    "id": "steak",
+    "nome": "Steak",
+    "cura": 5,
+    "_fonte": "provisorio"
+  }
+}
