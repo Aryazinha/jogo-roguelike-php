@@ -1,0 +1,35 @@
+# Normaliza o fim de linha para LF dentro do repositorio, em qualquer sistema.
+# Sem isto, quem usa Windows commita CRLF e o diff de um arquivo inteiro muda
+# so porque outra pessoa abriu o arquivo. Complementa o .editorconfig.
+* text=auto eol=lf
+
+# Arquivos de texto do projeto
+*.php      text eol=lf
+*.json     text eol=lf
+*.md       text eol=lf
+*.sql      text eol=lf
+*.yml      text eol=lf
+*.yaml     text eol=lf
+*.neon     text eol=lf
+*.xml      text eol=lf
+.gitignore text eol=lf
+.editorconfig text eol=lf
+
+# Binarios — nunca converter, sob risco de corromper o arquivo
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.wav  binary
+*.ogg  binary
+*.mp3  binary
+*.ttf  binary
+*.otf  binary
+*.pdf  binary
+*.dll  binary
+*.so   binary
+*.dylib binary
+*.sqlite binary
+
+# Nao contar arquivos gerados nas estatisticas de linguagem do GitHub
+composer.lock -diff linguist-generated=true

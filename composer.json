@@ -1,0 +1,57 @@
+{
+    "name": "paradigmas/jogo-roguelike",
+    "description": "Jogo roguelike de sobrevivencia com ataque automatico, escrito exclusivamente em PHP. Trabalho da disciplina de Paradigmas de Programacao 2026.2.",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.3",
+        "ext-ffi": "*",
+        "ext-pdo_sqlite": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0 || ^12.0",
+        "phpstan/phpstan": "^2.0",
+        "laravel/pint": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jogo\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Jogo\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "8.3.0"
+        },
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "scripts": {
+        "test": "phpunit",
+        "stan": "phpstan analyse",
+        "fmt": "pint",
+        "fmt:check": "pint --test",
+        "sim": "php tools/simulate.php",
+        "check": [
+            "@fmt:check",
+            "@stan",
+            "@test"
+        ]
+    },
+    "scripts-descriptions": {
+        "test": "Roda a suite de testes com PHPUnit",
+        "stan": "Analise estatica com PHPStan",
+        "fmt": "Formata o codigo no padrao PSR-12 com Pint",
+        "fmt:check": "Verifica a formatacao sem alterar arquivos",
+        "sim": "Roda uma partida sem abrir janela, para balanceamento",
+        "check": "Roda formatacao, analise estatica e testes — o mesmo que a CI"
+    }
+}
