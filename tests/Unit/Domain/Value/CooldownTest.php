@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 final class CooldownTest extends TestCase
 {
-    public function testItStartsReadyAndPreventsASecondUse(): void
+    public function test_it_starts_ready_and_prevents_a_second_use(): void
     {
         $cooldown = new Cooldown(2.0);
 
@@ -21,7 +21,7 @@ final class CooldownTest extends TestCase
         self::assertSame(2.0, $cooldown->remainingSeconds());
     }
 
-    public function testItBecomesReadyAfterItsDuration(): void
+    public function test_it_becomes_ready_after_its_duration(): void
     {
         $cooldown = new Cooldown(2.0);
         $cooldown->tryStart();
@@ -35,7 +35,7 @@ final class CooldownTest extends TestCase
         self::assertTrue($cooldown->isReady());
     }
 
-    public function testItCanBeResetImmediately(): void
+    public function test_it_can_be_reset_immediately(): void
     {
         $cooldown = new Cooldown(2.0);
         $cooldown->tryStart();
@@ -45,14 +45,14 @@ final class CooldownTest extends TestCase
         self::assertTrue($cooldown->isReady());
     }
 
-    public function testItRejectsAnInvalidDuration(): void
+    public function test_it_rejects_an_invalid_duration(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
         new Cooldown(0.0);
     }
 
-    public function testItRejectsANegativeTimeStep(): void
+    public function test_it_rejects_a_negative_time_step(): void
     {
         $cooldown = new Cooldown(2.0);
 

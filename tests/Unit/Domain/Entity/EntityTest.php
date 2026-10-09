@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 final class EntityTest extends TestCase
 {
-    public function testItKeepsIdentityPositionCollisionRadiusAndActivity(): void
+    public function test_it_keeps_identity_position_collision_radius_and_activity(): void
     {
         $entity = $this->createEntity('player-1', new Vector2(10.0, 20.0), 12.0);
 
@@ -21,7 +21,7 @@ final class EntityTest extends TestCase
         self::assertTrue($entity->isActive());
     }
 
-    public function testItMovesWithoutExposingMutablePositionState(): void
+    public function test_it_moves_without_exposing_mutable_position_state(): void
     {
         $entity = $this->createEntity('enemy-1', Vector2::zero(), 8.0);
 
@@ -32,7 +32,7 @@ final class EntityTest extends TestCase
         self::assertTrue($entity->position()->equals(new Vector2(10.0, 15.0)));
     }
 
-    public function testItCanBeDeactivated(): void
+    public function test_it_can_be_deactivated(): void
     {
         $entity = $this->createEntity('projectile-1', Vector2::zero(), 2.0);
 
@@ -41,14 +41,14 @@ final class EntityTest extends TestCase
         self::assertFalse($entity->isActive());
     }
 
-    public function testItRejectsAnEmptyIdentifier(): void
+    public function test_it_rejects_an_empty_identifier(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
         $this->createEntity('   ', Vector2::zero(), 2.0);
     }
 
-    public function testItRejectsANegativeCollisionRadius(): void
+    public function test_it_rejects_a_negative_collision_radius(): void
     {
         $this->expectException(InvalidArgumentException::class);
 

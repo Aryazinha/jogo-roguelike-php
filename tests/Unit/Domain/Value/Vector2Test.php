@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 final class Vector2Test extends TestCase
 {
-    public function testItAddsSubtractsAndScalesVectorsWithoutMutatingThem(): void
+    public function test_it_adds_subtracts_and_scales_vectors_without_mutating_them(): void
     {
         $original = new Vector2(3.0, 4.0);
         $other = new Vector2(1.0, -2.0);
@@ -21,7 +21,7 @@ final class Vector2Test extends TestCase
         self::assertTrue($original->equals(new Vector2(3.0, 4.0)));
     }
 
-    public function testItCalculatesLengthDistanceAndNormalization(): void
+    public function test_it_calculates_length_distance_and_normalization(): void
     {
         $vector = new Vector2(3.0, 4.0);
         $normalized = $vector->normalized();
@@ -34,19 +34,19 @@ final class Vector2Test extends TestCase
         self::assertEqualsWithDelta(1.0, $normalized->length(), 1.0E-9);
     }
 
-    public function testItNormalizesAZeroVectorWithoutDividingByZero(): void
+    public function test_it_normalizes_a_zero_vector_without_dividing_by_zero(): void
     {
         self::assertTrue(Vector2::zero()->normalized()->equals(Vector2::zero()));
     }
 
-    public function testItRejectsNonFiniteComponents(): void
+    public function test_it_rejects_non_finite_components(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
         new Vector2(INF, 0.0);
     }
 
-    public function testItRejectsANegativeComparisonTolerance(): void
+    public function test_it_rejects_a_negative_comparison_tolerance(): void
     {
         $this->expectException(InvalidArgumentException::class);
 

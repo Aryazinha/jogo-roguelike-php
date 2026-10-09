@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 final class HealthTest extends TestCase
 {
-    public function testItStartsFullByDefault(): void
+    public function test_it_starts_full_by_default(): void
     {
         $health = new Health(20.0);
 
@@ -20,7 +20,7 @@ final class HealthTest extends TestCase
         self::assertFalse($health->isDead());
     }
 
-    public function testDamageNeverReducesHealthBelowZero(): void
+    public function test_damage_never_reduces_health_below_zero(): void
     {
         $health = new Health(20.0);
 
@@ -31,7 +31,7 @@ final class HealthTest extends TestCase
         self::assertTrue($health->isDead());
     }
 
-    public function testHealingNeverExceedsMaximumHealth(): void
+    public function test_healing_never_exceeds_maximum_health(): void
     {
         $health = new Health(20.0, 12.0);
 
@@ -41,14 +41,14 @@ final class HealthTest extends TestCase
         self::assertSame(20.0, $health->current());
     }
 
-    public function testItRejectsInvalidInitialHealth(): void
+    public function test_it_rejects_invalid_initial_health(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
         new Health(20.0, 21.0);
     }
 
-    public function testItRejectsNegativeDamage(): void
+    public function test_it_rejects_negative_damage(): void
     {
         $health = new Health(20.0);
 
