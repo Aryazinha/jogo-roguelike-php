@@ -86,6 +86,8 @@ tests/                testes unitários e, futuramente, integração e simulaç�
 
 A primeira entrega da Frente A está explicada em
 [docs/FRONTE_A.md](docs/FRONTE_A.md), incluindo exemplos de uso e as invariantes adotadas.
+O trabalho restante está organizado em
+[docs/PLANO_FRENTE_A.md](docs/PLANO_FRENTE_A.md), com cronograma e critérios de aceite.
 
 ### O que não entra no Git, e por quê
 

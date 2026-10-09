@@ -1,5 +1,8 @@
 # Frente A — núcleo do domínio
 
+> O cronograma completo, as responsabilidades e os critérios de aceite estão em
+> [PLANO_FRENTE_A.md](PLANO_FRENTE_A.md).
+
 Este documento explica a primeira entrega da Frente A. Ela fornece os objetos fundamentais
 usados por movimento, colisão, dano e armas, sem depender de Raylib, FFI ou entrada e saída.
 
