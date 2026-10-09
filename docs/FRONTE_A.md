@@ -7,6 +7,19 @@ Este documento explica a base já implementada da Frente A e os contratos ratifi
 A base fornece os objetos fundamentais usados por movimento, colisão, dano e armas, sem
 depender de Raylib, FFI ou entrada e saída.
 
+## Entrega A2 — loop de tempo fixo
+
+`Jogo\Core\GameLoop` agenda atualizações de `1/60 s` com relógio injetável, acumulador,
+limite de recuperação, pausa/retomada e callbacks separados de atualização e renderização.
+A apresentação é chamada uma vez por quadro e recebe a fração de interpolação; o mundo
+recebe apenas passos fixos. A pausa congela a simulação sem acumular o intervalo pausado.
+
+O adaptador `MonotonicClock` usa o relógio monotônico do PHP; testes usam `ManualClock`, sem
+espera real. [LOOP_FIXO.md](LOOP_FIXO.md) detalha API, unidades, política de atraso, sequência
+de integração futura e testes de determinismo em diferentes taxas de quadros.
+
+Esta entrega não implementa A3, entrada real, sistemas de B/C/D ou renderização concreta.
+
 ## Entrega A1 — concluída e ratificada
 
 Em 09/10/2026, [CONTRATOS.md](CONTRATOS.md) foi revisado para registrar as assinaturas reais
@@ -36,7 +49,7 @@ documental: não cria APIs no autoload nem implementa A2 a A10.
 | `Cooldown` | Intervalo individual entre dois usos de uma arma ou habilidade |
 | `Entity` | Identidade, posição, raio de colisão e atividade de um objeto do mundo |
 
-As três primeiras classes ficam em `src/Domain/Value/`. A entidade base fica em
+As três primeiras classes da tabela ficam em `src/Domain/Value/`. A entidade base fica em
 `src/Domain/Entity/`. Todas pertencem ao domínio puro e podem ser testadas sem abrir uma
 janela.
 
