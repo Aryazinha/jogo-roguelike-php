@@ -5,7 +5,7 @@
 | Responsável | Thales |
 | Escopo | Loop, entrada abstrata, movimentação, colisão, dano, armas e desempenho |
 | Duração de referência | 8 semanas do projeto |
-| Estado | Primeira entrega concluída; contratos e sistemas de jogo pendentes |
+| Estado | Base do domínio concluída; documentação da A1 preparada para revisão; ratificação e sistemas de jogo pendentes |
 
 Este plano transforma o escopo da Frente A em entregas verificáveis. Ele não altera o
 enunciado nem o plano geral: apenas organiza o trabalho de uma frente. Em caso de conflito,
@@ -94,6 +94,12 @@ de teste, e não implementar a responsabilidade da outra frente.
 
 ### Bloqueios atuais
 
+A revisão documental de 09/10/2026 preencheu as propostas da A1 em
+[CONTRATOS.md](CONTRATOS.md), incluindo assinaturas existentes, unidades, dados e
+responsabilidades. A reunião com B, C e D ainda não foi registrada; todos os acordos abaixo
+continuam pendentes de confirmação humana. Nenhum sistema de A2 a A10 foi implementado
+nessa revisão.
+
 - [ ] `docs/CONTRATOS.md` ainda não está congelado;
 - [ ] `InputInterface` precisa ser acordada com a Frente D;
 - [ ] `TargetingStrategy` e `StatModifier` precisam ser acordados com a Frente B;
@@ -154,8 +160,8 @@ de outra frente atrasar, sem retirar requisito obrigatório.
 | 7 | Upgrades, evoluções, pool e simulação | RF19, RF37, RNF03, RNF06 | Modificadores aplicados e simulação sem janela executável |
 | 8 | Integração, desempenho e regressão | Todos acima | Sistemas integrados, metas medidas e suíte final verde |
 
-Como a base do domínio já foi concluída, a primeira ação é terminar os contratos pendentes e
-seguir para a semana 2.
+Como a base do domínio já foi concluída, a primeira ação é revisar e ratificar as propostas
+da A1 com a equipe. Depois da confirmação humana, o trabalho poderá seguir para a semana 2.
 
 ---
 
@@ -477,10 +483,14 @@ Antes de integrar:
 
 ## 12. Próxima ação
 
-1. Ratificar em reunião as seções 1, 2, 3, 4, 7 e 8 de `docs/CONTRATOS.md`.
+1. Revisar as propostas das seções 1, 2, 3, 4, 7 e 8 de `docs/CONTRATOS.md`; confirmar as
+   pendências da seção 9 e registrar a ratificação em reunião, com data e participantes.
 2. Registrar Thales como responsável pela Frente A no `README.md` quando a equipe confirmar.
 3. Implementar A2 — loop de tempo fixo.
 4. Implementar A3 — movimentação do jogador.
 
 Não começar armas antes de movimento, colisão e dano estarem estáveis: armas dependem dos
 três sistemas e implementá-las antes aumenta o retrabalho.
+
+A execução documental da A1 termina antes dos itens 2 a 4. A preparação dos contratos não
+autoriza marcar acordos como aprovados nem iniciar A2 automaticamente.
