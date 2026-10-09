@@ -5,7 +5,7 @@
 | Responsável | Thales |
 | Escopo | Loop, entrada abstrata, movimentação, colisão, dano, armas e desempenho |
 | Duração de referência | 8 semanas do projeto |
-| Estado | Base do domínio e A1 concluídas; contratos ratificados em 09/10/2026; A2 liberada |
+| Estado | Base do domínio, A1 e implementação da A2 concluídas; A3 não iniciada |
 
 Este plano transforma o escopo da Frente A em entregas verificáveis. Ele não altera o
 enunciado nem o plano geral: apenas organiza o trabalho de uma frente. Em caso de conflito,
@@ -91,7 +91,9 @@ de teste, e não implementar a responsabilidade da outra frente.
 - [x] configuração de PHPUnit, PHPStan e Pint;
 - [x] documentação inicial em `docs/FRONTE_A.md`;
 - [x] A1 ratificada em 09/10/2026 pelas quatro frentes, conforme confirmação humana;
-- [x] `composer check` verde: 20 testes e 49 asserções.
+- [x] A2: loop fixo, acumulador, limite de atraso, pausa e relógio injetável;
+- [x] testes de independência do FPS e documentação em `docs/LOOP_FIXO.md`;
+- [x] `composer check` verde na base e nas entregas integradas.
 
 ### Contratos confirmados na A1
 
@@ -120,7 +122,7 @@ equipe, sem tratá-los como requisitos novos:
 - frequência do dano por contato e eventual intervalo de invulnerabilidade;
 - projétil consumido no primeiro impacto ou capaz de atravessar alvos;
 - uso de semente no sorteio de alvo da TNT;
-- efeito da pausa sobre cooldowns e relógio da partida;
+- integração da pausa com cooldowns e relógio da partida (A2 congela somente seus passos e tempo de simulação);
 - estado do cooldown quando um upgrade altera sua duração;
 - comportamento quando o pool de projéteis estiver cheio.
 
@@ -160,8 +162,8 @@ de outra frente atrasar, sem retirar requisito obrigatório.
 | 7 | Upgrades, evoluções, pool e simulação | RF19, RF37, RNF03, RNF06 | Modificadores aplicados e simulação sem janela executável |
 | 8 | Integração, desempenho e regressão | Todos acima | Sistemas integrados, metas medidas e suíte final verde |
 
-Com a base do domínio e a A1 concluídas, o próximo trabalho autorizado é A2, o loop de tempo
-fixo. Movimento e as demais entregas permanecem separados.
+Com a base, A1 e A2 concluídas, movimento e as demais entregas permanecem separados.
+A execução da A2 termina após sua integração; A3 exige uma próxima tarefa.
 
 ---
 
@@ -209,6 +211,10 @@ fixo. Movimento e as demais entregas permanecem separados.
 
 **Critério de aceite:** a mesma sequência de entradas produz o mesmo estado com taxas de
 quadros diferentes.
+
+**Implementação:** `src/Core/GameLoop.php`, `ClockInterface` e `MonotonicClock`, com testes
+de 30/60/144/240 FPS e quadros irregulares. API, decisões técnicas e ordem de atualização
+documentadas em [LOOP_FIXO.md](LOOP_FIXO.md). A3 não está implementada.
 
 **Branch sugerida:** `frente-a/game-loop-fixo`.
 
@@ -485,7 +491,7 @@ Antes de integrar:
 
 ## 12. Próxima ação
 
-1. Implementar somente A2 — loop de tempo fixo, após integrar o registro de ratificação.
+1. Encerrar a execução após integrar e sincronizar a A2; não iniciar A3 automaticamente.
 2. Preservar as pendências explícitas de `docs/CONTRATOS.md` §9 nas entregas futuras.
 3. Substituir os marcadores B/C/D no registro da equipe quando os nomes forem informados.
 

@@ -10,7 +10,8 @@ PHP**.
 
 > **Estado atual do repositório: implementação iniciada.** O domínio já contém os objetos
 > fundamentais de posição, vida, cooldown e entidade, acompanhados por testes unitários.
-> O jogo executável e a integração com o Raylib ainda serão construídos nas próximas etapas.
+> A A1 foi ratificada e a A2 fornece o loop fixo testado sem janela. O jogo executável e a
+> integração com o Raylib ainda serão construídos nas próximas etapas.
 
 ---
 
@@ -88,6 +89,8 @@ A primeira entrega da Frente A está explicada em
 [docs/FRONTE_A.md](docs/FRONTE_A.md), incluindo exemplos de uso e as invariantes adotadas.
 O trabalho restante está organizado em
 [docs/PLANO_FRENTE_A.md](docs/PLANO_FRENTE_A.md), com cronograma e critérios de aceite.
+O loop da A2 está documentado em [docs/LOOP_FIXO.md](docs/LOOP_FIXO.md), incluindo relógio,
+pausa, controle de atraso e testes de independência da taxa de quadros.
 
 ### O que não entra no Git, e por quê
 
