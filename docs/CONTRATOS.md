@@ -1,22 +1,33 @@
 # Contratos compartilhados
 
-As assinaturas e os dados que mais de uma frente usa. Esta revisão cobre somente a
-[entrega A1](PLANO_FRENTE_A.md): registra o código existente e apresenta propostas para
+As assinaturas e os dados que mais de uma frente usa. A
+[entrega A1](PLANO_FRENTE_A.md) registra o código existente e os contratos aprovados para
 evitar incompatibilidades antes de implementar os sistemas de jogo.
 
-**Estado:** proposta para revisão humana; contratos não congelados nem ratificados.
+**Estado:** contratos da A1 ratificados pelas quatro frentes em 09/10/2026.
 **Revisão documental:** 09/10/2026, preparada por Codex a pedido da Frente A.
-**Participantes da reunião:** ainda não informados; nenhuma reunião registrada nesta revisão.
+**Ratificação humana:** confirmada pelo usuário em nome dos quatro integrantes.
+
+| Frente | Participante informado |
+| --- | --- |
+| A | Thales |
+| B | [NOME B] |
+| C | [NOME C] |
+| D | [NOME D] |
+
+Os marcadores das frentes B, C e D foram reproduzidos literalmente da confirmação recebida;
+seus nomes completos ainda precisam ser informados. Codex apenas registra a aprovação humana.
 
 O [enunciado](enunciado/) é a fonte dos requisitos; [PLANO.md](PLANO.md) registra a
 arquitetura e as confirmações já obtidas do professor (§5.0). Nada aqui muda essas fontes
 ou os valores dos JSON. Assinaturas, unidades e políticas novas abaixo são
-**[SUGESTÃO A1]**, não requisitos adicionais do professor.
+**[SUGESTÃO A1]**, agora aprovadas como decisões técnicas da equipe, não requisitos adicionais
+do professor. A aprovação não resolve pontos explicitamente indefinidos nem implementa as APIs.
 
 | Marca | Significado |
 | --- | --- |
-| Existente | Assinatura e comportamento conferidos em `src/`; isso não significa aprovação da equipe |
-| Proposta A1 | Contrato documentado, ainda sem implementação e sujeito à confirmação humana |
+| Existente | Assinatura e comportamento conferidos em `src/`, incluídos na ratificação da A1 |
+| Proposta A1 | Origem da especificação: contrato agora ratificado, ainda sem implementação, ressalvadas as pendências explícitas |
 | Pendente fora de A1 | Responsabilidade de outra entrega ou frente; não definida nesta revisão |
 
 ## Regras
@@ -27,12 +38,14 @@ ou os valores dos JSON. Assinaturas, unidades e políticas novas abaixo são
 3. Cada frente programa contra o contrato, não contra a implementação da outra frente.
 4. O que não está aqui é decisão interna de cada frente, e não precisa de acordo.
 
-**Congelado em:** pendente de confirmação das quatro frentes.
-**Presentes na ratificação:** pendente de reunião e registro humano.
+**Congelado em:** 09/10/2026, no escopo definido da A1.
+**Participantes na ratificação:** Thales (A), [NOME B] (B), [NOME C] (C), [NOME D] (D).
 
-Para ratificar, registrar data, nomes dos participantes, contratos aprovados e ressalvas no
-histórico. A data desta revisão não substitui a data de aprovação. Até lá, os exemplos PHP
-são especificações para discussão, não arquivos a adicionar ao autoload.
+A aprovação abrange as assinaturas, unidades, estruturas, responsabilidades e políticas
+documentadas nas §§1–4, 7 e 8 e a matriz da §9. As pendências expressas na §9 e nas demais
+seções permanecem abertas: alternativas ainda não escolhidas não se tornam decisões por esta
+ratificação. Os exemplos PHP especificam as APIs; sua implementação cabe às próximas entregas.
+Os títulos que mencionam proposta identificam a origem documental, não falta de aprovação.
 
 ### Convenções comuns propostas
 
@@ -171,7 +184,7 @@ um resultado que já o inclui. A resolução será implementada na A8, não em A
 `vidaMaxima` ou `cooldown` em `Stats` não muda por si só `Health` ou `Cooldown`; a política
 de sincronização dessas instâncias é pendente A/B (§9).
 
-### 2.3 Capacidades pequenas — sugestões condicionadas à aprovação
+### 2.3 Capacidades pequenas — assinaturas aprovadas na A1
 
 Proposta de namespace: `Jogo\Domain\Entity`. Ainda não existem arquivos dessas interfaces,
 e `Entity` ainda não declara `implements`.
@@ -305,7 +318,7 @@ boss e drops. A morte do boss não é `PlayerDied`: o fluxo de vitória e contin
 ## 4. Esquema dos arquivos de configuração
 
 Esta seção descreve a estrutura **existente** de `config/weapons.json` e propõe as regras de
-validação que A e B precisam confirmar. Não cria loader, JSON Schema executável ou novos
+validação ratificadas por A e B com as demais frentes. Não cria loader, JSON Schema executável ou novos
 campos. A carga é I/O de `Core/Config` conforme o plano; o domínio recebe dados validados.
 
 ### 4.1 Estrutura e campos obrigatórios propostos
@@ -341,7 +354,7 @@ projétil nem criar valores fictícios para preencher esses campos.
 
 Alcance medido até o centro para seleção é sugestão; a inclusão do raio de colisão na
 detecção de impacto será acordada A/C. A unidade e a distinção entre alcance de seleção e
-raio de explosão precisam ser ratificadas antes da A7.
+raio de explosão estão ratificadas; a política de impacto continua pendente para a A7.
 
 ### 4.2 Procedência preservada
 
@@ -606,12 +619,12 @@ A1 apenas especifica a fronteira de leitura; não implementa IA ou conteúdo da 
 
 ## 9. Responsabilidades, dependências e ratificação
 
-Todas as atribuições novas abaixo são propostas de responsabilidade, não confirmação de
-integrantes ou aprovação de contratos. Nenhuma frente é representada por Codex na reunião.
+As atribuições abaixo foram ratificadas pelas quatro frentes em 09/10/2026, conforme
+confirmação humana recebida. A implementação permanece nas entregas indicadas.
 
-| Contrato | Quem fornece / mantém, proposto | Quem precisa revisar | Dependência de implementação futura |
+| Contrato | Quem fornece / mantém | Frentes envolvidas | Dependência de implementação futura |
 | --- | --- | --- | --- |
-| Objetos base e capacidades | A; B/C compõem entidades | B, C, D | Capacidades só entram se aprovadas; preservar APIs existentes |
+| Objetos base e capacidades | A; B/C compõem entidades | B, C, D | Assinaturas aprovadas; capacidades ainda não implementadas; preservar APIs existentes |
 | `InputInterface` / `InputState` | A especifica dados; D implementa entrada; Application conecta | A, D | A2/A3; controle inicial e olhar |
 | `Stats` / `StatModifier` | B fornece base e efeitos; A resolve efeitos de combate | A, B | A6/A8; bases faltantes e sincronização |
 | `TargetingStrategy` | A | B, C | A7; alcance, ausência de alvo e RNG |
@@ -623,8 +636,8 @@ integrantes ou aprovação de contratos. Nenhuma frente é representada por Code
 
 | Ponto | Frentes | Estado / proposta para discussão |
 | --- | --- | --- |
-| Assinaturas, namespaces, unidades e responsáveis desta revisão | Todas | Revisar antes de congelar; registrar data e participantes reais |
-| Aprovação de `Movable`, `Collidable`, `Damageable` | A/B/C | Opcionais na A1; nenhuma interface adicionada ao código |
+| Assinaturas, namespaces, unidades e responsáveis desta revisão | Todas | Ratificados em 09/10/2026; substituir os marcadores B/C/D quando os nomes completos forem informados |
+| Aprovação de `Movable`, `Collidable`, `Damageable` | A/B/C | Assinaturas aprovadas; nenhuma interface adicionada ao código na A1 |
 | Controle inicial, direção inicial e política de olhar | A/D | Teclado ou mouse permitido; não escolher hardware aqui |
 | Bases de velocidade do jogador, raio de coleta e limites de mapa | A/B/C | Dados ausentes; não inventar números |
 | Efeito da pausa em cooldowns e tempo de sobrevivência | A/B/D | Sugestão: congelar tempo de simulação; RF14 exige interromper a ação, mas não define essa política de relógio |
@@ -642,11 +655,12 @@ integrantes ou aprovação de contratos. Nenhuma frente é representada por Code
 - [x] Assinaturas existentes conferidas com o código.
 - [x] Propostas de interfaces, dados, eventos e esquema de armas documentadas.
 - [x] Unidades, responsabilidades, dependências e dúvidas identificadas.
-- [ ] Reunião com B, C e D realizada e participantes registrados.
-- [ ] Assinaturas e políticas ratificadas por humanos; data de congelamento registrada.
+- [x] Aprovação das quatro frentes confirmada por humano e participantes informados registrados.
+- [x] Assinaturas, unidades, responsabilidades e políticas definidas ratificadas; data de congelamento registrada.
 
-A preparação documental está pronta para revisão. O aceite que depende da reunião continua
-pendente; não começar A2 nesta execução nem considerar esta revisão uma aprovação da equipe.
+**Critério de aceite da A1 concluído:** data, quatro participantes informados, assinaturas e
+aprovação humana registrados. A2 está liberada. Isso não resolve os valores ou decisões
+explicitamente indefinidos nem antecipa implementação de outras entregas.
 
 ---
 
@@ -655,3 +669,4 @@ pendente; não começar A2 nesta execução nem considerar esta revisão uma apr
 | Data | Contrato | O que mudou | Quem aprovou |
 | --- | --- | --- | --- |
 | 09/10/2026 | A1 — §§1–4, 7–9 | APIs existentes registradas; contratos e regras de integração propostos, sem implementar sistemas ou mudar JSON | Pendente de confirmação humana; revisão preparada por Codex |
+| 09/10/2026 | Ratificação da A1 — §§1–4, 7–9 | Assinaturas, unidades, responsabilidades e políticas definidas aprovadas; aceite da A1 concluído e A2 liberada; pendências explícitas preservadas | Thales (A), [NOME B] (B), [NOME C] (C), [NOME D] (D), conforme confirmação humana |

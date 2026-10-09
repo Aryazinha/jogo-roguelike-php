@@ -5,7 +5,7 @@
 | Responsável | Thales |
 | Escopo | Loop, entrada abstrata, movimentação, colisão, dano, armas e desempenho |
 | Duração de referência | 8 semanas do projeto |
-| Estado | Base do domínio concluída; documentação da A1 preparada para revisão; ratificação e sistemas de jogo pendentes |
+| Estado | Base do domínio e A1 concluídas; contratos ratificados em 09/10/2026; A2 liberada |
 
 Este plano transforma o escopo da Frente A em entregas verificáveis. Ele não altera o
 enunciado nem o plano geral: apenas organiza o trabalho de uma frente. Em caso de conflito,
@@ -90,25 +90,25 @@ de teste, e não implementar a responsabilidade da outra frente.
 - [x] testes unitários dessas classes;
 - [x] configuração de PHPUnit, PHPStan e Pint;
 - [x] documentação inicial em `docs/FRONTE_A.md`;
+- [x] A1 ratificada em 09/10/2026 pelas quatro frentes, conforme confirmação humana;
 - [x] `composer check` verde: 20 testes e 49 asserções.
 
-### Bloqueios atuais
+### Contratos confirmados na A1
 
-A revisão documental de 09/10/2026 preencheu as propostas da A1 em
-[CONTRATOS.md](CONTRATOS.md), incluindo assinaturas existentes, unidades, dados e
-responsabilidades. A reunião com B, C e D ainda não foi registrada; todos os acordos abaixo
-continuam pendentes de confirmação humana. Nenhum sistema de A2 a A10 foi implementado
-nessa revisão.
+A aprovação em 09/10/2026 foi informada por humano e registrada em
+[CONTRATOS.md](CONTRATOS.md): Thales (A), [NOME B] (B), [NOME C] (C), [NOME D] (D).
+Os nomes completos B/C/D continuam pendentes; os marcadores foram mantidos literalmente.
 
-- [ ] `docs/CONTRATOS.md` ainda não está congelado;
-- [ ] `InputInterface` precisa ser acordada com a Frente D;
-- [ ] `TargetingStrategy` e `StatModifier` precisam ser acordados com a Frente B;
-- [ ] eventos de combate e `EventBus` precisam de responsáveis definidos;
-- [ ] `WorldView` precisa ser acordada com a Frente C;
-- [ ] formato e validação de `config/weapons.json` precisam ser confirmados.
+- [x] assinaturas e unidades definidas da A1 congeladas;
+- [x] `InputInterface` acordada com a Frente D;
+- [x] `TargetingStrategy` e `StatModifier` acordados com a Frente B;
+- [x] eventos de combate e responsabilidades do `EventBus` definidos;
+- [x] `WorldView` acordada com a Frente C;
+- [x] formato e regras definidas de validação de `config/weapons.json` aprovados.
 
-Nenhuma frente deve acoplar código novo às assinaturas atuais antes de esses contratos serem
-ratificados.
+**Aceite da A1 concluído; A2 liberada.** A aprovação não resolve os pontos explicitamente
+indefinidos em `CONTRATOS.md` §9. As APIs documentadas ainda precisam ser implementadas nas
+respectivas entregas.
 
 ### Decisões de implementação ainda necessárias
 
@@ -160,8 +160,8 @@ de outra frente atrasar, sem retirar requisito obrigatório.
 | 7 | Upgrades, evoluções, pool e simulação | RF19, RF37, RNF03, RNF06 | Modificadores aplicados e simulação sem janela executável |
 | 8 | Integração, desempenho e regressão | Todos acima | Sistemas integrados, metas medidas e suíte final verde |
 
-Como a base do domínio já foi concluída, a primeira ação é revisar e ratificar as propostas
-da A1 com a equipe. Depois da confirmação humana, o trabalho poderá seguir para a semana 2.
+Com a base do domínio e a A1 concluídas, o próximo trabalho autorizado é A2, o loop de tempo
+fixo. Movimento e as demais entregas permanecem separados.
 
 ---
 
@@ -185,6 +185,8 @@ da A1 com a equipe. Depois da confirmação humana, o trabalho poderá seguir pa
 **Dependências:** reunião com B, C e D.
 
 **Critério de aceite:** `docs/CONTRATOS.md` preenchido com data, participantes e assinaturas.
+
+**Estado:** concluída; ratificação humana das quatro frentes registrada em 09/10/2026.
 
 **Branch sugerida:** `frente-a/contratos-do-dominio`.
 
@@ -483,14 +485,12 @@ Antes de integrar:
 
 ## 12. Próxima ação
 
-1. Revisar as propostas das seções 1, 2, 3, 4, 7 e 8 de `docs/CONTRATOS.md`; confirmar as
-   pendências da seção 9 e registrar a ratificação em reunião, com data e participantes.
-2. Registrar Thales como responsável pela Frente A no `README.md` quando a equipe confirmar.
-3. Implementar A2 — loop de tempo fixo.
-4. Implementar A3 — movimentação do jogador.
+1. Implementar somente A2 — loop de tempo fixo, após integrar o registro de ratificação.
+2. Preservar as pendências explícitas de `docs/CONTRATOS.md` §9 nas entregas futuras.
+3. Substituir os marcadores B/C/D no registro da equipe quando os nomes forem informados.
 
 Não começar armas antes de movimento, colisão e dano estarem estáveis: armas dependem dos
 três sistemas e implementá-las antes aumenta o retrabalho.
 
-A execução documental da A1 termina antes dos itens 2 a 4. A preparação dos contratos não
-autoriza marcar acordos como aprovados nem iniciar A2 automaticamente.
+A1 foi aprovada por humanos. A execução seguinte está limitada à A2; não iniciar A3 após
+sua integração.
