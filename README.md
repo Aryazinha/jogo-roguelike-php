@@ -152,15 +152,15 @@ e o merge continua sendo no GitHub, com revisão de outra frente.
 
 ## Equipe
 
-**Quem fica com qual frente ainda será decidido.** As quatro divisões abaixo já estão
-definidas; falta combinar os nomes.
+Distribuição confirmada na ratificação da A1 em 09/10/2026. Os marcadores B/C/D reproduzem
+os nomes informados na confirmação; seus nomes completos ainda precisam ser fornecidos.
 
 | Frente | Responsabilidade | Integrante |
 | --- | --- | --- |
-| A — Núcleo e combate | Loop, entrada, movimentação, colisão, dano, armas | *a definir* |
-| B — Progressão e dados | XP, níveis, upgrades, personagens, pontuação, ranking | *a definir* |
-| C — Conteúdo e dificuldade | Inimigos, boss, ondas, baús, eventos | *a definir* |
-| D — Apresentação | Renderização, menus, HUD, áudio, feedback | *a definir* |
+| A — Núcleo e combate | Loop, entrada, movimentação, colisão, dano, armas | Thales |
+| B — Progressão e dados | XP, níveis, upgrades, personagens, pontuação, ranking | [NOME B] |
+| C — Conteúdo e dificuldade | Inimigos, boss, ondas, baús, eventos | [NOME C] |
+| D — Apresentação | Renderização, menus, HUD, áudio, feedback | [NOME D] |
 
 A frente define responsabilidade, não propriedade: qualquer um pode mexer em qualquer parte,
 desde que abra PR e a revisão venha de outra frente.

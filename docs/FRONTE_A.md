@@ -3,11 +3,11 @@
 > O cronograma completo, as responsabilidades e os critérios de aceite estão em
 > [PLANO_FRENTE_A.md](PLANO_FRENTE_A.md).
 
-Este documento explica a base já implementada da Frente A e a preparação documental da A1.
+Este documento explica a base já implementada da Frente A e os contratos ratificados da A1.
 A base fornece os objetos fundamentais usados por movimento, colisão, dano e armas, sem
 depender de Raylib, FFI ou entrada e saída.
 
-## Entrega A1 — contratos preparados para revisão
+## Entrega A1 — concluída e ratificada
 
 Em 09/10/2026, [CONTRATOS.md](CONTRATOS.md) foi revisado para registrar as assinaturas reais
 de `Entity`, `Vector2`, `Health` e `Cooldown` e propor os contratos que ainda não têm código:
@@ -19,13 +19,13 @@ de `Entity`, `Vector2`, `Health` e `Cooldown` e propor os contratos que ainda n�
 - `WorldView` com cópias imutáveis de leitura, em integração com C;
 - estrutura de `weapons.json`, unidades, validação e referências usadas por B/A.
 
-Essa revisão distingue código existente de propostas e registra as responsabilidades e
-decisões pendentes. Não altera `src/`, testes, configuração ou funcionalidades de B, C e D.
-Não implementa A2 a A10 nem declara ratificação pela equipe.
+As quatro frentes aprovaram as assinaturas, unidades, responsabilidades e políticas definidas
+em 09/10/2026, conforme confirmação humana: Thales (A), [NOME B] (B), [NOME C] (C) e [NOME D]
+(D). Os marcadores foram preservados como informados; os nomes completos B/C/D estão pendentes.
 
-**Pendência de aceite:** reunir A/B/C/D e registrar participantes, data e assinaturas
-efetivamente aprovadas em `CONTRATOS.md` §9 e no histórico. A data da revisão documental não
-é uma data de aprovação. As propostas novas não devem ser tratadas como APIs disponíveis.
+**Aceite da A1 concluído; A2 liberada.** A ratificação está registrada em `CONTRATOS.md` §9
+e no histórico. Os pontos explicitamente indefinidos continuam pendentes. A ratificação é
+documental: não cria APIs no autoload nem implementa A2 a A10.
 
 ## Organização
 
@@ -118,6 +118,5 @@ composer stan
 composer fmt:check
 ```
 
-Antes de outras frentes dependerem dessas assinaturas, a equipe deve confirmar os contratos
-em `docs/CONTRATOS.md`. A revisão da A1 registra a base existente, mas mantém essa confirmação
-pendente. Para validar a base sem modificar sua formatação, execute `composer check`.
+Os contratos da A1 estão ratificados em `docs/CONTRATOS.md`; consultar suas ressalvas antes de
+integrar cada sistema. Para validar a base sem modificar sua formatação, execute `composer check`.
