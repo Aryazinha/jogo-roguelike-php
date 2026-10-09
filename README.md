@@ -8,9 +8,9 @@ surgem no mapa.
 Trabalho da disciplina de Paradigmas de Programação — 2026.2. Escrito **exclusivamente em
 PHP**.
 
-> **Estado atual do repositório: documentação e configuração.** Ainda não há código do jogo.
-> O `jogo.php` e a pasta `src/` aparecem a partir da semana 1, depois do spike técnico
-> descrito em [docs/AMBIENTE.md](docs/AMBIENTE.md).
+> **Estado atual do repositório: implementação iniciada.** O domínio já contém os objetos
+> fundamentais de posição, vida, cooldown e entidade, acompanhados por testes unitários.
+> O jogo executável e a integração com o Raylib ainda serão construídos nas próximas etapas.
 
 ---
 
@@ -80,9 +80,12 @@ database/migrations/  esquema do banco, versionado em SQL
 docs/                 plano, ambiente, contratos, guia de Git e enunciado
   docs/enunciado/     o documento do professor — fonte da verdade
   docs/historico/     versões superadas, guardadas só para consulta
-src/                  código do jogo (a criar)
-tests/                testes (a criar)
+src/                  código do jogo; o domínio fundamental já está implementado
+tests/                testes unitários e, futuramente, integração e simulação
 ```
+
+A primeira entrega da Frente A está explicada em
+[docs/FRONTE_A.md](docs/FRONTE_A.md), incluindo exemplos de uso e as invariantes adotadas.
 
 ### O que não entra no Git, e por quê
 
