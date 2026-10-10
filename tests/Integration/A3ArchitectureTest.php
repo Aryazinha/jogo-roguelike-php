@@ -15,8 +15,8 @@ final class A3ArchitectureTest extends TestCase
     public function test_domain_and_abstract_input_have_no_graphics_or_io_dependencies(): void
     {
         $root = dirname(__DIR__, 2);
-        // Adaptadores concretos futuros da D podem usar o binding; esta regra protege a A3.
-        $files = [$root.'/src/Core/GameLoop.php', $root.'/src/Infrastructure/Input/InputInterface.php',
+        // Adaptadores concretos futuros da D podem usar o binding; os serviços da A permanecem puros.
+        $files = [$root.'/src/Core/GameLoop.php', $root.'/src/Core/EventBus.php', $root.'/src/Infrastructure/Input/InputInterface.php',
             $root.'/src/Infrastructure/Input/ScriptedInput.php'];
         $iterator = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($root.'/src/Domain', FilesystemIterator::SKIP_DOTS),

@@ -2,7 +2,8 @@
 
 A A4 fornece geometria e consultas genéricas para a base de RF08/RF38 e RNF06.
 Não aplica dano, gera eventos, coleta itens, implementa conteúdo ou desenha a grade.
-A5 permanece não iniciada.
+A aplicação genérica de dano da A5 está em [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md),
+como sistema separado; A6 permanece não iniciada.
 
 **Estado:** A4 concluída, com 63 novos cenários de teste. A suíte completa passou com
 181 testes e 6.161 asserções; Pint, PHPStan nível 9 e `git diff --check` passaram.
@@ -45,8 +46,8 @@ com o mesmo ID, que representam a mesma identidade lógica. Não altera os objet
 é a primitiva estática, sem identidade ou atividade. Rejeita raios negativos ou não finitos;
 coordenadas continuam validadas por `Vector2`.
 
-Interseção não implica dano, morte, empurrão, coleta ou bloqueio de movimento. A5 definirá
-o consumo das colisões pelo dano; frequência de contato, invulnerabilidade, consumo de
+Interseção não implica dano, morte, empurrão, coleta ou bloqueio de movimento. A5 recebe
+ataques resolvidos para aplicar dano; frequência de contato, invulnerabilidade, consumo de
 projéteis e demais consequências continuam pendentes. Não foram ratificadas nesta execução.
 
 ## Como funciona a grade
@@ -174,7 +175,7 @@ Em cada passo fixo, a composição aplica movimento, reconstrói o índice e ent
 $movement->update($entity, $facing, $inputState, $speed, $dt, $entity->isActive());
 $grid->rebuild($activeWorldEntities);
 $contacts = $grid->queryRadius($entity->position(), $entity->collisionRadius(), $entity->id());
-// A5 futuramente consumirá os contatos; A4 não aplica consequências.
+// A composição pode fornecer dano resolvido à A5; A4 não aplica consequências.
 ```
 
 Se o quadro tiver vários passos, reconstruir depois do movimento de cada passo evita
