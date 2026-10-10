@@ -27,7 +27,7 @@ do professor. A aprovação não resolve pontos explicitamente indefinidos nem i
 | Marca | Significado |
 | --- | --- |
 | Existente | Assinatura e comportamento conferidos em `src/`, incluídos na ratificação da A1 |
-| Proposta A1 | Origem da especificação: contrato agora ratificado, ainda sem implementação, ressalvadas as pendências explícitas |
+| Proposta A1 | Origem da especificação: contrato agora ratificado; implementação conforme a entrega indicada, ressalvadas as pendências explícitas |
 | Pendente fora de A1 | Responsabilidade de outra entrega ou frente; não definida nesta revisão |
 
 ## Regras
@@ -119,6 +119,11 @@ omitindo os corpos de validação; não são implementações prontas.
 A declara a necessidade do estado; D fornece a entrada concreta; uma entrada programada
 poderá usar a mesma API nos testes futuros. Nenhuma delas é implementada na A1.
 
+**Implementação na A3 (10/10/2026):** `InputState`, `InputInterface` e `ScriptedInput`
+estão disponíveis nos namespaces acima, com as assinaturas ratificadas preservadas.
+`Facing` exige um olhar inicial explícito; isso não escolhe a direção real nem a política
+de controle da D. [MOVIMENTACAO.md](MOVIMENTACAO.md) descreve validações e composição.
+
 ---
 
 ## 2. Entidade base e value objects
@@ -186,8 +191,9 @@ de sincronização dessas instâncias é pendente A/B (§9).
 
 ### 2.3 Capacidades pequenas — assinaturas aprovadas na A1
 
-Proposta de namespace: `Jogo\Domain\Entity`. Ainda não existem arquivos dessas interfaces,
-e `Entity` ainda não declara `implements`.
+Namespace ratificado: `Jogo\Domain\Entity`. Na A3, `Movable` foi implementada e `Entity`
+passou a declarar `implements Movable`, sem mudar seus métodos. `Collidable` e `Damageable`
+continuam sem implementação; não são antecipadas por esta entrega.
 
 ```php
 interface Movable
@@ -670,3 +676,4 @@ explicitamente indefinidos nem antecipa implementação de outras entregas.
 | --- | --- | --- | --- |
 | 09/10/2026 | A1 — §§1–4, 7–9 | APIs existentes registradas; contratos e regras de integração propostos, sem implementar sistemas ou mudar JSON | Pendente de confirmação humana; revisão preparada por Codex |
 | 09/10/2026 | Ratificação da A1 — §§1–4, 7–9 | Assinaturas, unidades, responsabilidades e políticas definidas aprovadas; aceite da A1 concluído e A2 liberada; pendências explícitas preservadas | Thales (A), [NOME B] (B), [NOME C] (C), [NOME D] (D), conforme confirmação humana |
+| 10/10/2026 | Implementação A3 — §§1 e 2.3 | Implementados `InputState`, `InputInterface` e `Movable`, com entrada programada e movimento; assinaturas ratificadas e pendências preservadas | Registro técnico por Codex a pedido da Frente A; sem nova ratificação de contratos |

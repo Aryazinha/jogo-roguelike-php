@@ -7,6 +7,24 @@ Este documento explica a base já implementada da Frente A e os contratos ratifi
 A base fornece os objetos fundamentais usados por movimento, colisão, dano e armas, sem
 depender de Raylib, FFI ou entrada e saída.
 
+## Entrega A3 — concluída: movimentação por entrada abstrata
+
+`MovementSystem` recebe `Movable`, `InputState`, o componente `Facing`, velocidade externa
+em px/s, `dt` em segundos e atividade explícita. Limita a magnitude do movimento a 1,
+aplica velocidade × tempo e restringe a posição a `MapBounds` fornecido pelo chamador.
+O olhar inicial é explícito e `null` conserva o olhar anterior, inclusive em repouso.
+
+`Entity` passa a implementar a capacidade ratificada `Movable`, sem alterar seus métodos.
+Não foi necessário criar `Player` concreto. `InputInterface` conserva a assinatura da A1;
+`ScriptedInput` fornece roteiros de teste. D fornecerá a entrada real, B fornecerá a
+velocidade final, e a composição fornecerá os limites reais, sem definir esses valores aqui.
+
+[MOVIMENTACAO.md](MOVIMENTACAO.md) explica as APIs, decisões técnicas e ligação ao callback
+de atualização de `GameLoop`. Testes comparam o percurso completo em 30/60/144/240 FPS e
+quadros irregulares e verificam pausa, limites, olhar, atividade e isolamento do domínio.
+`composer check` passou com 118 testes e 3.526 asserções, Pint e PHPStan nível 9 sem erros;
+`git diff --check` passou. A4 permanece não iniciada.
+
 ## Entrega A2 — loop de tempo fixo
 
 `Jogo\Core\GameLoop` agenda atualizações de `1/60 s` com relógio injetável, acumulador,
@@ -18,7 +36,8 @@ O adaptador `MonotonicClock` usa o relógio monotônico do PHP; testes usam `Man
 espera real. [LOOP_FIXO.md](LOOP_FIXO.md) detalha API, unidades, política de atraso, sequência
 de integração futura e testes de determinismo em diferentes taxas de quadros.
 
-Esta entrega não implementa A3, entrada real, sistemas de B/C/D ou renderização concreta.
+A A2 fornece somente o agendamento; a composição com movimento da A3 está documentada em
+[MOVIMENTACAO.md](MOVIMENTACAO.md). Entrada real e apresentação continuam com D.
 
 ## Entrega A1 — concluída e ratificada
 

@@ -143,5 +143,6 @@ composer check
 git diff --check
 ```
 
-A2 termina nesta base testada. A3 não está implementada; valores do enunciado e configurações
-permanecem preservados.
+A2 termina nesta base testada. A composição com `MovementSystem` da A3 e seus testes está
+documentada em [MOVIMENTACAO.md](MOVIMENTACAO.md), sem alterar a API do loop. Valores do
+enunciado e configurações permanecem preservados; A4 não foi iniciada.
