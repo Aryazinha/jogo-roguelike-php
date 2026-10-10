@@ -5,7 +5,7 @@
 | Responsável | Thales |
 | Escopo | Loop, entrada abstrata, movimentação, colisão, dano, armas e desempenho |
 | Duração de referência | 8 semanas do projeto |
-| Estado | Base do domínio e A1–A3 concluídas; A4 não iniciada |
+| Estado | Base do domínio e A1–A4 concluídas; A5 não iniciada |
 
 Este plano transforma o escopo da Frente A em entregas verificáveis. Ele não altera o
 enunciado nem o plano geral: apenas organiza o trabalho de uma frente. Em caso de conflito,
@@ -96,6 +96,9 @@ de teste, e não implementar a responsabilidade da outra frente.
 - [x] A3: entrada abstrata, `Movable`, olhar explícito e movimento com limites configuráveis;
 - [x] testes de movimento e integração com pausa e 30/60/144/240 FPS e quadros irregulares;
 - [x] documentação de composição e responsabilidades em `docs/MOVIMENTACAO.md`;
+- [x] A4: `Collidable`, colisão circular, grade de 64 px, consultas e métricas;
+- [x] cenário de 300 entidades com médias abaixo de 40 candidatos por entidade;
+- [x] geometria, integração e decisões técnicas em `docs/COLISAO_GRADE_ESPACIAL.md`;
 - [x] `composer check` verde na base e nas entregas integradas.
 
 ### Contratos confirmados na A1
@@ -165,8 +168,8 @@ de outra frente atrasar, sem retirar requisito obrigatório.
 | 7 | Upgrades, evoluções, pool e simulação | RF19, RF37, RNF03, RNF06 | Modificadores aplicados e simulação sem janela executável |
 | 8 | Integração, desempenho e regressão | Todos acima | Sistemas integrados, metas medidas e suíte final verde |
 
-Com a base e A1–A3 concluídas, as demais entregas permanecem separadas.
-A execução da A3 termina após sua integração; A4 exige uma próxima tarefa.
+Com a base e A1–A4 concluídas, as demais entregas permanecem separadas.
+A execução da A4 termina após sua integração; A5 exige uma próxima tarefa.
 
 ---
 
@@ -241,7 +244,8 @@ documentadas em [LOOP_FIXO.md](LOOP_FIXO.md). A composição com a A3 está em
 
 **Critério de aceite:** movimento diagonal não é mais rápido e o resultado independe do FPS.
 
-**Estado:** concluída; A4 não iniciada.
+**Estado:** concluída; integração com o índice da A4 documentada em
+[COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md).
 
 **Implementação:** `MovementSystem` usa `Movable`, `InputState` e `Facing`, com velocidade
 e atividade fornecidas por passo e `MapBounds` fornecido pelo chamador. `Entity` implementa
@@ -274,6 +278,24 @@ Velocidade e tamanho reais do mapa e política de olhar continuam pendentes da e
 
 **Critério de aceite:** consultas devolvem vizinhos corretos e ficam abaixo da meta de 40
 verificações por entidade no cenário de referência.
+
+**Estado:** concluída; A5 não iniciada.
+
+**Implementação:** `Collidable` materializada com as assinaturas da A1, `Entity` compatível,
+`CollisionSystem` para círculos e `SpatialHash` com células de 64 px. A grade registra o
+retângulo envolvente em múltiplas células, filtra inativos, rejeita IDs duplicados e devolve
+resultados sem repetição em ordem por ID, com métricas por consulta. A consulta por raio
+confirma interseção circular; o contrato por centros de `WorldView` permanece preservado.
+
+**Convenção geométrica:** tangência conta como interseção, sem ratificar consequências
+de gameplay ou implementar dano, eventos, resposta física ou conteúdo de B/C/D.
+
+**Verificação:** 300 entidades falsas numa malha reproduzível de 20 × 15, com médias de
+29,24 candidatos nas nove células e 13,1867 na consulta circular, máximos de 35 e 15.
+Testes adicionais comparam a grade a um oráculo independente e integram movimento seguido
+de reconstrução no passo fixo. Suíte completa: 181 testes e 6.161 asserções, Pint e PHPStan
+nível 9 sem erros; `git diff --check` passou. APIs, limitações numéricas e orçamento técnico
+configurável documentados em [COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md).
 
 **Branch sugerida:** `frente-a/colisao-grade-espacial`.
 
@@ -508,12 +530,12 @@ Antes de integrar:
 
 ## 12. Próxima ação
 
-1. Encerrar a execução após integrar e sincronizar a A3; não iniciar A4 automaticamente.
+1. Encerrar a execução após integrar e sincronizar a A4; não iniciar A5 automaticamente.
 2. Preservar as pendências explícitas de `docs/CONTRATOS.md` §9 nas entregas futuras.
 3. Substituir os marcadores B/C/D no registro da equipe quando os nomes forem informados.
 
 Não começar armas antes de movimento, colisão e dano estarem estáveis: armas dependem dos
 três sistemas e implementá-las antes aumenta o retrabalho.
 
-A1 foi aprovada por humanos. A2 e A3 foram implementadas nas suas execuções autorizadas.
-Esta execução está limitada à A3; não iniciar A4 após sua integração.
+A1 foi aprovada por humanos. A2, A3 e A4 foram implementadas nas suas execuções autorizadas.
+Esta execução está limitada à A4; não iniciar A5 após sua integração.

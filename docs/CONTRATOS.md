@@ -192,8 +192,9 @@ de sincronização dessas instâncias é pendente A/B (§9).
 ### 2.3 Capacidades pequenas — assinaturas aprovadas na A1
 
 Namespace ratificado: `Jogo\Domain\Entity`. Na A3, `Movable` foi implementada e `Entity`
-passou a declarar `implements Movable`, sem mudar seus métodos. `Collidable` e `Damageable`
-continuam sem implementação; não são antecipadas por esta entrega.
+passou a declarar `implements Movable`, sem mudar seus métodos. Na A4, `Collidable` foi
+implementada e `Entity` passou a implementar também essa capacidade, preservando suas APIs.
+`Damageable` continua sem implementação; não é antecipada pela A4.
 
 ```php
 interface Movable
@@ -223,6 +224,22 @@ oferece a vida por composição apenas a quem pode receber dano; não exige que 
 baú ou projétil tenha HP. A aplica dano e elimina entidades; B controla cura e regeneração;
 C fornece as entidades de conteúdo. Esses escritores devem coordenar a ordem das operações.
 D e estratégias recebem cópias de leitura (§8), nunca `Damageable` nem `Health` mutável.
+
+### 2.4 Geometria e índice — decisões técnicas da A4
+
+`CollisionSystem` confirma círculos usando posição e soma dos raios, ignora inativos e
+pares com o mesmo ID. Tangência exata conta como **interseção geométrica**, conforme o
+pedido da A4; isso não ratifica consequências de dano, coleta ou bloqueio. A5 não foi iniciada.
+
+`SpatialHash` usa células padrão de 64 px e registra o retângulo envolvente em múltiplas
+células. Consultas excluem inativos e duplicados e têm ordem lexicográfica por ID. IDs
+duplicados na inserção/reconstrução são rejeitados, sem substituição silenciosa. O resultado
+carrega candidatos examinados, quantidade devolvida e células visitadas.
+
+`queryRadius()` confirma interseções entre círculos, incluindo bordas; não substitui a
+semântica por centros de `WorldView::neighbors()` (§8). A futura visão ainda precisa filtrar
+centros e gerar cópias imutáveis. APIs, validações e orçamento técnico configurável da grade
+estão em [COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md), sem novos valores de gameplay.
 
 ---
 
@@ -603,7 +620,8 @@ A fornece a visão e o índice espacial futuramente; C fornece identidade, posi�
 categoria e estado de vida de seu conteúdo. A geração de cópias deve refletir o estado no
 momento da consulta; não conservar visões antigas entre atualizações para executar ataques.
 A grade é detalhe da implementação: a consulta por raio não pode ficar limitada a nove
-células se o raio alcançar mais células. Isso será verificado na A4, sem implementá-la agora.
+células se o raio alcançar mais células. A4 fornece esse índice e testa raios maiores;
+`WorldView` e as cópias `EntityView` continuam para a integração futura.
 
 ### Uso por comportamento — somente assinatura de integração proposta
 
@@ -630,7 +648,7 @@ confirmação humana recebida. A implementação permanece nas entregas indicada
 
 | Contrato | Quem fornece / mantém | Frentes envolvidas | Dependência de implementação futura |
 | --- | --- | --- | --- |
-| Objetos base e capacidades | A; B/C compõem entidades | B, C, D | Assinaturas aprovadas; capacidades ainda não implementadas; preservar APIs existentes |
+| Objetos base e capacidades | A; B/C compõem entidades | B, C, D | `Movable` e `Collidable` implementadas; `Damageable` futura; APIs existentes preservadas |
 | `InputInterface` / `InputState` | A especifica dados; D implementa entrada; Application conecta | A, D | A2/A3; controle inicial e olhar |
 | `Stats` / `StatModifier` | B fornece base e efeitos; A resolve efeitos de combate | A, B | A6/A8; bases faltantes e sincronização |
 | `TargetingStrategy` | A | B, C | A7; alcance, ausência de alvo e RNG |
@@ -651,7 +669,7 @@ confirmação humana recebida. A implementação permanece nas entregas indicada
 | Upgrade de vida máxima | A/B | Máximo atual imutável; B deve acordar como trocar `Health` e preservar/ajustar vida atual |
 | Contato, invulnerabilidade, travessia de projéteis e pool cheio | A/C | Regras de execução pendentes; não fixadas pela A1 |
 | Sem alvo, alvo sobreposto, empate de mira e semente | A/B/C | Revisar propostas da §7.1, inclusive se o cooldown é consumido sem seleção |
-| Geometria de alcance e raio de colisão | A/C | Seleção por centro proposta; política de impacto e tangência ainda a confirmar |
+| Geometria de alcance e consequências dos contatos | A/C | A4 conta tangência como interseção geométrica; políticas de impacto/dano e seleção de armas continuam pendentes; visão por centros preservada |
 | Arredondamento de projéteis e resultados inválidos de modificadores | A/B | Política explícita antes de aceitar dados que produzam frações ou valores fora da faixa |
 | Ciclo de vida do barramento e ponto seguro para ações da C | Todas | Barramento por partida proposto; combinar aplicação de consequências sem alterar iteração de combate |
 | Payloads dos outros eventos, renderer, áudio, telas e persistência | B/C/D | Fora da A1; permanecem pendentes nas respectivas seções |
@@ -677,3 +695,4 @@ explicitamente indefinidos nem antecipa implementação de outras entregas.
 | 09/10/2026 | A1 — §§1–4, 7–9 | APIs existentes registradas; contratos e regras de integração propostos, sem implementar sistemas ou mudar JSON | Pendente de confirmação humana; revisão preparada por Codex |
 | 09/10/2026 | Ratificação da A1 — §§1–4, 7–9 | Assinaturas, unidades, responsabilidades e políticas definidas aprovadas; aceite da A1 concluído e A2 liberada; pendências explícitas preservadas | Thales (A), [NOME B] (B), [NOME C] (C), [NOME D] (D), conforme confirmação humana |
 | 10/10/2026 | Implementação A3 — §§1 e 2.3 | Implementados `InputState`, `InputInterface` e `Movable`, com entrada programada e movimento; assinaturas ratificadas e pendências preservadas | Registro técnico por Codex a pedido da Frente A; sem nova ratificação de contratos |
+| 10/10/2026 | Implementação A4 — §§2.3–2.4 e 8–9 | Materializada `Collidable`; colisão circular e grade com tangência geométrica, consultas, deduplicação e métricas; visão por centros e pendências de gameplay preservadas | Registro técnico por Codex conforme pedido da A4; sem ratificação de consequências de gameplay |

@@ -7,6 +7,24 @@ Este documento explica a base já implementada da Frente A e os contratos ratifi
 A base fornece os objetos fundamentais usados por movimento, colisão, dano e armas, sem
 depender de Raylib, FFI ou entrada e saída.
 
+## Entrega A4 — concluída: colisão circular e grade espacial
+
+`CollisionSystem` confirma interseções circulares, incluindo tangência, sem aplicar dano
+ou resposta física. `SpatialHash` indexa os círculos em células padrão de 64 px, incluindo
+suas bordas, e oferece consultas das nove células e por interseção com uma área circular.
+`Entity` implementa `Collidable` com seus métodos existentes. Inativos são ignorados, IDs
+duplicados são rejeitados e resultados têm ordem por ID, sem repetição.
+
+Cada consulta fornece candidatos únicos, quantidade devolvida e células visitadas.
+O cenário de 300 entidades falsas tem médias de 29,24 candidatos nas nove células e
+13,1867 na área circular; máximos de 35 e 15. Outra comparação usa um oráculo independente
+e a integração com A2/A3 reconstrói a grade depois do movimento de cada passo.
+
+[COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md) documenta APIs, geometria, orçamento
+técnico, responsabilidades, métricas e cenários. `composer check` passou com 181 testes,
+6.161 asserções, Pint e PHPStan nível 9 sem erros; `git diff --check` passou.
+A5 permanece não iniciada.
+
 ## Entrega A3 — concluída: movimentação por entrada abstrata
 
 `MovementSystem` recebe `Movable`, `InputState`, o componente `Facing`, velocidade externa
@@ -23,7 +41,7 @@ velocidade final, e a composição fornecerá os limites reais, sem definir esse
 de atualização de `GameLoop`. Testes comparam o percurso completo em 30/60/144/240 FPS e
 quadros irregulares e verificam pausa, limites, olhar, atividade e isolamento do domínio.
 `composer check` passou com 118 testes e 3.526 asserções, Pint e PHPStan nível 9 sem erros;
-`git diff --check` passou. A4 permanece não iniciada.
+`git diff --check` passou na integração da A3. A4 está descrita acima.
 
 ## Entrega A2 — loop de tempo fixo
 
