@@ -5,7 +5,7 @@
 | Responsável | Thales |
 | Escopo | Loop, entrada abstrata, movimentação, colisão, dano, armas e desempenho |
 | Duração de referência | 8 semanas do projeto |
-| Estado | Base do domínio, A1 e implementação da A2 concluídas; A3 não iniciada |
+| Estado | Base do domínio e A1–A3 concluídas; A4 não iniciada |
 
 Este plano transforma o escopo da Frente A em entregas verificáveis. Ele não altera o
 enunciado nem o plano geral: apenas organiza o trabalho de uma frente. Em caso de conflito,
@@ -93,6 +93,9 @@ de teste, e não implementar a responsabilidade da outra frente.
 - [x] A1 ratificada em 09/10/2026 pelas quatro frentes, conforme confirmação humana;
 - [x] A2: loop fixo, acumulador, limite de atraso, pausa e relógio injetável;
 - [x] testes de independência do FPS e documentação em `docs/LOOP_FIXO.md`;
+- [x] A3: entrada abstrata, `Movable`, olhar explícito e movimento com limites configuráveis;
+- [x] testes de movimento e integração com pausa e 30/60/144/240 FPS e quadros irregulares;
+- [x] documentação de composição e responsabilidades em `docs/MOVIMENTACAO.md`;
 - [x] `composer check` verde na base e nas entregas integradas.
 
 ### Contratos confirmados na A1
@@ -162,8 +165,8 @@ de outra frente atrasar, sem retirar requisito obrigatório.
 | 7 | Upgrades, evoluções, pool e simulação | RF19, RF37, RNF03, RNF06 | Modificadores aplicados e simulação sem janela executável |
 | 8 | Integração, desempenho e regressão | Todos acima | Sistemas integrados, metas medidas e suíte final verde |
 
-Com a base, A1 e A2 concluídas, movimento e as demais entregas permanecem separados.
-A execução da A2 termina após sua integração; A3 exige uma próxima tarefa.
+Com a base e A1–A3 concluídas, as demais entregas permanecem separadas.
+A execução da A3 termina após sua integração; A4 exige uma próxima tarefa.
 
 ---
 
@@ -214,7 +217,8 @@ quadros diferentes.
 
 **Implementação:** `src/Core/GameLoop.php`, `ClockInterface` e `MonotonicClock`, com testes
 de 30/60/144/240 FPS e quadros irregulares. API, decisões técnicas e ordem de atualização
-documentadas em [LOOP_FIXO.md](LOOP_FIXO.md). A3 não está implementada.
+documentadas em [LOOP_FIXO.md](LOOP_FIXO.md). A composição com a A3 está em
+[MOVIMENTACAO.md](MOVIMENTACAO.md).
 
 **Branch sugerida:** `frente-a/game-loop-fixo`.
 
@@ -236,6 +240,19 @@ documentadas em [LOOP_FIXO.md](LOOP_FIXO.md). A3 não está implementada.
 **Dependências:** `InputInterface` da A1; atributos do jogador fornecidos pela Frente B.
 
 **Critério de aceite:** movimento diagonal não é mais rápido e o resultado independe do FPS.
+
+**Estado:** concluída; A4 não iniciada.
+
+**Implementação:** `MovementSystem` usa `Movable`, `InputState` e `Facing`, com velocidade
+e atividade fornecidas por passo e `MapBounds` fornecido pelo chamador. `Entity` implementa
+`Movable` sem mudar seus métodos; `InputInterface` e `ScriptedInput` seguem a A1. Não foi
+necessário criar `Player` concreto, atributos, conteúdo ou entrada real de B/C/D.
+
+**Verificação:** percurso e olhar idênticos após 120 passos em 30/60/144/240 FPS e quadros
+irregulares; diagonal, limites, valores inválidos, inatividade e pausa testados. Suíte completa
+com 118 testes e 3.526 asserções; Pint, PHPStan nível 9 e `git diff --check` aprovados.
+API, unidades, decisões técnicas e integração documentadas em [MOVIMENTACAO.md](MOVIMENTACAO.md).
+Velocidade e tamanho reais do mapa e política de olhar continuam pendentes da equipe.
 
 **Branch sugerida:** `frente-a/movimentacao-jogador`.
 
@@ -491,12 +508,12 @@ Antes de integrar:
 
 ## 12. Próxima ação
 
-1. Encerrar a execução após integrar e sincronizar a A2; não iniciar A3 automaticamente.
+1. Encerrar a execução após integrar e sincronizar a A3; não iniciar A4 automaticamente.
 2. Preservar as pendências explícitas de `docs/CONTRATOS.md` §9 nas entregas futuras.
 3. Substituir os marcadores B/C/D no registro da equipe quando os nomes forem informados.
 
 Não começar armas antes de movimento, colisão e dano estarem estáveis: armas dependem dos
 três sistemas e implementá-las antes aumenta o retrabalho.
 
-A1 foi aprovada por humanos. A execução seguinte está limitada à A2; não iniciar A3 após
-sua integração.
+A1 foi aprovada por humanos. A2 e A3 foram implementadas nas suas execuções autorizadas.
+Esta execução está limitada à A3; não iniciar A4 após sua integração.
