@@ -7,6 +7,23 @@ Este documento explica a base já implementada da Frente A e os contratos ratifi
 A base fornece os objetos fundamentais usados por movimento, colisão, dano e armas, sem
 depender de Raylib, FFI ou entrada e saída.
 
+## Entrega A6 — concluída: armas e inventário de combate
+
+`WeaponDefinition` e `WeaponCatalog` são finais readonly. `Core/Config` lê, decodifica e
+valida as quatro definições existentes, com diagnóstico por arquivo/ID/campo e detecção
+de chaves duplicadas. `config/weapons.json` e seus metadados permanecem intactos.
+
+Cada `Weapon` cria seu próprio `Cooldown` e tenta automaticamente uma execução por update.
+O callback retorna aceitação: somente `true` inicia o cooldown. `CombatInventory` tem dois
+slots por padrão, consultas, adição e substituição com ordem determinística e IDs únicos.
+A soma compensada em `Cooldown` evita um passo extra por resíduos, sem mudar sua API.
+
+[ARMAS_INVENTARIO_COMBATE.md](ARMAS_INVENTARIO_COMBATE.md) documenta APIs e decisões.
+234 cenários adicionados; `composer check` passou com 542 testes e 7.590 asserções, Pint
+e PHPStan nível 9. Integração sem FFI: 21 testes e 2.686 asserções. Os testes comprovam
+independência dos cooldowns, pausa/retomada e sequências iguais em 30/60/120/144/240 FPS.
+Não há mira, arma concreta, dano de arma, progressão ou apresentação. A7 não iniciada.
+
 ## Entrega A5 — concluída: dano, morte e eventos
 
 `DamageSystem` recebe `Entity&Damageable` e `Damage` imutável, aplica o HP efetivo retornado
@@ -22,7 +39,7 @@ Erros de listeners são propagados; não há replay nem rollback, e golpe fatal 
 [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md) documenta APIs, ordem, validações, falhas e
 integração futura. Foram adicionados 127 cenários; `composer check` passou com 308 testes,
 6.559 asserções, Pint e PHPStan nível 9 sem erros; `git diff --check` passou.
-Nenhum consumidor B/C/D ou arma foi implementado. A6 permanece não iniciada.
+Na A5, nenhum consumidor B/C/D ou arma foi implementado. A6 está descrita acima.
 
 ## Entrega A4 — concluída: colisão circular e grade espacial
 

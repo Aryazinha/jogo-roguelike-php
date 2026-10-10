@@ -3,7 +3,8 @@
 A A4 fornece geometria e consultas genéricas para a base de RF08/RF38 e RNF06.
 Não aplica dano, gera eventos, coleta itens, implementa conteúdo ou desenha a grade.
 A aplicação genérica de dano da A5 está em [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md),
-como sistema separado; A6 permanece não iniciada.
+como sistema separado. A6 está em [ARMAS_INVENTARIO_COMBATE.md](ARMAS_INVENTARIO_COMBATE.md);
+A7 permanece não iniciada.
 
 **Estado:** A4 concluída, com 63 novos cenários de teste. A suíte completa passou com
 181 testes e 6.161 asserções; Pint, PHPStan nível 9 e `git diff --check` passaram.

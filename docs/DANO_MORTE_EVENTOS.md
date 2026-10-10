@@ -2,7 +2,7 @@
 
 A A5 materializa o dano genérico do RF08 e os quatro eventos de combate que dão suporte
 à integração do RNF05. Não implementa armas, inimigos, XP, drops ou feedback audiovisual.
-A6 permanece não iniciada.
+A6 está documentada em [ARMAS_INVENTARIO_COMBATE.md](ARMAS_INVENTARIO_COMBATE.md); A7 não iniciada.
 
 **Estado:** critérios locais da A5 comprovados com 127 novos cenários de teste.
 `composer check` passou com 308 testes e 6.559 asserções, Pint e PHPStan nível 9 sem erros.
@@ -168,7 +168,8 @@ if ($collision->intersects($attacker, $target)) {
 
 Tangência continua sendo interseção geométrica. A5 não define frequência de contato,
 invulnerabilidade, travessia/consumo de projétil, seleção de alvos ou resposta física.
-A6/A7 fornecerão armas e execução de ataques em suas próprias entregas, sem implementação aqui.
+A6 fornece o núcleo genérico de armas; A7 fornecerá a execução concreta dos ataques,
+sem implementação neste sistema de dano.
 
 - **B:** poderá consumir `EnemyKilled` para XP, contagem e pontuação; nada disso é calculado aqui.
 - **C:** fornecerá entidades `Entity&Damageable`, tipo e classificação de boss, além das

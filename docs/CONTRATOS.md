@@ -355,15 +355,16 @@ desativado. APIs e limitações estão em [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVE
 
 Isso não implementa consumidores B/C/D, outros eventos, armas, política de contato,
 invulnerabilidade ou fila de mudanças de mundo. As pendências explícitas continuam abertas;
-este registro não é uma nova ratificação humana e não inicia A6.
+este registro da A5 não é uma nova ratificação humana. A6 está registrada na §4.4.
 
 ---
 
 ## 4. Esquema dos arquivos de configuração
 
 Esta seção descreve a estrutura **existente** de `config/weapons.json` e propõe as regras de
-validação ratificadas por A e B com as demais frentes. Não cria loader, JSON Schema executável ou novos
-campos. A carga é I/O de `Core/Config` conforme o plano; o domínio recebe dados validados.
+validação ratificadas por A e B com as demais frentes. Na A1, não criou loader, JSON Schema
+executável ou novos campos. A6 materializa a carga em `Core/Config` (§4.4); o domínio recebe
+dados validados. O esquema e as pendências ratificados permanecem preservados.
 
 ### 4.1 Estrutura e campos obrigatórios propostos
 
@@ -436,6 +437,32 @@ como autorização para editar o JSON.
 
 As regras para outros arquivos só são especificadas aqui nos pontos de integração com A.
 Seus esquemas completos e a classe concreta de erro de carga continuam pendentes da equipe.
+
+### 4.4 Materialização na A6 — 10/10/2026
+
+`Jogo\Domain\Weapon\WeaponDefinition` e `WeaponCatalog` são finais readonly. Os campos
+ingleses preservam as unidades da §4.1; opcionais `null` representam ausência, sem valores
+fictícios. `Jogo\Core\Config\WeaponConfigLoader` lê/decodifica JSON e
+`WeaponDefinitionMapper` valida a estrutura e mapeia os quatro registros. Chaves duplicadas,
+inclusive IDs com escapes equivalentes, são rejeitadas antes do mapeamento. O arquivo e todos
+os valores/metadados permanecem intactos; não há validação cruzada de outros registros.
+
+Cada `Weapon` cria seu próprio `Cooldown`, começa pronta e recebe a porta
+`callable(WeaponDefinition): bool`: somente uma tentativa aceita inicia o cooldown.
+É permitida no máximo uma tentativa por update, sem ataques retroativos. A porta poderá
+capturar contexto de jogador/mundo na A7. Esse resultado não ratifica a política sem alvo.
+`Cooldown` conserva as assinaturas e usa soma compensada para evitar resíduos no passo fixo.
+
+`CombatInventory` tem capacidade padrão 2, slots contíguos em ordem de adição e atualização
+por snapshot. Rejeita IDs repetidos, inclusive substituição pelo mesmo ID; substituição
+válida mantém o slot e cria nova arma pronta. Slot válido vazio retorna `null` na consulta;
+slot inválido ou substituição de slot vazio falha explicitamente. B continuará decidindo
+aquisição/elegibilidade. A pausa é composta por ausência de passos em `GameLoop`.
+
+APIs, validações, exceções e decisões técnicas estão em
+[ARMAS_INVENTARIO_COMBATE.md](ARMAS_INVENTARIO_COMBATE.md). Este registro materializa A6,
+sem nova ratificação humana, `Stats`, modificadores, seleção de alvos ou armas concretas.
+A7 não iniciada; as políticas explícitas pendentes continuam abertas.
 
 ---
 
@@ -718,3 +745,4 @@ explicitamente indefinidos nem antecipa implementação de outras entregas.
 | 10/10/2026 | Implementação A3 — §§1 e 2.3 | Implementados `InputState`, `InputInterface` e `Movable`, com entrada programada e movimento; assinaturas ratificadas e pendências preservadas | Registro técnico por Codex a pedido da Frente A; sem nova ratificação de contratos |
 | 10/10/2026 | Implementação A4 — §§2.3–2.4 e 8–9 | Materializada `Collidable`; colisão circular e grade com tangência geométrica, consultas, deduplicação e métricas; visão por centros e pendências de gameplay preservadas | Registro técnico por Codex conforme pedido da A4; sem ratificação de consequências de gameplay |
 | 10/10/2026 | Implementação A5 — §§2.3 e 3 | Materializados `Damageable`, barramento e quatro eventos com assinaturas ratificadas; dano efetivo, desativação e morte única por ID; consumidores e políticas pendentes preservados | Registro técnico por Codex conforme pedido da A5; sem nova ratificação de contratos |
+| 10/10/2026 | Implementação A6 — §4.4 | Definições, carga validada, armas genéricas e inventário de dois slots com cooldowns independentes; JSON e políticas pendentes preservados; A7 não iniciada | Registro técnico por Codex conforme pedido da A6; sem nova ratificação de contratos |
