@@ -146,4 +146,5 @@ git diff --check
 A2 termina nesta base testada. A composição com `MovementSystem` da A3 e seus testes está
 documentada em [MOVIMENTACAO.md](MOVIMENTACAO.md), sem alterar a API do loop. Valores do
 enunciado e configurações permanecem preservados. A4 documenta a reconstrução após movimento
-em [COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md); A5 não foi iniciada.
+em [COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md). A5 aplica dano e eventos com tempo
+de simulação recebido do loop; veja [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md). A6 não iniciada.

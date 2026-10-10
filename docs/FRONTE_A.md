@@ -7,6 +7,23 @@ Este documento explica a base já implementada da Frente A e os contratos ratifi
 A base fornece os objetos fundamentais usados por movimento, colisão, dano e armas, sem
 depender de Raylib, FFI ou entrada e saída.
 
+## Entrega A5 — concluída: dano, morte e eventos
+
+`DamageSystem` recebe `Entity&Damageable` e `Damage` imutável, aplica o HP efetivo retornado
+por `Health::damage()` e publica `EnemyHit`/`PlayerDamaged` antes de desativar e publicar
+`EnemyKilled`/`PlayerDied`. O contrato de `Damageable` permanece inalterado. Um registro por
+ID impede mortes repetidas na partida, inclusive antes dos listeners do golpe fatal.
+
+`Core/EventBus` é síncrono, por classe exata e ordem de inscrição, sem estado global. Barramento
+e sistema são criados novamente em cada partida. Os quatro eventos são finais readonly,
+com posição e tempo de simulação em snapshots, origem opcional e classificação de boss externa.
+Erros de listeners são propagados; não há replay nem rollback, e golpe fatal ainda desativa.
+
+[DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md) documenta APIs, ordem, validações, falhas e
+integração futura. Foram adicionados 127 cenários; `composer check` passou com 308 testes,
+6.559 asserções, Pint e PHPStan nível 9 sem erros; `git diff --check` passou.
+Nenhum consumidor B/C/D ou arma foi implementado. A6 permanece não iniciada.
+
 ## Entrega A4 — concluída: colisão circular e grade espacial
 
 `CollisionSystem` confirma interseções circulares, incluindo tangência, sem aplicar dano
@@ -23,7 +40,7 @@ e a integração com A2/A3 reconstrói a grade depois do movimento de cada passo
 [COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md) documenta APIs, geometria, orçamento
 técnico, responsabilidades, métricas e cenários. `composer check` passou com 181 testes,
 6.161 asserções, Pint e PHPStan nível 9 sem erros; `git diff --check` passou.
-A5 permanece não iniciada.
+Esses resultados são da integração da A4; A5 está descrita acima.
 
 ## Entrega A3 — concluída: movimentação por entrada abstrata
 

@@ -5,7 +5,7 @@
 | Responsável | Thales |
 | Escopo | Loop, entrada abstrata, movimentação, colisão, dano, armas e desempenho |
 | Duração de referência | 8 semanas do projeto |
-| Estado | Base do domínio e A1–A4 concluídas; A5 não iniciada |
+| Estado | Base do domínio e A1–A5 concluídas; A6 não iniciada |
 
 Este plano transforma o escopo da Frente A em entregas verificáveis. Ele não altera o
 enunciado nem o plano geral: apenas organiza o trabalho de uma frente. Em caso de conflito,
@@ -99,6 +99,10 @@ de teste, e não implementar a responsabilidade da outra frente.
 - [x] A4: `Collidable`, colisão circular, grade de 64 px, consultas e métricas;
 - [x] cenário de 300 entidades com médias abaixo de 40 candidatos por entidade;
 - [x] geometria, integração e decisões técnicas em `docs/COLISAO_GRADE_ESPACIAL.md`;
+- [x] A5: `Damageable`, dano imutável, dano efetivo, desativação e morte única por ID;
+- [x] barramento síncrono por partida e quatro eventos de combate ratificados;
+- [x] testes de dano, eventos, isolamento, falhas de listeners e integração com A4/A2;
+- [x] APIs, limites e responsabilidades em `docs/DANO_MORTE_EVENTOS.md`;
 - [x] `composer check` verde na base e nas entregas integradas.
 
 ### Contratos confirmados na A1
@@ -319,6 +323,14 @@ os inimigos.
 
 **Critério de aceite:** dano e morte funcionam sem listeners e cada evento contém dados
 suficientes para as outras frentes.
+
+**Estado:** concluída. `DamageSystem` usa `Entity&Damageable` sem alterar a capacidade
+ratificada; `Damage` e os quatro eventos são finais readonly. Dano efetivo, overkill,
+desativação antes da morte, morte única por ID e publicação sem listeners foram comprovados.
+`EventBus` respeita classe exata, ordem e propagação de erros, com instâncias por partida.
+127 novos cenários; suíte com 308 testes e 6.559 asserções aprovada, Pint e PHPStan nível 9
+sem erros; `git diff --check` passou. [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md) documenta
+APIs e limitações. Nenhuma funcionalidade de B/C/D ou da A6 foi implementada; A6 não iniciada.
 
 **Branch sugerida:** `frente-a/dano-e-eventos`.
 

@@ -7,7 +7,8 @@ renderização. Teclado ou mouse concretos serão fornecidos pela Frente D.
 **Estado:** A3 concluída, com critérios verificados por `composer check` e `git diff --check`.
 Na integração da A3, a suíte completa passou com 118 testes e 3.526 asserções; 77 execuções
 foram acrescentadas, contando os cenários parametrizados. A A4 está documentada em
-[COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md); A5 permanece não iniciada.
+[COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md); a A5 está documentada separadamente
+em [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md), sem iniciar A6.
 
 ## Componentes e responsabilidades
 

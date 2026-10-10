@@ -194,7 +194,8 @@ de sincronização dessas instâncias é pendente A/B (§9).
 Namespace ratificado: `Jogo\Domain\Entity`. Na A3, `Movable` foi implementada e `Entity`
 passou a declarar `implements Movable`, sem mudar seus métodos. Na A4, `Collidable` foi
 implementada e `Entity` passou a implementar também essa capacidade, preservando suas APIs.
-`Damageable` continua sem implementação; não é antecipada pela A4.
+Na A5, `Damageable` foi implementada exatamente com a assinatura abaixo; o alvo de
+`DamageSystem` combina `Entity&Damageable` para desativar o mesmo objeto sem mudar o contrato.
 
 ```php
 interface Movable
@@ -229,7 +230,8 @@ D e estratégias recebem cópias de leitura (§8), nunca `Damageable` nem `Healt
 
 `CollisionSystem` confirma círculos usando posição e soma dos raios, ignora inativos e
 pares com o mesmo ID. Tangência exata conta como **interseção geométrica**, conforme o
-pedido da A4; isso não ratifica consequências de dano, coleta ou bloqueio. A5 não foi iniciada.
+pedido da A4; isso não ratifica consequências de contato, coleta ou bloqueio. A aplicação
+genérica de dano da A5 está descrita na §3.3, sem escolher políticas de impacto.
 
 `SpatialHash` usa células padrão de 64 px e registra o retângulo envolvente em múltiplas
 células. Consultas excluem inativos e duplicados e têm ordem lexicográfica por ID. IDs
@@ -253,12 +255,12 @@ neste documento, é uma sugestão da arquitetura, não um oitavo evento exigido 
 
 | Evento | Publicador proposto | Consumidores e finalidade | Estado nesta revisão |
 | --- | --- | --- | --- |
-| `PlayerDamaged` | A — dano aplicado | D — feedback; B — estatísticas | Payload proposto abaixo |
-| `EnemyHit` | A — dano aplicado | D — feedback | Payload proposto abaixo |
-| `EnemyKilled` | A — morte confirmada | B — XP e contagem; C — boss, baús e divisão de inimigos; D — feedback | Payload proposto abaixo |
+| `PlayerDamaged` | A — dano aplicado | D — feedback; B — estatísticas | Implementado na A5 com o payload ratificado |
+| `EnemyHit` | A — dano aplicado | D — feedback | Implementado na A5 com o payload ratificado |
+| `EnemyKilled` | A — morte confirmada | B — XP e contagem; C — boss, baús e divisão de inimigos; D — feedback | Implementado na A5 com o payload ratificado |
 | `LevelUp` | B — progressão | D — feedback e tela; Application — pausa | Payload pendente B/D, fora de A1 |
 | `ChestOpened` | C — baús, em integração com B | B — recompensa; D — feedback | Payload pendente B/C/D, fora de A1 |
-| `PlayerDied` | A — morte confirmada | B/Application — encerramento e resumo; D — feedback e tela | Payload proposto abaixo |
+| `PlayerDied` | A — morte confirmada | B/Application — encerramento e resumo; D — feedback e tela | Implementado na A5 com o payload ratificado |
 | `ItemPicked` | B/C — conforme o item, divisão a confirmar | B — efeito concedido; D — feedback | Payload pendente B/C/D, fora de A1 |
 | `WaveStarted` | C — ondas | D — indicação de onda | Payload e inclusão final pendentes da equipe |
 
@@ -335,6 +337,25 @@ B decide XP, bônus e pontuação a partir da morte e do tipo; A não sorteia XP
 contabiliza nível ou salva ranking. C decide as consequências de morte de conteúdo, incluindo
 boss e drops. A morte do boss não é `PlayerDied`: o fluxo de vitória e continuação segue
 `PLANO.md` §1.3. D escolhe som e efeito a partir dos dados; o combate não fornece IDs de assets.
+
+### 3.3 Materialização na A5 — 10/10/2026
+
+`Damageable`, `DomainEvent`, `EventBusInterface`, `Jogo\Core\EventBus` e os quatro eventos
+de combate estão implementados com as assinaturas ratificadas preservadas. `Damage` é a
+representação interna final readonly de quantidade e origem; `DamageSystem` recebe
+`Entity&Damageable`, usa o retorno de `Health::damage()` e publica dano antes da morte,
+desativando o alvo antes do evento de morte. Cada partida compartilha uma instância do
+barramento e do sistema, cujo registro reserva mortes por ID antes dos listeners.
+
+Eventos guardam snapshots de posição e tempo externos, sem entidades mutáveis. Tipo e
+classificação de boss vêm do chamador/C; não são inferidos. Publicação sem listeners funciona;
+despacho é síncrono por classe exata, em ordem de inscrição, com propagação de exceções.
+Falhas interrompem o despacho sem replay ou rollback; o alvo de um golpe fatal ainda é
+desativado. APIs e limitações estão em [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md).
+
+Isso não implementa consumidores B/C/D, outros eventos, armas, política de contato,
+invulnerabilidade ou fila de mudanças de mundo. As pendências explícitas continuam abertas;
+este registro não é uma nova ratificação humana e não inicia A6.
 
 ---
 
@@ -696,3 +717,4 @@ explicitamente indefinidos nem antecipa implementação de outras entregas.
 | 09/10/2026 | Ratificação da A1 — §§1–4, 7–9 | Assinaturas, unidades, responsabilidades e políticas definidas aprovadas; aceite da A1 concluído e A2 liberada; pendências explícitas preservadas | Thales (A), [NOME B] (B), [NOME C] (C), [NOME D] (D), conforme confirmação humana |
 | 10/10/2026 | Implementação A3 — §§1 e 2.3 | Implementados `InputState`, `InputInterface` e `Movable`, com entrada programada e movimento; assinaturas ratificadas e pendências preservadas | Registro técnico por Codex a pedido da Frente A; sem nova ratificação de contratos |
 | 10/10/2026 | Implementação A4 — §§2.3–2.4 e 8–9 | Materializada `Collidable`; colisão circular e grade com tangência geométrica, consultas, deduplicação e métricas; visão por centros e pendências de gameplay preservadas | Registro técnico por Codex conforme pedido da A4; sem ratificação de consequências de gameplay |
+| 10/10/2026 | Implementação A5 — §§2.3 e 3 | Materializados `Damageable`, barramento e quatro eventos com assinaturas ratificadas; dano efetivo, desativação e morte única por ID; consumidores e políticas pendentes preservados | Registro técnico por Codex conforme pedido da A5; sem nova ratificação de contratos |
