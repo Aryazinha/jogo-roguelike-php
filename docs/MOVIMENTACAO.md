@@ -8,7 +8,8 @@ renderização. Teclado ou mouse concretos serão fornecidos pela Frente D.
 Na integração da A3, a suíte completa passou com 118 testes e 3.526 asserções; 77 execuções
 foram acrescentadas, contando os cenários parametrizados. A A4 está documentada em
 [COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md); a A5 está documentada separadamente
-em [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md), sem iniciar A6.
+em [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md). A6 está em
+[ARMAS_INVENTARIO_COMBATE.md](ARMAS_INVENTARIO_COMBATE.md); A7 não iniciada.
 
 ## Componentes e responsabilidades
 

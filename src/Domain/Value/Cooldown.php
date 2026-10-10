@@ -16,6 +16,10 @@ final class Cooldown
 {
     private float $remainingSeconds = 0.0;
 
+    private float $elapsedSeconds = 0.0;
+
+    private float $timeCorrection = 0.0;
+
     public function __construct(private readonly float $durationSeconds)
     {
         if (! is_finite($durationSeconds) || $durationSeconds <= 0.0) {
@@ -50,6 +54,8 @@ final class Cooldown
         }
 
         $this->remainingSeconds = $this->durationSeconds;
+        $this->elapsedSeconds = 0.0;
+        $this->timeCorrection = 0.0;
 
         return true;
     }
@@ -63,7 +69,25 @@ final class Cooldown
             throw new InvalidArgumentException('O intervalo deve ser um número finito maior ou igual a zero.');
         }
 
-        $this->remainingSeconds = max(0.0, $this->remainingSeconds - $deltaSeconds);
+        if ($deltaSeconds === 0.0 || $this->isReady()) {
+            return;
+        }
+
+        if ($deltaSeconds >= $this->remainingSeconds) {
+            $this->remainingSeconds = 0.0;
+            $this->elapsedSeconds = $this->durationSeconds;
+            $this->timeCorrection = 0.0;
+
+            return;
+        }
+
+        // Soma compensada (Kahan): 120 passos de 1/60 s não deixam um resíduo após 2 s.
+        // Não usa tolerância absoluta que encurtaria cooldowns muito pequenos.
+        $adjusted = $deltaSeconds - $this->timeCorrection;
+        $next = $this->elapsedSeconds + $adjusted;
+        $this->timeCorrection = ($next - $this->elapsedSeconds) - $adjusted;
+        $this->elapsedSeconds = $next;
+        $this->remainingSeconds = max(0.0, $this->durationSeconds - $next);
     }
 
     /**
@@ -72,5 +96,7 @@ final class Cooldown
     public function reset(): void
     {
         $this->remainingSeconds = 0.0;
+        $this->elapsedSeconds = 0.0;
+        $this->timeCorrection = 0.0;
     }
 }

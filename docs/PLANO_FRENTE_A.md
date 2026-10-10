@@ -5,7 +5,7 @@
 | Responsável | Thales |
 | Escopo | Loop, entrada abstrata, movimentação, colisão, dano, armas e desempenho |
 | Duração de referência | 8 semanas do projeto |
-| Estado | Base do domínio e A1–A5 concluídas; A6 não iniciada |
+| Estado | Base do domínio e A1–A6 concluídas; A7 não iniciada |
 
 Este plano transforma o escopo da Frente A em entregas verificáveis. Ele não altera o
 enunciado nem o plano geral: apenas organiza o trabalho de uma frente. Em caso de conflito,
@@ -103,6 +103,10 @@ de teste, e não implementar a responsabilidade da outra frente.
 - [x] barramento síncrono por partida e quatro eventos de combate ratificados;
 - [x] testes de dano, eventos, isolamento, falhas de listeners e integração com A4/A2;
 - [x] APIs, limites e responsabilidades em `docs/DANO_MORTE_EVENTOS.md`;
+- [x] A6: definições imutáveis, carga validada das quatro armas e inventário padrão de dois slots;
+- [x] cooldown próprio, tentativa automática aceita/recusada e substituição sem estado compartilhado;
+- [x] testes de pausa/retomada e sequência de ataques em 30/60/120/144/240 FPS;
+- [x] APIs e decisões em `docs/ARMAS_INVENTARIO_COMBATE.md`, sem iniciar A7;
 - [x] `composer check` verde na base e nas entregas integradas.
 
 ### Contratos confirmados na A1
@@ -132,7 +136,7 @@ equipe, sem tratá-los como requisitos novos:
 - frequência do dano por contato e eventual intervalo de invulnerabilidade;
 - projétil consumido no primeiro impacto ou capaz de atravessar alvos;
 - uso de semente no sorteio de alvo da TNT;
-- integração da pausa com cooldowns e relógio da partida (A2 congela somente seus passos e tempo de simulação);
+- integração da pausa nas telas B/D e relógio da partida (A6 comprova cooldowns congelados quando A2 não executa passos);
 - estado do cooldown quando um upgrade altera sua duração;
 - comportamento quando o pool de projéteis estiver cheio.
 
@@ -330,7 +334,7 @@ desativação antes da morte, morte única por ID e publicação sem listeners f
 `EventBus` respeita classe exata, ordem e propagação de erros, com instâncias por partida.
 127 novos cenários; suíte com 308 testes e 6.559 asserções aprovada, Pint e PHPStan nível 9
 sem erros; `git diff --check` passou. [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md) documenta
-APIs e limitações. Nenhuma funcionalidade de B/C/D ou da A6 foi implementada; A6 não iniciada.
+APIs e limitações. Na A5, nenhuma funcionalidade de B/C/D ou da A6 foi implementada.
 
 **Branch sugerida:** `frente-a/dano-e-eventos`.
 
@@ -354,6 +358,15 @@ APIs e limitações. Nenhuma funcionalidade de B/C/D ou da A6 foi implementada; 
 **Integração:** B concede armas e upgrades; A mantém e executa o estado de combate.
 
 **Critério de aceite:** duas armas podem atualizar simultaneamente sem compartilhar cooldown.
+
+**Estado:** concluída. Definições finais readonly e catálogo imutável; carga em `Core/Config`
+valida os quatro registros sem alterar o JSON. Cada arma cria seu próprio cooldown, e uma
+porta mínima controla a aceitação da tentativa sem definir ausência de alvo. Inventário
+padrão de dois slots com regras explícitas para consulta, duplicação e substituição.
+234 novos cenários; suíte com 542 testes e 7.590 asserções, Pint e PHPStan nível 9 aprovados.
+Integração com FFI desabilitada: 21 testes e 2.686 asserções. Pausa e sequência de ataques
+iguais em cinco taxas de quadros comprovadas. Documentação e limites em
+[ARMAS_INVENTARIO_COMBATE.md](ARMAS_INVENTARIO_COMBATE.md). A7 não iniciada.
 
 **Branch sugerida:** `frente-a/armas-e-cooldowns`.
 

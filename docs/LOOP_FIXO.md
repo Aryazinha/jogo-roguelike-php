@@ -147,4 +147,6 @@ A2 termina nesta base testada. A composição com `MovementSystem` da A3 e seus 
 documentada em [MOVIMENTACAO.md](MOVIMENTACAO.md), sem alterar a API do loop. Valores do
 enunciado e configurações permanecem preservados. A4 documenta a reconstrução após movimento
 em [COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md). A5 aplica dano e eventos com tempo
-de simulação recebido do loop; veja [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md). A6 não iniciada.
+de simulação recebido do loop; veja [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md).
+A6 integra o inventário ao callback e comprova pausa dos cooldowns e ataques independentes
+do FPS em [ARMAS_INVENTARIO_COMBATE.md](ARMAS_INVENTARIO_COMBATE.md). A7 não iniciada.
