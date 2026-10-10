@@ -13,7 +13,7 @@ use Jogo\Domain\Value\Vector2;
  * Vida, comportamento e aparência não pertencem à entidade base: serão
  * adicionados por composição apenas às entidades que realmente precisarem.
  */
-abstract class Entity implements Movable
+abstract class Entity implements Collidable, Movable
 {
     private bool $active = true;
 

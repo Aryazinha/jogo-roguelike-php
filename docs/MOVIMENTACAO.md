@@ -5,8 +5,9 @@ O passo fixo da A2 permite atualizar essa lógica independentemente da frequênc
 renderização. Teclado ou mouse concretos serão fornecidos pela Frente D.
 
 **Estado:** A3 concluída, com critérios verificados por `composer check` e `git diff --check`.
-A suíte completa passa com 118 testes e 3.526 asserções; 77 execuções de teste foram
-acrescentadas nesta entrega, contando os cenários parametrizados. A4 permanece não iniciada.
+Na integração da A3, a suíte completa passou com 118 testes e 3.526 asserções; 77 execuções
+foram acrescentadas, contando os cenários parametrizados. A A4 está documentada em
+[COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md); A5 permanece não iniciada.
 
 ## Componentes e responsabilidades
 
@@ -103,7 +104,8 @@ Os limites se aplicam à posição de referência de `Movable`, sem interpretar 
 ou câmera. Quem compõe a partida fornece a posição inicial dentro do intervalo permitido
 e pode fornecer intervalos já ajustados para margens. Em repouso o sistema não reposiciona
 um alvo colocado fora do mapa. Movimento nas bordas conserva o componente permitido do
-deslocamento. Obstáculos e colisões entre entidades pertencem à A4 e não foram iniciados.
+deslocamento. A A4 fornece a detecção circular separada em
+[COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md), sem resposta física ou conteúdo de mapa.
 
 O contrato ratificado de `Movable` não inclui `isActive()`. Por isso, `update()` exige
 explicitamente o argumento `active`: o chamador obtém esse dado da entidade ou da sua
