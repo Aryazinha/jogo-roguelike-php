@@ -32,7 +32,8 @@ final class A3ArchitectureTest extends TestCase
 
         $violations = [];
         $ioFunctions = ['file_get_contents', 'file_put_contents', 'fopen', 'fwrite', 'readline',
-            'getenv', 'hrtime', 'microtime', 'sleep', 'usleep', 'curl_init', 'json_decode', 'json_encode'];
+            'getenv', 'hrtime', 'microtime', 'sleep', 'usleep', 'curl_init', 'json_decode', 'json_encode',
+            'time', 'rand', 'mt_rand', 'random_int', 'random_bytes'];
 
         foreach ($files as $file) {
             $source = file_get_contents($file);

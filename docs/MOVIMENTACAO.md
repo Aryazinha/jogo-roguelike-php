@@ -9,7 +9,8 @@ Na integração da A3, a suíte completa passou com 118 testes e 3.526 asserçõ
 foram acrescentadas, contando os cenários parametrizados. A A4 está documentada em
 [COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md); a A5 está documentada separadamente
 em [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md). A6 está em
-[ARMAS_INVENTARIO_COMBATE.md](ARMAS_INVENTARIO_COMBATE.md); A7 não iniciada.
+[ARMAS_INVENTARIO_COMBATE.md](ARMAS_INVENTARIO_COMBATE.md); A7 usa posição/olhar externos
+e documenta a composição após movimento em [MIRAS_ARMAS.md](MIRAS_ARMAS.md).
 
 ## Componentes e responsabilidades
 

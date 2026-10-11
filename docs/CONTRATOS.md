@@ -239,8 +239,8 @@ duplicados na inserção/reconstrução são rejeitados, sem substituição sile
 carrega candidatos examinados, quantidade devolvida e células visitadas.
 
 `queryRadius()` confirma interseções entre círculos, incluindo bordas; não substitui a
-semântica por centros de `WorldView::neighbors()` (§8). A futura visão ainda precisa filtrar
-centros e gerar cópias imutáveis. APIs, validações e orçamento técnico configurável da grade
+semântica por centros de `WorldView::neighbors()` (§8). A7 materializa essa filtragem e
+cópias imutáveis com `SpatialWorldView` (§7.3). APIs e orçamento técnico da grade
 estão em [COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md), sem novos valores de gameplay.
 
 ---
@@ -399,7 +399,8 @@ projétil nem criar valores fictícios para preencher esses campos.
 
 Alcance medido até o centro para seleção é sugestão; a inclusão do raio de colisão na
 detecção de impacto será acordada A/C. A unidade e a distinção entre alcance de seleção e
-raio de explosão estão ratificadas; a política de impacto continua pendente para a A7.
+raio de explosão estão ratificadas; decisões técnicas de impacto da A7 estão na §7.3,
+sem serem declaradas uma nova ratificação humana.
 
 ### 4.2 Procedência preservada
 
@@ -462,7 +463,7 @@ aquisição/elegibilidade. A pausa é composta por ausência de passos em `GameL
 APIs, validações, exceções e decisões técnicas estão em
 [ARMAS_INVENTARIO_COMBATE.md](ARMAS_INVENTARIO_COMBATE.md). Este registro materializa A6,
 sem nova ratificação humana, `Stats`, modificadores, seleção de alvos ou armas concretas.
-A7 não iniciada; as políticas explícitas pendentes continuam abertas.
+Na A6, A7 não foi iniciada. Sua materialização posterior está na §7.3.
 
 ---
 
@@ -550,7 +551,7 @@ Desempate de distância proposto: ID em ordem lexicográfica. Para TNT, ordenar 
 por ID e usar gerador semeado injetado na estratégia; não usar sorteio global oculto. O plano
 já prevê RNG semeado; a semente e a API concreta ainda precisam de acordo. A posição devolvida
 é uma cópia no instante da seleção; perseguir o alvo depois disso não está implícito no contrato.
-Seleção e execução das quatro armas só serão implementadas na A7.
+Seleção e execução das quatro armas estão materializadas na A7, conforme a §7.3.
 
 ### 7.2 Modificadores — proposta A1, confirmar com B
 
@@ -622,6 +623,36 @@ os efeitos de combate recebidos. A1 não implementa aplicação, inventário ou 
 
 ---
 
+### 7.3 Materialização na A7 — 10/10/2026
+
+`TargetingStrategy`, `TargetingContext`, `TargetingResult`, `WorldView` e `EntityView`
+estão implementados nos namespaces da A1, preservando as assinaturas e dados ratificados.
+`SpatialWorldView` usa a grade A4, filtra por centros, exclui inativos e retorna snapshots
+imutáveis ordenados e sem duplicação. `WorldEntityProvider` fornece os dados atuais; C
+continua responsável pelo conteúdo e metadados. Não foi implementada IA.
+
+`WeaponAttackSystem` é a porta invocável de A6. `AttackContextProvider` fornece posição/olhar;
+`EnemyTargetResolver` fornece separadamente `EnemyTarget` com `Entity&Damageable`, tipo e boss.
+`ProjectileCollisionView` consulta candidatos para impactos sem mudar `WorldView`.
+Somente `DamageSystem` aplica HP e publica os eventos já ratificados, com fonte/arma/tempo
+lógico preservados. APIs da A5/A6 não foram alteradas. A4 recebeu apenas a extensão
+`CollisionSystem::segmentCircleFirstHit()`, preservando seus métodos anteriores.
+
+Decisões técnicas da A7 solicitadas nesta tarefa: arco/TNT recusam sem alvo; espada/tocha
+aceitam geometria vazia. Alvo sobreposto usa olhar, empate usa ID, sorteio usa seed externa
+e estado privado. Espada, pulso e explosão usam centros com bordas inclusivas; projétil
+pontual usa segmento contra círculo e é consumido no primeiro impacto válido. Projéteis
+irmãos são paralelos, sem dispersão fictícia, com deduplicação compartilhada por ataque.
+TNT detona no snapshot, inclusive após morte do alvo original. Objetos novos avançam no
+próximo passo; atraso zero detona na criação. A pausa congela toda a simulação.
+
+São escolhas de implementação, **sem nova ratificação da equipe**. A seed da partida,
+conteúdo real, contato/invulnerabilidade, modificadores, pool e consequências B/C continuam
+nas respectivas entregas. [MIRAS_ARMAS.md](MIRAS_ARMAS.md) registra geometria, validações,
+ordem de eventos, falhas e integração. A8, A9 e A10 não iniciadas.
+
+---
+
 ## 8. BehaviorStrategy e WorldView
 
 O comportamento dos inimigos. A `WorldView` é **somente leitura**: a IA lê o mundo e devolve
@@ -664,12 +695,12 @@ possui. Não expor `Entity`, `Health`, setters, callbacks de mutação ou refer�
 internas. `EntityView` e seus vetores são imutáveis, de modo que C não altera o mundo por meio
 da consulta; entidades com vida zero não são alvos válidos mesmo antes da remoção.
 
-A fornece a visão e o índice espacial futuramente; C fornece identidade, posição, raio,
+A fornece a visão e o índice espacial na A7; C fornece identidade, posição, raio,
 categoria e estado de vida de seu conteúdo. A geração de cópias deve refletir o estado no
 momento da consulta; não conservar visões antigas entre atualizações para executar ataques.
 A grade é detalhe da implementação: a consulta por raio não pode ficar limitada a nove
 células se o raio alcançar mais células. A4 fornece esse índice e testa raios maiores;
-`WorldView` e as cópias `EntityView` continuam para a integração futura.
+`WorldView` e as cópias `EntityView` estão materializadas na A7; conteúdo real continua externo.
 
 ### Uso por comportamento — somente assinatura de integração proposta
 
@@ -696,12 +727,12 @@ confirmação humana recebida. A implementação permanece nas entregas indicada
 
 | Contrato | Quem fornece / mantém | Frentes envolvidas | Dependência de implementação futura |
 | --- | --- | --- | --- |
-| Objetos base e capacidades | A; B/C compõem entidades | B, C, D | `Movable` e `Collidable` implementadas; `Damageable` futura; APIs existentes preservadas |
+| Objetos base e capacidades | A; B/C compõem entidades | B, C, D | `Movable`, `Collidable` e `Damageable` implementadas; APIs existentes preservadas |
 | `InputInterface` / `InputState` | A especifica dados; D implementa entrada; Application conecta | A, D | A2/A3; controle inicial e olhar |
 | `Stats` / `StatModifier` | B fornece base e efeitos; A resolve efeitos de combate | A, B | A6/A8; bases faltantes e sincronização |
-| `TargetingStrategy` | A | B, C | A7; alcance, ausência de alvo e RNG |
+| `TargetingStrategy` | A | B, C | A7 implementada; dados atuais e seed fornecidos externamente |
 | Eventos / barramento | A propõe porta e barramento; cada frente mantém seus assinantes | A, B, C, D | A5 e integração; payloads fora de A1 continuam pendentes |
-| `WorldView` / `EntityView` | A fornece consultas; C fornece dados e estratégias | A, C | A4/A7; ciclo de vida e ações de conteúdo |
+| `WorldView` / `EntityView` | A fornece consultas; C fornece dados e estratégias | A, C | A4/A7 implementadas; integração do conteúdo real e ciclo de vida externos |
 | `weapons.json` / mapeamento | A especifica leitura de combate; B usa referências de upgrades | A, B, C, D | A6; validação e registros de conteúdo |
 
 ### Decisões a confirmar com a equipe
@@ -715,9 +746,9 @@ confirmação humana recebida. A implementação permanece nas entregas indicada
 | Efeito da pausa em cooldowns e tempo de sobrevivência | A/B/D | Sugestão: congelar tempo de simulação; RF14 exige interromper a ação, mas não define essa política de relógio |
 | Upgrade de duração de cooldown | A/B | Duração atual imutável; decidir como substituir preservando/recalculando tempo restante na A8 |
 | Upgrade de vida máxima | A/B | Máximo atual imutável; B deve acordar como trocar `Health` e preservar/ajustar vida atual |
-| Contato, invulnerabilidade, travessia de projéteis e pool cheio | A/C | Regras de execução pendentes; não fixadas pela A1 |
-| Sem alvo, alvo sobreposto, empate de mira e semente | A/B/C | Revisar propostas da §7.1, inclusive se o cooldown é consumido sem seleção |
-| Geometria de alcance e consequências dos contatos | A/C | A4 conta tangência como interseção geométrica; políticas de impacto/dano e seleção de armas continuam pendentes; visão por centros preservada |
+| Contato, invulnerabilidade e pool cheio | A/C | Pendentes; A7 consome projétil no primeiro impacto como decisão técnica (§7.3) |
+| Sem alvo, alvo sobreposto, empate de mira e semente | A/B/C | Decisões técnicas implementadas na A7 (§7.3), sem nova ratificação; seed real da partida externa |
+| Geometria de alcance e consequências dos contatos | A/C | Visão por centros preservada; A7 define suas geometrias/impactos como decisões técnicas; contato/invulnerabilidade permanecem pendentes |
 | Arredondamento de projéteis e resultados inválidos de modificadores | A/B | Política explícita antes de aceitar dados que produzam frações ou valores fora da faixa |
 | Ciclo de vida do barramento e ponto seguro para ações da C | Todas | Barramento por partida proposto; combinar aplicação de consequências sem alterar iteração de combate |
 | Payloads dos outros eventos, renderer, áudio, telas e persistência | B/C/D | Fora da A1; permanecem pendentes nas respectivas seções |
@@ -746,3 +777,4 @@ explicitamente indefinidos nem antecipa implementação de outras entregas.
 | 10/10/2026 | Implementação A4 — §§2.3–2.4 e 8–9 | Materializada `Collidable`; colisão circular e grade com tangência geométrica, consultas, deduplicação e métricas; visão por centros e pendências de gameplay preservadas | Registro técnico por Codex conforme pedido da A4; sem ratificação de consequências de gameplay |
 | 10/10/2026 | Implementação A5 — §§2.3 e 3 | Materializados `Damageable`, barramento e quatro eventos com assinaturas ratificadas; dano efetivo, desativação e morte única por ID; consumidores e políticas pendentes preservados | Registro técnico por Codex conforme pedido da A5; sem nova ratificação de contratos |
 | 10/10/2026 | Implementação A6 — §4.4 | Definições, carga validada, armas genéricas e inventário de dois slots com cooldowns independentes; JSON e políticas pendentes preservados; A7 não iniciada | Registro técnico por Codex conforme pedido da A6; sem nova ratificação de contratos |
+| 10/10/2026 | Implementação A7 — §§7.3 e 8–9 | Miras, visão espacial, seed injetada e quatro execuções integradas a A4/A5/A6; decisões técnicas de ausência de alvo, primeiro impacto e deduplicação; assinaturas e JSON preservados | Registro técnico por Codex conforme pedido da A7; sem nova ratificação humana |
