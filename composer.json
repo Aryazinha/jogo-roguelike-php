@@ -39,7 +39,7 @@
         "stan": "phpstan analyse",
         "fmt": "pint",
         "fmt:check": "pint --test",
-        "sim": "php tools/simulate.php",
+        "sim": "@php -d opcache.enable_cli=0 tools/simulate.php",
         "check": [
             "@fmt:check",
             "@stan",

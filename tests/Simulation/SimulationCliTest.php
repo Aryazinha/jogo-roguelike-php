@@ -53,7 +53,8 @@ final class SimulationCliTest extends TestCase
      */
     private static function execute(array $arguments): array
     {
-        $process = proc_open([PHP_BINARY, '-d', 'ffi.enable=false', dirname(__DIR__, 2).'/tools/simulate.php', ...$arguments],
+        // Isola a CLI do OPcache compartilhado pelo PHP no Windows.
+        $process = proc_open([PHP_BINARY, '-d', 'ffi.enable=false', '-d', 'opcache.enable_cli=0', dirname(__DIR__, 2).'/tools/simulate.php', ...$arguments],
             [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, dirname(__DIR__, 2));
         self::assertIsResource($process);
         fclose($pipes[0]);
