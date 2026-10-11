@@ -151,4 +151,6 @@ de simulação recebido do loop; veja [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS
 A6 integra o inventário ao callback e comprova pausa dos cooldowns e ataques independentes
 do FPS em [ARMAS_INVENTARIO_COMBATE.md](ARMAS_INVENTARIO_COMBATE.md). A7 fornece o coordenador
 das etapas 4–6 e documenta nascimento de objetos, ordem de eventos e pausa de flechas/cargas
-em [MIRAS_ARMAS.md](MIRAS_ARMAS.md). A8 não iniciada.
+em [MIRAS_ARMAS.md](MIRAS_ARMAS.md). A8 recebe comandos entre updates, na etapa 7,
+e conserva pausa e determinismo em [MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md).
+A9 e A10 não iniciadas.

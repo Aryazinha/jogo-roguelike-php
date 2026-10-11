@@ -25,10 +25,11 @@ use Jogo\Domain\Weapon\Targeting\SurroundingTargeting;
 use Jogo\Domain\Weapon\Targeting\TargetingStrategy;
 use Jogo\Domain\Weapon\TntCharge;
 use Jogo\Domain\Weapon\WeaponDefinition;
+use Jogo\Domain\Weapon\WeaponMutationGuard;
 use LogicException;
 
 /** Coordena A4/A5/A6 por partida, sem entidades de conteúdo ou apresentação. */
-final class WeaponAttackSystem
+final class WeaponAttackSystem implements WeaponMutationGuard
 {
     /** @var array<string, TargetingStrategy> */
     private readonly array $strategies;
@@ -66,6 +67,13 @@ final class WeaponAttackSystem
             'inimigo_aleatorio' => new RandomEnemyTargeting($random),
             'area_ao_redor' => new SurroundingTargeting,
         ];
+    }
+
+    public function assertSafe(): void
+    {
+        if ($this->updating) {
+            throw new LogicException('Modificações de armas devem ocorrer fora da atualização de combate.');
+        }
     }
 
     /** Porta invocável da A6; deve ser utilizada durante update() deste coordenador. */

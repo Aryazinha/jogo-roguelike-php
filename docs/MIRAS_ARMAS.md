@@ -2,8 +2,9 @@
 
 A7 concluída, com execução sem janela e integração com A4/A5/A6. As políticas abaixo são
 **decisões técnicas da implementação A7**, conforme a tarefa autorizada; não representam
-nova ratificação da equipe nem requisitos adicionais do professor. A8, A9 e A10 não foram
-iniciadas. Nenhum valor ou metadado de `config/weapons.json` foi alterado.
+nova ratificação da equipe nem requisitos adicionais do professor. A8 está em
+[MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md); A9/A10 não iniciadas.
+Nenhum valor ou metadado de `config/weapons.json` foi alterado.
 
 ## Arquitetura e dependências
 
@@ -203,7 +204,8 @@ Suíte completa com `php -d ffi.enable=false vendor/bin/phpunit`: mesmos resulta
 O SHA-256 de `weapons.json` permanece
 `5C6F3045D93353923578DF5CF3DAE5479529129BB57139807BAB598497E43610`.
 
-Para A8, continuam pendentes sincronização de duração de cooldown, arredondamento de
-modificadores de contagem e comandos/definições de evolução recebidos da B. A8 não foi
-iniciada. Conteúdo real da C, seed da partida, apresentação D, orçamento do pool A9 e
-medição de desempenho A10 permanecem nas respectivas responsabilidades.
+A8 sincroniza cooldown proporcionalmente, rejeita contagens fracionárias e recebe comandos
+externos de upgrade/evolução. A7 continua executando ataques com a definição efetiva; objetos
+já criados mantêm o snapshot anterior, incluindo ID. `WeaponAttackSystem` também fornece
+`WeaponMutationGuard`, rejeitando comandos durante combate/listeners. Conteúdo real da C,
+seed da partida, apresentação D, orçamento do pool A9 e medição A10 permanecem externos.

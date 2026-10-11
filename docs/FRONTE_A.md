@@ -7,6 +7,22 @@ Este documento explica a base já implementada da Frente A e os contratos ratifi
 A base fornece os objetos fundamentais usados por movimento, colisão, dano e armas, sem
 depender de Raylib, FFI ou entrada e saída.
 
+## Entrega A8 — concluída: modificadores e evoluções
+
+`Stats`, `StatModifier` e `ModifierType` materializam A1; o resolvedor parte sempre da base,
+ordena efeitos por `source`, soma FLAT e multiplica fatores PERCENT. Conversão centralizada
+preserva campos aplicáveis e rejeita frações de projéteis e resultados inválidos sem clamp.
+
+`WeaponProgressionService` aplica comandos concedidos pela B por slot, sem níveis ou
+elegibilidade. Aplicação/remoção são atômicas; cooldown mantém sua proporção restante.
+Evolução conserva slot/executor, troca a base/ID e descarta efeitos da arma anterior.
+Enchanted Stone Sword e Mega TNT reutilizam A7/A5; ataques existentes preservam snapshots.
+
+Loaders validam os 16 upgrades e as duas evoluções, com metadados/referências/diagnósticos.
+`composer check` passou com 796 testes e 8.722 asserções, Pint e PHPStan nível 9.
+[MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md) documenta comandos, decisões técnicas
+e limites. JSONs e marcadores da equipe preservados. A9 e A10 não iniciadas.
+
 ## Entrega A7 — concluída: miras e execução lógica das armas
 
 Os contratos `TargetingStrategy`, contexto/resultado, `WorldView` e `EntityView` foram
@@ -23,7 +39,7 @@ Essas são decisões técnicas da A7, sem nova ratificação humana.
 93 cenários adicionados; `composer check` e suíte completa com FFI desabilitado passaram
 com 635 testes e 8.061 asserções, Pint e PHPStan nível 9. Os testes comparam todo o estado
 e eventos em 30/60/144/240 FPS e quadros irregulares e comprovam pausa do combate.
-Configurações e marcadores da equipe preservados. A8, A9 e A10 não iniciadas.
+Configurações e marcadores da equipe preservados. A8 está descrita acima; A9/A10 não iniciadas.
 
 ## Entrega A6 — concluída: armas e inventário de combate
 
