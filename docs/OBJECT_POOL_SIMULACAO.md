@@ -151,6 +151,37 @@ Valores inválidos, opções desconhecidas/repetidas ou ausentes saem com códig
 em stderr. Não há parser externo, configuração reescrita ou arquivo de saída automático.
 O comando deve rodar no PHP CLI com `register_argc_argv` habilitado.
 
+O script Composer usa `@php` para executar o mesmo PHP do Composer e passa
+`-d opcache.enable_cli=0`. Os subprocessos de teste usam a mesma opção, além de
+desabilitar FFI. Isso isola o processo do cache de código compartilhado no Windows,
+sem editar `php.ini`, dependências ou configurações de gameplay. A
+[documentação do PHP](https://www.php.net/manual/en/opcache.configuration.php)
+descreve esse compartilhamento entre processos do mesmo usuário/SAPI/cache ID.
+Na verificação local com PHP 8.5.11, a configuração com OPcache CLI e JIT ativos
+produziu falhas nativas intermitentes (`-1073741819`) em subprocessos, inclusive na
+rejeição de argumentos antes do combate e no início do Pint. A associação ao cache
+compartilhado é uma hipótese apoiada pela comparação local; não identifica um defeito
+específico do PHP.
+A execução isolada mantém os mesmos estados e checksums. Para reproduzir manualmente
+esse ambiente de medição, use:
+
+```bash
+php -d opcache.enable_cli=0 -d ffi.enable=false tools/simulate.php --seed 123 --steps 600 --enemies 24 --json
+```
+
+O relatório mede a execução com essa configuração; não compara desempenho de JIT ou
+certifica metas da A10. A invocação direta sem essa opção também permanece disponível.
+Para repetir as verificações neste runtime Windows, execute o Composer com a mesma
+opção no processo pai, substituindo o caminho pelo `composer.phar` da sua instalação:
+
+```bash
+php -d opcache.enable_cli=0 /caminho/composer.phar check
+php -d opcache.enable_cli=0 -d ffi.enable=false vendor/bin/phpunit
+php -d opcache.enable_cli=0 /caminho/composer.phar sim
+```
+
+Não há edição da configuração global do PHP nem alteração dos checks do Composer.
+
 O cenário equipa arco e TNT reais nos dois slots; não simula aquisição pela B. Um gerador
 privado com a seed posiciona os alvos uma vez: x de 60 a 239 px, y de −150 a 150 px,
 raio 4 px e 20 HP. Esses números são **dados artificiais de benchmark**, não balanceamento
@@ -217,7 +248,10 @@ git diff --check
 Foram adicionados **73 cenários**. `composer check` passou com **869 testes e 9.350
 asserções**, Pint e PHPStan nível 9 sem erros. A suíte completa com FFI desabilitado
 passou com os mesmos resultados. CLI direta e `composer sim` executaram com sucesso;
-`git diff --check` passou. As verificações são repetidas após a integração.
+`git diff --check` passou. Nas verificações finais locais, OPcache CLI foi desativado
+pela opção de processo documentada acima. Os cinco testes da CLI passaram também em
+cinco repetições consecutivas após o isolamento. As verificações são repetidas após
+a integração.
 
 Os testes cobrem propriedade, identidade, reset, referências fracas, rollback, recursão,
 capacidade, rajadas, IDs, cooldown, fim de alcance, impacto, listener com erro e limpeza.
