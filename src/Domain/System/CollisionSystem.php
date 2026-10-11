@@ -11,6 +11,37 @@ use Jogo\Domain\Value\Vector2;
 /** Fase estreita: confirma interseções geométricas, sem consequências de gameplay. */
 final class CollisionSystem
 {
+    /** Primeiro contato de um ponto em movimento com um círculo, como fração em [0, 1]. */
+    public static function segmentCircleFirstHit(Vector2 $start, Vector2 $end, Vector2 $center, float $radius): ?float
+    {
+        if (self::circlesIntersect($start, 0.0, $center, $radius)) {
+            return 0.0;
+        }
+        $offset = $end->subtract($start);
+        $length = $offset->length();
+        if (! is_finite($length)) {
+            throw new InvalidArgumentException('O comprimento do segmento deve ser finito.');
+        }
+        if ($length === 0.0) {
+            return null;
+        }
+        $x = $offset->x() / $length;
+        $y = $offset->y() / $length;
+        $relative = $center->subtract($start);
+        $projection = $relative->x() * $x + $relative->y() * $y;
+        $perpendicular = abs($relative->x() * $y - $relative->y() * $x);
+        if (! is_finite($projection) || ! is_finite($perpendicular)) {
+            throw new InvalidArgumentException('A geometria derivada do segmento deve ser finita.');
+        }
+        if ($perpendicular > $radius) {
+            return null;
+        }
+        $penetration = $radius === 0.0 ? 0.0 : $radius * sqrt(max(0.0, 1.0 - ($perpendicular / $radius) ** 2));
+        $entry = $projection - $penetration;
+
+        return $entry >= 0.0 && $entry <= $length ? $entry / $length : null;
+    }
+
     public function intersects(Collidable $first, Collidable $second): bool
     {
         if (! $first->isActive() || ! $second->isActive() || $first->id() === $second->id()) {

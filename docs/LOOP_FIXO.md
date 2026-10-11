@@ -93,7 +93,7 @@ partida pela B continua pendente em `CONTRATOS.md` §9 e não é decidida por es
 
 `pause()` e `resume()` são idempotentes. Pausado, o mundo não recebe `update()`, o contador
 de passos fica congelado e a renderização continua com a mesma fração. O cooldown do teste
-fica congelado porque só é avançado em `update()`; a integração real dos cooldowns é futura.
+fica congelado porque só é avançado em `update()`; A6/A7 comprovam isso com armas e ataques.
 
 Retomar descarta o intervalo real de pausa mesmo se nenhum `tick()` tiver ocorrido durante
 ela. A fração menor que um passo é conservada, permitindo completar esse passo depois da
@@ -149,4 +149,6 @@ enunciado e configurações permanecem preservados. A4 documenta a reconstruçã
 em [COLISAO_GRADE_ESPACIAL.md](COLISAO_GRADE_ESPACIAL.md). A5 aplica dano e eventos com tempo
 de simulação recebido do loop; veja [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md).
 A6 integra o inventário ao callback e comprova pausa dos cooldowns e ataques independentes
-do FPS em [ARMAS_INVENTARIO_COMBATE.md](ARMAS_INVENTARIO_COMBATE.md). A7 não iniciada.
+do FPS em [ARMAS_INVENTARIO_COMBATE.md](ARMAS_INVENTARIO_COMBATE.md). A7 fornece o coordenador
+das etapas 4–6 e documenta nascimento de objetos, ordem de eventos e pausa de flechas/cargas
+em [MIRAS_ARMAS.md](MIRAS_ARMAS.md). A8 não iniciada.

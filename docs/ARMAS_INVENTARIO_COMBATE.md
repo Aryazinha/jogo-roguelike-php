@@ -1,7 +1,7 @@
 # A6 — núcleo de armas e inventário de combate
 
 A6 concluída: definições, carga validada e execução genérica automática com cooldown
-individual, sem dependência gráfica. A7 permanece não iniciada. Este registro descreve
+individual, sem dependência gráfica. A7 está em [MIRAS_ARMAS.md](MIRAS_ARMAS.md). Este registro descreve
 decisões técnicas da entrega; não constitui nova ratificação humana ou balanceamento.
 
 ## Organização e responsabilidades
@@ -84,7 +84,7 @@ valores provisórios. SHA-256 verificado antes/depois:
 
 `new Weapon($definition, $execute)` começa pronta. O callback tem assinatura
 `callable(WeaponDefinition): bool` e identifica a definição que está tentando executar.
-A futura A7 poderá capturar contexto de jogador e mundo na closure, sem alterar o núcleo.
+A7 materializa essa porta com `WeaponAttackSystem`, sem alterar o núcleo.
 
 Em `update($deltaSeconds)`:
 
@@ -99,9 +99,10 @@ mas permite tentar uma arma já pronta; um quadro sem passos do loop não chama 
 Exceções da porta são propagadas sem iniciar cooldown. Tempo já avançado não sofre rollback.
 Atualização recursiva da mesma arma ou inventário é rejeitada com `LogicException`.
 
-O retorno indica aceitação da execução, não presença de alvo. A política sem alvo continua
-pendente em `CONTRATOS.md §7.1`: A7 decidirá quando aceitar a tentativa. A6 não ratifica
-essa decisão nem fornece alvo, inimigo, projétil ou `DamageSystem` ao núcleo.
+O retorno indica aceitação da execução, não presença de alvo. A6 não definiu a política sem
+alvo. A7 adota a decisão técnica documentada em [MIRAS_ARMAS.md](MIRAS_ARMAS.md): arco/TNT
+recusam sem alvo, espada/tocha aceitam. A6 não fornece alvo, inimigo, projétil ou `DamageSystem`
+ao núcleo genérico; esses colaboradores permanecem externos à classe `Weapon`.
 
 O `Cooldown` mantém sua API e duração imutável. A soma compensada do tempo corrige resíduos
 de ponto flutuante: 120 passos de `1/60 s` liberam uma duração de 2 s no passo esperado.
@@ -175,7 +176,7 @@ com portas falsas. Não aplicam dano. `composer check` passou: 542 testes, 7.590
 Pint e PHPStan nível 9 sem erros. A suíte de integração com `ffi.enable=false` passou com
 21 testes e 2.686 asserções. `git diff --check` integra a revisão antes do commit.
 
-Permanecem para as respectivas entregas/acordos: consumo sem alvo e políticas de mira/impacto
-(A7), integração com dados da C, modificadores e troca da duração de cooldown (A8), aquisição
-pela B e apresentação pela D. Os nomes B/C/D continuam como informados. Nenhuma dessas
-pendências bloqueia o núcleo genérico da A6; A7 não foi iniciada.
+Mira/impacto e consumo sem alvo foram implementados na A7 como decisões técnicas, sem nova
+ratificação humana. Permanecem integração com dados da C, modificadores e troca da duração
+de cooldown (A8), aquisição pela B e apresentação pela D. Os nomes B/C/D continuam como informados. Nenhuma dessas
+pendências bloqueia o núcleo genérico da A6; A8 não foi iniciada.

@@ -4,7 +4,7 @@ A A4 fornece geometria e consultas genéricas para a base de RF08/RF38 e RNF06.
 Não aplica dano, gera eventos, coleta itens, implementa conteúdo ou desenha a grade.
 A aplicação genérica de dano da A5 está em [DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md),
 como sistema separado. A6 está em [ARMAS_INVENTARIO_COMBATE.md](ARMAS_INVENTARIO_COMBATE.md);
-A7 permanece não iniciada.
+A7 integra miras, armas e colisão contínua em [MIRAS_ARMAS.md](MIRAS_ARMAS.md).
 
 **Estado:** A4 concluída, com 63 novos cenários de teste. A suíte completa passou com
 181 testes e 6.161 asserções; Pint, PHPStan nível 9 e `git diff --check` passaram.
@@ -48,8 +48,9 @@ com o mesmo ID, que representam a mesma identidade lógica. Não altera os objet
 coordenadas continuam validadas por `Vector2`.
 
 Interseção não implica dano, morte, empurrão, coleta ou bloqueio de movimento. A5 recebe
-ataques resolvidos para aplicar dano; frequência de contato, invulnerabilidade, consumo de
-projéteis e demais consequências continuam pendentes. Não foram ratificadas nesta execução.
+ataques resolvidos para aplicar dano; frequência de contato, invulnerabilidade e
+demais consequências continuam pendentes. A7 adota consumo no primeiro impacto como
+decisão técnica, sem nova ratificação humana; contato/invulnerabilidade continuam externos.
 
 ## Como funciona a grade
 
@@ -97,8 +98,8 @@ inclusive círculos que o cobrem. Para detectar contatos com raios arbitrários,
 isoladas não cobrem necessariamente toda a extensão de uma entidade grande.
 
 Essa consulta de círculos **não muda** `WorldView::neighbors()` da A1, que seleciona centros
-em um raio e devolve cópias imutáveis. O futuro adaptador da visão deve filtrar a distância
-dos centros e gerar `EntityView`. `SpatialQueryResult` é uma coleção de referências de
+em um raio e devolve cópias imutáveis. A7 materializa essa filtragem em `SpatialWorldView`.
+`SpatialQueryResult` é uma coleção de referências de
 domínio, não uma visão de leitura para C/D; as posições dos objetos podem mudar depois.
 
 ## Validação e orçamento técnico
@@ -186,6 +187,11 @@ sem dano ou resposta física. O teste de arquitetura existente verifica todo o d
 incluindo as novas classes, contra dependências gráficas e I/O.
 
 ## Verificações
+
+Na A7, `CollisionSystem::segmentCircleFirstHit()` foi acrescentado sem alterar as APIs da
+A4. Retorna a fração do primeiro contato em `[0, 1]` ou `null`, incluindo tangência, origem
+dentro do círculo e fim do segmento. A fase ampla usa a grade, e o arco confirma contato
+ao longo de todo o trecho; detalhes e testes estão em [MIRAS_ARMAS.md](MIRAS_ARMAS.md).
 
 Os testes cobrem separação, sobreposição, tangência, mesma posição, raio zero, inatividade,
 auto-interseção, inserção, bordas, negativos, múltiplas células, limpeza, reconstrução,

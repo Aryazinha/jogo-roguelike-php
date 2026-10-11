@@ -7,6 +7,24 @@ Este documento explica a base já implementada da Frente A e os contratos ratifi
 A base fornece os objetos fundamentais usados por movimento, colisão, dano e armas, sem
 depender de Raylib, FFI ou entrada e saída.
 
+## Entrega A7 — concluída: miras e execução lógica das armas
+
+Os contratos `TargetingStrategy`, contexto/resultado, `WorldView` e `EntityView` foram
+materializados preservando as assinaturas da A1. As quatro miras filtram snapshots atuais;
+empates usam ID, e o sorteio usa gerador privado com seed externa obrigatória.
+
+`WeaponAttackSystem` é a porta invocável da A6: executa setor de espada, projéteis do arco,
+cargas temporizadas de TNT e pulso da tocha. Usa a grade A4, colisão de segmento e círculo,
+porta separada para resolver alvos e `DamageSystem` da A5. IDs de ataque evitam dano duplicado.
+Arco/TNT recusam sem alvo; espada/tocha executam sua geometria e consomem cooldown.
+Essas são decisões técnicas da A7, sem nova ratificação humana.
+
+[MIRAS_ARMAS.md](MIRAS_ARMAS.md) detalha dependências, geometria, ordem e integração com C.
+93 cenários adicionados; `composer check` e suíte completa com FFI desabilitado passaram
+com 635 testes e 8.061 asserções, Pint e PHPStan nível 9. Os testes comparam todo o estado
+e eventos em 30/60/144/240 FPS e quadros irregulares e comprovam pausa do combate.
+Configurações e marcadores da equipe preservados. A8, A9 e A10 não iniciadas.
+
 ## Entrega A6 — concluída: armas e inventário de combate
 
 `WeaponDefinition` e `WeaponCatalog` são finais readonly. `Core/Config` lê, decodifica e
@@ -22,7 +40,8 @@ A soma compensada em `Cooldown` evita um passo extra por resíduos, sem mudar su
 234 cenários adicionados; `composer check` passou com 542 testes e 7.590 asserções, Pint
 e PHPStan nível 9. Integração sem FFI: 21 testes e 2.686 asserções. Os testes comprovam
 independência dos cooldowns, pausa/retomada e sequências iguais em 30/60/120/144/240 FPS.
-Não há mira, arma concreta, dano de arma, progressão ou apresentação. A7 não iniciada.
+Na A6, não houve mira, arma concreta ou dano de arma. A7 está descrita acima;
+progressão e apresentação permanecem com B/D.
 
 ## Entrega A5 — concluída: dano, morte e eventos
 
