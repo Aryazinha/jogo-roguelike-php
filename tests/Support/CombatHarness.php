@@ -14,6 +14,7 @@ use Jogo\Domain\Random\SeededRandomIndex;
 use Jogo\Domain\System\DamageSystem;
 use Jogo\Domain\System\WeaponAttackSystem;
 use Jogo\Domain\Weapon\CombatInventory;
+use Jogo\Domain\Weapon\ProjectilePool;
 use Jogo\Domain\Weapon\WeaponCatalog;
 
 final class CombatHarness
@@ -36,7 +37,7 @@ final class CombatHarness
     /** @var list<EnemyKilled> */
     public array $deaths = [];
 
-    public function __construct(?RandomIndex $random = null)
+    public function __construct(?RandomIndex $random = null, ?ProjectilePool $pool = null)
     {
         $this->world = new FakeCombatWorld;
         $this->view = new SpatialWorldView($this->world, fn () => $this->world->origin);
@@ -50,7 +51,7 @@ final class CombatHarness
             $this->deaths[] = $death;
         });
         $this->combat = new WeaponAttackSystem('player', $this->world, $this->view, $this->view,
-            $this->world, new DamageSystem($this->events), $random ?? new SeededRandomIndex(123));
+            $this->world, new DamageSystem($this->events), $random ?? new SeededRandomIndex(123), $pool ?? new ProjectilePool);
     }
 
     public function equip(string $id): void

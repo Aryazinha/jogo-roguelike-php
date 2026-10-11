@@ -153,4 +153,5 @@ do FPS em [ARMAS_INVENTARIO_COMBATE.md](ARMAS_INVENTARIO_COMBATE.md). A7 fornece
 das etapas 4–6 e documenta nascimento de objetos, ordem de eventos e pausa de flechas/cargas
 em [MIRAS_ARMAS.md](MIRAS_ARMAS.md). A8 recebe comandos entre updates, na etapa 7,
 e conserva pausa e determinismo em [MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md).
-A9 e A10 não iniciadas.
+A9 compõe simulação com entrada neutra e callback de render nulo em
+[OBJECT_POOL_SIMULACAO.md](OBJECT_POOL_SIMULACAO.md). A10 não iniciada.

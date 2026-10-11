@@ -141,11 +141,13 @@ final class WeaponAttackSystemTest extends TestCase
         $h->equip('bow');
         $h->step(0.0, 0.0);
         $p = $h->combat->projectiles()[0];
+        $snapshot = $p->target;
         $target->moveTo(new Vector2(100.0, 100.0));
         $h->step(1.0, 1.0);
-        self::assertSame(320.0, $p->traveled());
-        self::assertTrue($p->position()->equals(new Vector2(320.0, 0.0)));
-        self::assertTrue($p->target->position->equals(new Vector2(100.0, 0.0)));
+        // Após fim de alcance, a mesma instância já está limpa no pool da A9.
+        self::assertSame(0.0, $p->traveled());
+        self::assertTrue($p->position()->equals(Vector2::zero()));
+        self::assertTrue($snapshot->position->equals(new Vector2(100.0, 0.0)));
         self::assertFalse($p->isActive());
         self::assertSame([], $h->hits);
     }

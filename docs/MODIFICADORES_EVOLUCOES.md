@@ -1,7 +1,8 @@
 # A8 — modificadores e evoluções de armas
 
 A8 concluída para RF19/RF37: um comando externo da B altera uma arma equipada e o próximo
-ataque usa os valores resultantes. A9 e A10 não iniciadas. Este documento registra
+ataque usa os valores resultantes. A9 está em [OBJECT_POOL_SIMULACAO.md](OBJECT_POOL_SIMULACAO.md);
+A10 não iniciada. Este documento registra
 **decisões técnicas da implementação A8**, sem nova ratificação humana ou requisito do
 professor. Os três JSONs de armas, upgrades e evoluções permanecem idênticos.
 
@@ -70,7 +71,8 @@ Modificar `raioExplosao` de espada, arco ou tocha falha, sem transformá-los em 
 **Contagem:** o resultado final deve ser matematicamente inteiro. Não há `floor`, `ceil`,
 `round` ou tolerância para aceitar frações. Como `Stats` usa float, contagens que não possam
 ser convertidas com segurança para int também são rejeitadas. Não foi imposto o teto do
-pool da A9 nesta entrega. Os upgrades atuais de projéteis usam FLAT inteiro.
+pool da A9 na resolução de atributos. A9 recusa atomicamente uma tentativa cuja contagem
+exceda as vagas, sem clamp da definição, ID ou cooldown consumido. Os upgrades atuais usam FLAT inteiro.
 
 ## Sources, remoção e atomicidade
 
@@ -199,6 +201,7 @@ Suíte completa com `php -d ffi.enable=false vendor/bin/phpunit`: mesmos resulta
 no relatório de entrega.
 
 A B mantém XP, level up, níveis, concessão e elegibilidade; C mantém inimigos/conteúdo;
-D mantém entrada, apresentação e feedback. Nenhum desses sistemas, pool ou protótipo
-vertical foi implementado. Para A9 continuam pendentes reutilização segura dos objetos,
-capacidade e política de pool cheio; A10 conserva integração final e medição de desempenho.
+D mantém entrada, apresentação e feedback. Nenhum desses sistemas ou protótipo vertical
+foi implementado. A9 acrescenta reutilização segura, capacidade 200 e recusa atômica da
+rajada; snapshots de ataques existentes permanecem válidos até a liberação do projétil.
+A10 conserva integração final e medição de desempenho.

@@ -61,7 +61,19 @@ php jogo.php
 | `composer test` | Roda a suíte de testes (PHPUnit) |
 | `composer stan` | Análise estática (PHPStan) |
 | `composer fmt` | Formata o código no padrão PSR-12 (Pint) |
-| `composer sim` | Roda uma partida sem abrir janela, para balanceamento |
+| `composer sim` | Executa a simulação de combate da A9, sem janela |
+
+Simulação reproduzível, com armas reais e alvos sintéticos, sem conteúdo definitivo:
+
+```bash
+composer sim -- --seed 123 --steps 600 --enemies 24
+composer sim -- --seed 123 --seconds 10 --enemies 24 --json
+php -d ffi.enable=false tools/simulate.php --seed 123 --steps 600 --json
+```
+
+O relatório separa métricas lógicas e checksum de tempos medidos na máquina. Parâmetros,
+ciclo de vida e limites estão em [docs/OBJECT_POOL_SIMULACAO.md](docs/OBJECT_POOL_SIMULACAO.md).
+A ferramenta não substitui a interface gráfica do jogo nem certifica as metas finais da A10.
 
 ---
 
