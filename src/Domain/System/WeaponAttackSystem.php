@@ -6,6 +6,7 @@ namespace Jogo\Domain\System;
 
 use Jogo\Domain\Ai\EntityView;
 use Jogo\Domain\Ai\WorldView;
+use Jogo\Domain\Pool\PoolSnapshot;
 use Jogo\Domain\Random\RandomIndex;
 use Jogo\Domain\Value\CombatValidation;
 use Jogo\Domain\Value\Damage;
@@ -18,6 +19,7 @@ use Jogo\Domain\Weapon\EnemyTarget;
 use Jogo\Domain\Weapon\EnemyTargetResolver;
 use Jogo\Domain\Weapon\LogicalProjectile;
 use Jogo\Domain\Weapon\ProjectileCollisionView;
+use Jogo\Domain\Weapon\ProjectilePool;
 use Jogo\Domain\Weapon\Targeting\FacingTargeting;
 use Jogo\Domain\Weapon\Targeting\NearestEnemyTargeting;
 use Jogo\Domain\Weapon\Targeting\RandomEnemyTargeting;
@@ -51,6 +53,8 @@ final class WeaponAttackSystem implements WeaponMutationGuard
 
     private bool $collecting = false;
 
+    private readonly ProjectileCollisionMetrics $metrics;
+
     public function __construct(
         private readonly string $sourceEntityId,
         private readonly AttackContextProvider $contextProvider,
@@ -59,8 +63,10 @@ final class WeaponAttackSystem implements WeaponMutationGuard
         private readonly EnemyTargetResolver $targets,
         private readonly DamageSystem $damage,
         RandomIndex $random,
+        private readonly ProjectilePool $projectilePool = new ProjectilePool,
     ) {
         CombatValidation::requiredId($sourceEntityId, 'sourceEntityId');
+        $this->metrics = new ProjectileCollisionMetrics;
         $this->strategies = [
             'direcao_do_olhar' => new FacingTargeting,
             'inimigo_mais_proximo' => new NearestEnemyTargeting,
@@ -90,6 +96,22 @@ final class WeaponAttackSystem implements WeaponMutationGuard
         if ($selection === null || ($selection->entityId !== null && $this->eligibleTarget($selection->entityId) === null)) {
             return false;
         }
+        if ($definition->shapeId === 'projetil') {
+            $count = $definition->projectileCount;
+            if ($count === null) {
+                throw new LogicException('Contagem ausente na definição validada.');
+            }
+            $burst = $this->projectilePool->acquireBurst($count,
+                fn (): Attack => new Attack($this->nextAttackId, $this->sourceEntityId, $definition),
+                $context->origin, $selection);
+            if ($burst === null) {
+                return false;
+            }
+            $this->nextAttackId++;
+            array_push($this->projectiles, ...$burst);
+
+            return true;
+        }
         $attack = new Attack($this->nextAttackId++, $this->sourceEntityId, $definition);
         switch ($definition->shapeId) {
             case 'meia_lua':
@@ -101,15 +123,6 @@ final class WeaponAttackSystem implements WeaponMutationGuard
                     if (AttackGeometry::inSector($context, $view->position, $angle)) {
                         $this->pendingHits[] = [$attack, $view->id];
                     }
-                }
-                break;
-            case 'projetil':
-                $count = $definition->projectileCount;
-                if ($count === null) {
-                    throw new LogicException('Contagem ausente na definição validada.');
-                }
-                for ($index = 0; $index < $count; $index++) {
-                    $this->projectiles[] = new LogicalProjectile($attack, $context->origin, $selection);
                 }
                 break;
             case 'area':
@@ -138,6 +151,7 @@ final class WeaponAttackSystem implements WeaponMutationGuard
         }
         $this->updating = true;
         $this->elapsedSeconds = $elapsedSeconds;
+        $this->metrics->beginStep();
         // Objetos nascidos neste passo começam a avançar somente no próximo.
         $projectiles = $this->projectiles;
         $charges = $this->charges;
@@ -167,10 +181,19 @@ final class WeaponAttackSystem implements WeaponMutationGuard
         } finally {
             // Erros propagam sem replay de golpes que já produziram eventos.
             $this->pendingHits = [];
-            $this->projectiles = array_values(array_filter($this->projectiles, static fn (LogicalProjectile $p): bool => $p->isActive()));
+            $remaining = [];
+            foreach ($this->projectiles as $projectile) {
+                if ($projectile->isActive()) {
+                    $remaining[] = $projectile;
+                } else {
+                    $this->projectilePool->release($projectile);
+                }
+            }
+            $this->projectiles = $remaining;
             $this->charges = array_values(array_filter($this->charges, static fn (TntCharge $c): bool => ! $c->isDetonated()));
             $this->collecting = false;
             $this->updating = false;
+            $this->metrics->endStep();
         }
     }
 
@@ -186,6 +209,26 @@ final class WeaponAttackSystem implements WeaponMutationGuard
         return $this->charges;
     }
 
+    public function poolSnapshot(): PoolSnapshot
+    {
+        return $this->projectilePool->snapshot();
+    }
+
+    public function collisionSnapshot(): ProjectileCollisionSnapshot
+    {
+        return $this->metrics->snapshot();
+    }
+
+    /** Encerramento em ponto seguro; métricas históricas e IDs não são reiniciados. */
+    public function clear(): void
+    {
+        $this->assertSafe();
+        $this->projectilePool->clear();
+        $this->projectiles = [];
+        $this->charges = [];
+        $this->pendingHits = [];
+    }
+
     private function advanceProjectile(LogicalProjectile $projectile, float $dt): void
     {
         if (! $projectile->isActive()) {
@@ -195,10 +238,13 @@ final class WeaponAttackSystem implements WeaponMutationGuard
         $projectile->advance($dt);
         $end = $projectile->position();
         $hits = [];
-        foreach ($this->collisions->candidates($start, $end) as $view) {
+        $candidates = $this->collisions->candidates($start, $end);
+        $this->metrics->recordCandidates(count($candidates));
+        foreach ($candidates as $view) {
             if ($view->kind !== 'enemy' || $view->isAlive !== true || $this->eligibleTarget($view->id) === null) {
                 continue;
             }
+            $this->metrics->recordNarrowTest();
             $fraction = CollisionSystem::segmentCircleFirstHit($start, $end, $view->position, $view->collisionRadius);
             if ($fraction !== null) {
                 $hits[] = [$fraction, $view->id];

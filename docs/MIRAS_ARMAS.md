@@ -3,7 +3,8 @@
 A7 concluída, com execução sem janela e integração com A4/A5/A6. As políticas abaixo são
 **decisões técnicas da implementação A7**, conforme a tarefa autorizada; não representam
 nova ratificação da equipe nem requisitos adicionais do professor. A8 está em
-[MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md); A9/A10 não iniciadas.
+[MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md). A9 integra pool de projéteis em
+[OBJECT_POOL_SIMULACAO.md](OBJECT_POOL_SIMULACAO.md); A10 não iniciada.
 Nenhum valor ou metadado de `config/weapons.json` foi alterado.
 
 ## Arquitetura e dependências
@@ -21,7 +22,7 @@ Nenhum valor ou metadado de `config/weapons.json` foi alterado.
 | `EnemyTargetResolver`, `EnemyTarget` | `Domain/Weapon` | Resolver ID para `Entity&Damageable` e metadados mínimos de dano |
 | `ProjectileCollisionView` | `Domain/Weapon` | Consulta de candidatos de leitura para o trecho percorrido |
 | `Attack`, `AttackGeometry` | `Domain/Weapon` | Identidade, deduplicação e setor centrado no olhar |
-| `LogicalProjectile`, `TntCharge` | `Domain/Weapon` | Trajetória e temporizador lógicos, sem apresentação ou pool |
+| `LogicalProjectile`, `TntCharge` | `Domain/Weapon` | Trajetória e temporizador lógicos; A9 reutiliza somente projéteis |
 | `WeaponAttackSystem` | `Domain/System` | Porta invocável da A6 e coordenação de ataques, impactos e dano |
 | `CollisionSystem::segmentCircleFirstHit()` | `Domain/System` | Extensão compatível da A4: primeiro contato entre segmento e círculo |
 
@@ -188,9 +189,10 @@ do FPS; atraso descartado pelo limite do loop continua fora da promessa de equiv
 
 A A7 fornece portas e adaptadores, não inimigos, IA, ondas, boss concreto, drops, atributos
 de jogador, aquisição, XP, level up, melhorias, evolução, entrada real, áudio ou apresentação.
-Nenhum protótipo vertical ou pool foi criado. `projectiles()` e `charges()` oferecem cópias
-das coleções de objetos lógicos para consulta; não são snapshots da `WorldView` ou serviços
-de renderização. A composição deve controlar seu ciclo de vida por partida.
+Na A7 não foi criado pool ou protótipo vertical. A9 adiciona pool de projéteis e limpeza.
+`projectiles()` e `charges()` oferecem cópias das coleções de objetos para consulta, sem
+serviços de renderização. Referências de projéteis valem até sua liberação; depois o objeto
+é limpo e pode representar outro disparo. Para conservar histórico, copiar seus dados antes.
 
 Foram adicionados 93 cenários de teste, incluindo contexto, snapshots, fronteiras,
 aleatoriedade, quatro armas, colisão contínua, deduplicação, origem e metadados de eventos,
@@ -208,4 +210,6 @@ A8 sincroniza cooldown proporcionalmente, rejeita contagens fracionárias e rece
 externos de upgrade/evolução. A7 continua executando ataques com a definição efetiva; objetos
 já criados mantêm o snapshot anterior, incluindo ID. `WeaponAttackSystem` também fornece
 `WeaponMutationGuard`, rejeitando comandos durante combate/listeners. Conteúdo real da C,
-seed da partida, apresentação D, orçamento do pool A9 e medição A10 permanecem externos.
+seed da partida e apresentação D permanecem externas. A9 fixa capacidade máxima 200,
+reserva rajadas antes de consumir ID/cooldown e libera após dano/eventos no fim do passo.
+Recusa não produz disparo parcial nem remove ativos. A10 conserva a medição final.

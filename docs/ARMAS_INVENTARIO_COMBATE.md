@@ -184,4 +184,5 @@ Mira/impacto e consumo sem alvo foram implementados na A7 como decisões técnic
 ratificação humana. A8 implementa modificadores, cooldown proporcional e evolução; a
 substituição genérica `replace()` acima conserva sua regra da A6. Permanecem integração
 com dados da C, concessão pela B e apresentação pela D. Os nomes B/C/D continuam como
-informados. A9 e A10 não iniciadas.
+informados. A9 integra pool com recusa atômica de rajadas e simulação em
+[OBJECT_POOL_SIMULACAO.md](OBJECT_POOL_SIMULACAO.md); A10 não iniciada.

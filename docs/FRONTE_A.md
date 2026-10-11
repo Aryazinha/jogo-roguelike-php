@@ -7,6 +7,23 @@ Este documento explica a base já implementada da Frente A e os contratos ratifi
 A base fornece os objetos fundamentais usados por movimento, colisão, dano e armas, sem
 depender de Raylib, FFI ou entrada e saída.
 
+## Entrega A9 — concluída: pool e simulação sem janela
+
+`ObjectPool<T>` pré-aloca identidades distintas, reserva lotes atomicamente e limpa estado
+na liberação. `ProjectilePool` limita a 200 ativos. Rajada sem espaço é recusada por inteiro,
+sem consumir cooldown ou ID. Projéteis consumidos retornam após dano/eventos do passo.
+
+`LogicalProjectile` conserva trajetória/snapshot enquanto adquirido e elimina referências
+ao retornar. Testes comprovam reutilização por `spl_object_id()`, reset da correção numérica,
+referências fracas, capacidade, rollback e comportamento determinístico com pool cheio.
+
+`composer sim` usa armas reais, alvos sintéticos, entrada neutra, callback de render nulo e
+loop de 1/60 s. Relatório separa métricas lógicas/checksum de medição real injetável.
+[OBJECT_POOL_SIMULACAO.md](OBJECT_POOL_SIMULACAO.md) explica APIs, CLI, decisões técnicas
+e limites. Nenhum conteúdo B/C/D ou JSON foi alterado. A10 não iniciada.
+73 cenários adicionados; suíte completa com 869 testes e 9.350 asserções, inclusive com
+FFI desabilitado. Pint, PHPStan nível 9, `composer sim` e `git diff --check` aprovados.
+
 ## Entrega A8 — concluída: modificadores e evoluções
 
 `Stats`, `StatModifier` e `ModifierType` materializam A1; o resolvedor parte sempre da base,
@@ -21,7 +38,7 @@ Enchanted Stone Sword e Mega TNT reutilizam A7/A5; ataques existentes preservam 
 Loaders validam os 16 upgrades e as duas evoluções, com metadados/referências/diagnósticos.
 `composer check` passou com 796 testes e 8.722 asserções, Pint e PHPStan nível 9.
 [MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md) documenta comandos, decisões técnicas
-e limites. JSONs e marcadores da equipe preservados. A9 e A10 não iniciadas.
+e limites. JSONs e marcadores da equipe preservados. A9 está descrita acima; A10 não iniciada.
 
 ## Entrega A7 — concluída: miras e execução lógica das armas
 
@@ -39,7 +56,7 @@ Essas são decisões técnicas da A7, sem nova ratificação humana.
 93 cenários adicionados; `composer check` e suíte completa com FFI desabilitado passaram
 com 635 testes e 8.061 asserções, Pint e PHPStan nível 9. Os testes comparam todo o estado
 e eventos em 30/60/144/240 FPS e quadros irregulares e comprovam pausa do combate.
-Configurações e marcadores da equipe preservados. A8 está descrita acima; A9/A10 não iniciadas.
+Configurações e marcadores da equipe preservados. A8/A9 estão descritas acima; A10 não iniciada.
 
 ## Entrega A6 — concluída: armas e inventário de combate
 

@@ -653,7 +653,7 @@ São escolhas de implementação, **sem nova ratificação da equipe**. A seed d
 conteúdo real, contato/invulnerabilidade, modificadores, pool e consequências B/C continuam
 nas respectivas entregas. [MIRAS_ARMAS.md](MIRAS_ARMAS.md) registra geometria, validações,
 ordem de eventos, falhas e integração. A8 foi implementada posteriormente (§7.4);
-A9 e A10 não iniciadas.
+A9 está registrada na §7.5; A10 não iniciada.
 
 ### 7.4 Materialização na A8 — 11/10/2026
 
@@ -684,7 +684,36 @@ São **decisões técnicas da A8, sem nova ratificação humana**, incluindo coo
 descarte de efeitos na evolução e rejeição de frações. Interfaces anteriores são preservadas;
 a extensão de duração é necessária à tarefa autorizada. [MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md)
 registra APIs, limites e integração. Sincronização de vida/coleta/personagem permanece com B.
-A9 e A10 não iniciadas.
+A9 está registrada na §7.5; A10 não iniciada.
+
+### 7.5 Materialização na A9 — 11/10/2026
+
+`Domain/Pool/ObjectPool<T>` reserva lotes atomicamente, valida propriedade, reinicializa
+na liberação e fornece `PoolSnapshot` readonly. `ProjectilePool` pré-aloca até 200 posições,
+com padrão 200 e capacidades menores para testes. Não há crescimento, clone ou descarte
+de objetos ativos. Pool genérico permanece reutilizável; gemas B e números de dano D
+não foram implementados.
+
+Decisão técnica A9: rajada sem espaço é recusada inteira; retorna `false`, sem consumir
+cooldown ou ID lógico. Vagas liberadas após dano no fim do passo atendem à próxima tentativa.
+Armas, miras, snapshots, deduplicação e eventos continuam usando A7/A8/A5.
+`WeaponAttackSystem` aceita pool opcional no último argumento e oferece `poolSnapshot()`,
+`collisionSnapshot()` e `clear()` em ponto seguro. A limpeza cancela ataques pendentes,
+libera projéteis e conserva métricas históricas. Novas partidas criam novas instâncias.
+
+`LogicalProjectile` mantém construtor anterior e leitura de ataque/origem/alvo enquanto
+adquirido. Propriedades mágicas readonly substituem as propriedades readonly reais para
+permitir reset em PHP 8.3; referências são removidas na liberação e leituras antigas falham.
+Consultas que precisem de histórico devem copiar valores antes do retorno ao pool.
+Isso não altera `Entity`, `WorldView`, `InputInterface` ou payloads ratificados.
+
+Application compõe simulação com alvos sintéticos pelas portas da C, entrada neutra e
+callback de render nulo. Contadores de trajetórias ficam no domínio; medição real fica
+fora dele, não afeta gameplay/checksum e é injetável em testes. A ferramenta não implementa
+conteúdo C, progressão B, apresentação D ou integração final A10.
+[OBJECT_POOL_SIMULACAO.md](OBJECT_POOL_SIMULACAO.md) registra APIs e migração.
+São **decisões técnicas da A9, sem nova ratificação humana**. Contato/invulnerabilidade
+e demais pendências da equipe continuam abertas. A10 não iniciada.
 
 ---
 
@@ -781,7 +810,7 @@ confirmação humana recebida. A implementação permanece nas entregas indicada
 | Efeito da pausa em cooldowns e tempo de sobrevivência | A/B/D | Sugestão: congelar tempo de simulação; RF14 exige interromper a ação, mas não define essa política de relógio |
 | Upgrade de duração de cooldown | A/B | A8 preserva proporção restante como decisão técnica (§7.4), sem nova ratificação humana |
 | Upgrade de vida máxima | A/B | Máximo atual imutável; B deve acordar como trocar `Health` e preservar/ajustar vida atual |
-| Contato, invulnerabilidade e pool cheio | A/C | Pendentes; A7 consome projétil no primeiro impacto como decisão técnica (§7.3) |
+| Contato, invulnerabilidade e pool cheio | A/C | Contato/invulnerabilidade pendentes; A7 consome no primeiro impacto (§7.3); A9 recusa rajada inteira quando cheio como decisão técnica (§7.5), sem nova ratificação |
 | Sem alvo, alvo sobreposto, empate de mira e semente | A/B/C | Decisões técnicas implementadas na A7 (§7.3), sem nova ratificação; seed real da partida externa |
 | Geometria de alcance e consequências dos contatos | A/C | Visão por centros preservada; A7 define suas geometrias/impactos como decisões técnicas; contato/invulnerabilidade permanecem pendentes |
 | Arredondamento de projéteis e resultados inválidos de modificadores | A/B | A8 rejeita frações e resultados inválidos sem clamp; decisão técnica (§7.4) |
@@ -814,3 +843,4 @@ explicitamente indefinidos nem antecipa implementação de outras entregas.
 | 10/10/2026 | Implementação A6 — §4.4 | Definições, carga validada, armas genéricas e inventário de dois slots com cooldowns independentes; JSON e políticas pendentes preservados; A7 não iniciada | Registro técnico por Codex conforme pedido da A6; sem nova ratificação de contratos |
 | 10/10/2026 | Implementação A7 — §§7.3 e 8–9 | Miras, visão espacial, seed injetada e quatro execuções integradas a A4/A5/A6; decisões técnicas de ausência de alvo, primeiro impacto e deduplicação; assinaturas e JSON preservados | Registro técnico por Codex conforme pedido da A7; sem nova ratificação humana |
 | 11/10/2026 | Implementação A8 — §§2.1–2.2 e 7.4 | Modificadores, loaders e comandos de upgrade/evolução; cooldown proporcional, snapshots e descarte de efeitos antigos; JSONs e limites entre frentes preservados | Registro técnico por Codex conforme pedido da A8; sem nova ratificação humana |
+| 11/10/2026 | Implementação A9 — §7.5 | Pool genérico/projéteis, teto 200, rajadas atômicas, migração da leitura de projéteis liberados e simulação por seed; métricas lógicas/temporais separadas e limpeza explícita | Registro técnico por Codex conforme pedido da A9; sem nova ratificação humana |

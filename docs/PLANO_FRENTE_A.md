@@ -5,7 +5,7 @@
 | Responsável | Thales |
 | Escopo | Loop, entrada abstrata, movimentação, colisão, dano, armas e desempenho |
 | Duração de referência | 8 semanas do projeto |
-| Estado | Base do domínio e A1–A8 concluídas; A9 e A10 não iniciadas |
+| Estado | Base do domínio e A1–A9 concluídas; A10 não iniciada |
 
 Este plano transforma o escopo da Frente A em entregas verificáveis. Ele não altera o
 enunciado nem o plano geral: apenas organiza o trabalho de uma frente. Em caso de conflito,
@@ -115,6 +115,10 @@ de teste, e não implementar a responsabilidade da outra frente.
 - [x] comandos externos de upgrade/evolução, cooldown proporcional e snapshots preservados;
 - [x] loaders dos upgrades e evoluções reais e execução das duas armas evoluídas pela A7;
 - [x] atomicidade, determinismo e limites em `docs/MODIFICADORES_EVOLUCOES.md`;
+- [x] A9: pool genérico, projéteis pré-alocados, teto 200 e rajadas atômicas;
+- [x] reset, identidade, liberação após dano e limpeza explícita do combate;
+- [x] `composer sim` com entrada neutra, loop fixo e alvos sintéticos por seed;
+- [x] métricas lógicas/temporais separadas e APIs em `docs/OBJECT_POOL_SIMULACAO.md`;
 - [x] `composer check` verde na base e nas entregas integradas.
 
 ### Contratos confirmados na A1
@@ -146,7 +150,7 @@ equipe, sem tratá-los como requisitos novos:
 - seed da partida fornecida pela composição (A7 exige seed explícita e reproduzível);
 - integração da pausa nas telas B/D e relógio da partida (A6 comprova cooldowns congelados quando A2 não executa passos);
 - integração da B com comandos da A8 em ponto seguro, sem alterar vida/coleta de jogador;
-- comportamento quando o pool de projéteis estiver cheio.
+- integração da decisão técnica A9 de recusar a rajada inteira quando o pool estiver cheio.
 
 ---
 
@@ -184,8 +188,8 @@ de outra frente atrasar, sem retirar requisito obrigatório.
 | 7 | Upgrades, evoluções, pool e simulação | RF19, RF37, RNF03, RNF06 | Modificadores aplicados e simulação sem janela executável |
 | 8 | Integração, desempenho e regressão | Todos acima | Sistemas integrados, metas medidas e suíte final verde |
 
-Com a base e A1–A8 concluídas, as demais entregas permanecem separadas.
-A execução da A8 termina após sua integração; A9 exige uma próxima tarefa.
+Com a base e A1–A9 concluídas, A10 permanece separada.
+A execução da A9 termina após sua integração; A10 exige uma próxima tarefa.
 
 ---
 
@@ -411,7 +415,7 @@ lógico. Integração com A6/A5 preservada, cooldowns individuais e danos único
 93 novos cenários; 635 testes e 8.061 asserções, Pint e PHPStan nível 9 aprovados, incluindo
 suíte completa com FFI desabilitado. Estados e eventos iguais em 30/60/144/240 FPS e quadros
 irregulares, com pausa comprovada. [MIRAS_ARMAS.md](MIRAS_ARMAS.md) documenta decisões técnicas
-sem nova ratificação humana. A8 está descrita abaixo; A9 e A10 não iniciadas.
+sem nova ratificação humana. A8/A9 estão descritas abaixo; A10 não iniciada.
 
 **Branch sugerida:** `frente-a/miras-e-armas`.
 
@@ -441,7 +445,7 @@ descartam efeitos antigos e conservam snapshots de ataques existentes. Loaders v
 16 upgrades e duas evoluções sem editar JSONs ou decidir elegibilidade. Suíte completa:
 796 testes, 8.722 asserções, Pint e PHPStan nível 9 aprovados. Estados/eventos iguais em
 30/60/144/240 FPS e quadros irregulares. Decisões técnicas e APIs em
-[MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md). A9 e A10 não iniciadas.
+[MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md). A9 está abaixo; A10 não iniciada.
 
 **Branch sugerida:** `frente-a/modificadores-de-armas`.
 
@@ -463,6 +467,17 @@ descartam efeitos antigos e conservam snapshots de ataques existentes. Loaders v
 
 **Critério de aceite:** objetos são reutilizados sem manter estado antigo e a simulação é
 reproduzível.
+
+**Estado:** concluída. Pool genérico tipado e pré-alocação de projéteis com teto de 200;
+reservas atômicas, reset completo, propriedades de leitura migradas e liberação após dano.
+Rajada recusada não consome cooldown/ID ou descarta objetos ativos. Encerramento libera
+projéteis e cancela cargas; métricas conservam histórico, com ocupação zerada.
+`composer sim` executa combate real sobre alvos sintéticos, por seed e passo fixo,
+com entrada neutra e renderização por callback nulo. Checksum e métricas lógicas
+independem da medição real e do FPS. [OBJECT_POOL_SIMULACAO.md](OBJECT_POOL_SIMULACAO.md)
+documenta políticas, testes e reprodução. Nenhuma meta final foi certificada; A10 não iniciada.
+73 cenários adicionados; suíte com 869 testes e 9.350 asserções, também com FFI desabilitado.
+Pint, PHPStan nível 9, CLI direta, `composer sim` e `git diff --check` aprovados.
 
 **Branch sugerida:** `frente-a/object-pool-e-simulacao`.
 
@@ -581,12 +596,12 @@ Antes de integrar:
 
 ## 12. Próxima ação
 
-1. Encerrar a execução após integrar e sincronizar a A8; não iniciar A9 automaticamente.
+1. Encerrar a execução após integrar e sincronizar a A9; não iniciar A10 automaticamente.
 2. Preservar as pendências explícitas de `docs/CONTRATOS.md` §9 nas entregas futuras.
 3. Substituir os marcadores B/C/D no registro da equipe quando os nomes forem informados.
 
 Não começar armas antes de movimento, colisão e dano estarem estáveis: armas dependem dos
 três sistemas e implementá-las antes aumenta o retrabalho.
 
-A1 foi aprovada por humanos. A2 até A8 foram implementadas nas suas execuções autorizadas.
-Esta execução está limitada à A8; não iniciar A9 ou A10 após sua integração.
+A1 foi aprovada por humanos. A2 até A9 foram implementadas nas suas execuções autorizadas.
+Esta execução está limitada à A9; não iniciar A10 após sua integração.
