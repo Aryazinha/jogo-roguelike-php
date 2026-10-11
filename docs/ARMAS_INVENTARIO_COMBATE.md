@@ -3,6 +3,8 @@
 A6 concluída: definições, carga validada e execução genérica automática com cooldown
 individual, sem dependência gráfica. A7 está em [MIRAS_ARMAS.md](MIRAS_ARMAS.md). Este registro descreve
 decisões técnicas da entrega; não constitui nova ratificação humana ou balanceamento.
+A8 estende atributos e evolução em [MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md),
+preservando as APIs anteriores e a configuração.
 
 ## Organização e responsabilidades
 
@@ -104,7 +106,8 @@ alvo. A7 adota a decisão técnica documentada em [MIRAS_ARMAS.md](MIRAS_ARMAS.m
 recusam sem alvo, espada/tocha aceitam. A6 não fornece alvo, inimigo, projétil ou `DamageSystem`
 ao núcleo genérico; esses colaboradores permanecem externos à classe `Weapon`.
 
-O `Cooldown` mantém sua API e duração imutável. A soma compensada do tempo corrige resíduos
+Na A6, `Cooldown` mantinha duração imutável; A8 acrescenta `changeDuration()` com proporção
+restante preservada, sem remover métodos anteriores. A soma compensada do tempo corrige resíduos
 de ponto flutuante: 120 passos de `1/60 s` liberam uma duração de 2 s no passo esperado.
 Não foi introduzido epsilon absoluto ou duração mínima; cooldowns muito pequenos continuam
 válidos. `tryStart()` e `reset()` também reiniciam o estado da soma.
@@ -159,9 +162,10 @@ Quando `GameLoop` pausa, não há passos de atualização e nenhum cooldown avan
 continua independente. A retomada descarta tempo real pausado e conserva os dois estados.
 Nem arma nem inventário conhece tela de level up ou entrada real.
 
-B decidirá concessão e elegibilidade e enviará comandos de adição/substituição; A mantém
-o estado de combate. C fornecerá os dados do mundo usados pela A7. D fornecerá apresentação
-e áudio. Não há XP, níveis, upgrades, `Stats`, `StatModifier`, inimigos ou interface visual.
+B decide concessão e elegibilidade e envia comandos; A mantém o estado de combate.
+A8 materializa `Stats`, `StatModifier` e aplicação de upgrades/evoluções, sem progressão
+concreta. C fornece os dados do mundo; D fornece apresentação e áudio. Não há XP, controle
+de níveis, inimigos ou interface visual nesses componentes.
 
 ## Verificação e pendências
 
@@ -177,6 +181,7 @@ Pint e PHPStan nível 9 sem erros. A suíte de integração com `ffi.enable=fals
 21 testes e 2.686 asserções. `git diff --check` integra a revisão antes do commit.
 
 Mira/impacto e consumo sem alvo foram implementados na A7 como decisões técnicas, sem nova
-ratificação humana. Permanecem integração com dados da C, modificadores e troca da duração
-de cooldown (A8), aquisição pela B e apresentação pela D. Os nomes B/C/D continuam como informados. Nenhuma dessas
-pendências bloqueia o núcleo genérico da A6; A8 não foi iniciada.
+ratificação humana. A8 implementa modificadores, cooldown proporcional e evolução; a
+substituição genérica `replace()` acima conserva sua regra da A6. Permanecem integração
+com dados da C, concessão pela B e apresentação pela D. Os nomes B/C/D continuam como
+informados. A9 e A10 não iniciadas.

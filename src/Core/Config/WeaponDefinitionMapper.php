@@ -67,7 +67,7 @@ final class WeaponDefinitionMapper
     }
 
     /** @param array<string, mixed> $fields */
-    private function mapWeapon(string $id, array $fields, string $source): WeaponDefinition
+    public function mapWeapon(string $id, array $fields, string $source): WeaponDefinition
     {
         $path = "{$source}: {$id}";
         $shape = $this->string($fields, 'formato', $path);

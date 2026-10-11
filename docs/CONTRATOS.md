@@ -156,7 +156,7 @@ disponível/faltante. `ratio()` retorna a fração `[0, 1]`; morte é vida zero.
 `heal()` pode aumentar vida que estava em zero: impedir cura de entidade eliminada será
 responsabilidade do sistema que chama esse método, não uma regra existente em `Health`.
 
-**Cooldown:** duração finita `> 0`, imutável; começa pronto. `tryStart()` retorna `true`
+**Cooldown na base da A1:** duração finita `> 0`, imutável; começa pronto. `tryStart()` retorna `true`
 e carrega a duração somente quando pronto; bloqueado retorna `false` sem reiniciar.
 `advance()` aceita segundos finitos `>= 0` e limita o restante a zero; `reset()` torna pronto.
 RF20 exige uma instância por arma. A operação evita dois usos aceitos sem passagem de tempo,
@@ -164,7 +164,9 @@ mas não oferece sincronização entre threads.
 
 As quatro classes rejeitam os argumentos inválidos descritos com `InvalidArgumentException`.
 Elas não publicam eventos nem consultam relógio, arquivos ou Raylib. A política de pausa e
-a troca de duração por upgrade ficam para acordo e implementação posteriores.
+a troca de duração por upgrade ficaram para implementação posterior. A8 acrescenta
+`changeDuration(float $durationSeconds): void`, mantendo a proporção restante (§7.4).
+Os construtores e métodos anteriores continuam compatíveis; `Health` permanece inalterado.
 
 ### 2.2 Stats — proposta A1, confirmar com B
 
@@ -185,9 +187,9 @@ continua sujeita à regra de integralidade da §7.2.
 
 B fornece os valores base e os modificadores; A usa os valores finais no combate. O conjunto
 de modificadores fica separado dos valores base: não aplicar novamente um percentual sobre
-um resultado que já o inclui. A resolução será implementada na A8, não em A1. Alterar
-`vidaMaxima` ou `cooldown` em `Stats` não muda por si só `Health` ou `Cooldown`; a política
-de sincronização dessas instâncias é pendente A/B (§9).
+um resultado que já o inclui. A resolução foi materializada na A8 (§7.4), não em A1. Alterar
+`vidaMaxima` ou `cooldown` em `Stats` não muda por si só `Health` ou `Cooldown`.
+A8 sincroniza cooldown de arma (§7.4); sincronização de vida permanece pendente A/B (§9).
 
 ### 2.3 Capacidades pequenas — assinaturas aprovadas na A1
 
@@ -325,7 +327,7 @@ Regras dos campos:
 | `elapsedSeconds` | Tempo de simulação da partida fornecido pelo loop, finito `>= 0`; não horário do sistema |
 
 IDs presentes não podem ser vazios. O campo `weaponId` deverá aceitar também os IDs de
-evolução definidos em `evolutions.json`, quando A8 existir. HP, dano e tempo são finitos.
+evolução definidos em `evolutions.json`, materializados na A8. HP, dano e tempo são finitos.
 
 Ordem proposta na A5: aplicar dano; publicar `EnemyHit`/`PlayerDamaged` somente se o dano
 efetivo for positivo; se o alvo morreu, desativá-lo antes de publicar
@@ -422,7 +424,7 @@ como autorização para editar o JSON.
   `weapons.json.armas`. Em `evolutions.json`, `requer.arma.id` e `resultado.substituiArma`
   referenciam a arma base; `requer.passivo.id` referencia `passives.json.itens`.
 - O ID da arma evoluída é o `id` da entrada em `evolucoes`; seu `resultado` não precisa estar
-  duplicado em `weapons.json`. A8 fará o mapeamento, sem implementar elegibilidade da B.
+  duplicado em `weapons.json`. A8 materializa o mapeamento, sem implementar elegibilidade da B.
 - `mira`, `formato` e o comportamento de inimigos são chaves de registros de estratégias,
   não nomes de classes a instanciar diretamente a partir de JSON.
 - O modificador existente é `{ "atributo": "cooldown", "tipo": "PERCENT", "valor": -0.15 }`.
@@ -613,8 +615,9 @@ Resolver sempre a partir da base e de todos os efeitos vigentes, em ordem estáv
 para reprodutibilidade numérica. Não alterar a base nem arredondar HP ou segundos. O valor
 final precisa respeitar a faixa do atributo; a proposta é rejeitar um resultado inválido,
 sem inventar limite mínimo de cooldown ou aplicar clamp silencioso. Percentuais que
-produzam contagem fracionária de projéteis dependem de política de arredondamento ainda não
-acordada; os dados atuais usam `FLAT` inteiro nesse atributo.
+produzam contagem fracionária de projéteis tiveram a política deixada em aberto na A1.
+A8 rejeita frações sem arredondamento, como decisão técnica (§7.4); os dados atuais usam
+`FLAT` inteiro nesse atributo.
 
 Um efeito global só alcança objetos que possuam o atributo: `raioExplosao` não cria explosão
 em espada, arco ou tocha. Um upgrade específico que referencia atributo inexistente deve ser
@@ -649,7 +652,39 @@ próximo passo; atraso zero detona na criação. A pausa congela toda a simulaç
 São escolhas de implementação, **sem nova ratificação da equipe**. A seed da partida,
 conteúdo real, contato/invulnerabilidade, modificadores, pool e consequências B/C continuam
 nas respectivas entregas. [MIRAS_ARMAS.md](MIRAS_ARMAS.md) registra geometria, validações,
-ordem de eventos, falhas e integração. A8, A9 e A10 não iniciadas.
+ordem de eventos, falhas e integração. A8 foi implementada posteriormente (§7.4);
+A9 e A10 não iniciadas.
+
+### 7.4 Materialização na A8 — 11/10/2026
+
+`Stats`, `StatModifier` e `ModifierType` preservam as APIs e nomes canônicos da A1.
+`StatResolver` resolve a fórmula por origem, sem mutar a base ou fazer clamp.
+`WeaponStatsMapper` converte somente atributos aplicáveis; `ResolvedWeaponStats` entrega
+uma definição efetiva imutável. Armas conservam separadamente base e coleção de efeitos.
+Origens duplicadas falham; remoção inexistente retorna `false`; aplicações e remoções
+inválidas preservam definição, coleção e cooldown. Contagem fracionária é rejeitada.
+
+`WeaponProgressionService` recebe inventário, catálogo de evoluções e `WeaponMutationGuard`.
+Expõe `apply(int $slot, array $modifiers): void`, `applyUpgrade(int $slot, UpgradeDefinition $upgrade): void`,
+`remove(int $slot, string $source): bool` e `evolve(int $slot, string $evolutionId): void`.
+Comandos exigem ponto seguro fora do combate. A B fornece concessão/destino e verifica
+níveis/passivos; A não decide elegibilidade. C/D continuam externas à implementação.
+
+`Cooldown::changeDuration()` e evolução conservam a proporção restante. A evolução mantém
+slot/executor, adota sua definição completa como nova base e descarta modificadores antigos.
+Ataques em voo e cargas existentes preservam seus snapshots, inclusive ID da arma.
+`replace()` genérico da A6 não mudou. A7 continua executando todos os ataques e usando A5.
+
+`Core/Config` carrega upgrades/evoluções com diagnósticos e referências validadas; IDs de
+passivos disponíveis vêm da B/composição. Requisitos de evolução são dados imutáveis para B,
+não regras de concessão. Os JSONs permanecem idênticos. `WeaponDefinitionMapper::mapWeapon()`
+foi exposto para reutilizar a validação, sem alterar a carga da A6.
+
+São **decisões técnicas da A8, sem nova ratificação humana**, incluindo cooldown proporcional,
+descarte de efeitos na evolução e rejeição de frações. Interfaces anteriores são preservadas;
+a extensão de duração é necessária à tarefa autorizada. [MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md)
+registra APIs, limites e integração. Sincronização de vida/coleta/personagem permanece com B.
+A9 e A10 não iniciadas.
 
 ---
 
@@ -729,7 +764,7 @@ confirmação humana recebida. A implementação permanece nas entregas indicada
 | --- | --- | --- | --- |
 | Objetos base e capacidades | A; B/C compõem entidades | B, C, D | `Movable`, `Collidable` e `Damageable` implementadas; APIs existentes preservadas |
 | `InputInterface` / `InputState` | A especifica dados; D implementa entrada; Application conecta | A, D | A2/A3; controle inicial e olhar |
-| `Stats` / `StatModifier` | B fornece base e efeitos; A resolve efeitos de combate | A, B | A6/A8; bases faltantes e sincronização |
+| `Stats` / `StatModifier` | B fornece base e efeitos; A resolve efeitos de combate | A, B | A8 implementada para armas; bases de jogador e sincronização de vida/coleta continuam externas |
 | `TargetingStrategy` | A | B, C | A7 implementada; dados atuais e seed fornecidos externamente |
 | Eventos / barramento | A propõe porta e barramento; cada frente mantém seus assinantes | A, B, C, D | A5 e integração; payloads fora de A1 continuam pendentes |
 | `WorldView` / `EntityView` | A fornece consultas; C fornece dados e estratégias | A, C | A4/A7 implementadas; integração do conteúdo real e ciclo de vida externos |
@@ -744,12 +779,12 @@ confirmação humana recebida. A implementação permanece nas entregas indicada
 | Controle inicial, direção inicial e política de olhar | A/D | Teclado ou mouse permitido; não escolher hardware aqui |
 | Bases de velocidade do jogador, raio de coleta e limites de mapa | A/B/C | Dados ausentes; não inventar números |
 | Efeito da pausa em cooldowns e tempo de sobrevivência | A/B/D | Sugestão: congelar tempo de simulação; RF14 exige interromper a ação, mas não define essa política de relógio |
-| Upgrade de duração de cooldown | A/B | Duração atual imutável; decidir como substituir preservando/recalculando tempo restante na A8 |
+| Upgrade de duração de cooldown | A/B | A8 preserva proporção restante como decisão técnica (§7.4), sem nova ratificação humana |
 | Upgrade de vida máxima | A/B | Máximo atual imutável; B deve acordar como trocar `Health` e preservar/ajustar vida atual |
 | Contato, invulnerabilidade e pool cheio | A/C | Pendentes; A7 consome projétil no primeiro impacto como decisão técnica (§7.3) |
 | Sem alvo, alvo sobreposto, empate de mira e semente | A/B/C | Decisões técnicas implementadas na A7 (§7.3), sem nova ratificação; seed real da partida externa |
 | Geometria de alcance e consequências dos contatos | A/C | Visão por centros preservada; A7 define suas geometrias/impactos como decisões técnicas; contato/invulnerabilidade permanecem pendentes |
-| Arredondamento de projéteis e resultados inválidos de modificadores | A/B | Política explícita antes de aceitar dados que produzam frações ou valores fora da faixa |
+| Arredondamento de projéteis e resultados inválidos de modificadores | A/B | A8 rejeita frações e resultados inválidos sem clamp; decisão técnica (§7.4) |
 | Ciclo de vida do barramento e ponto seguro para ações da C | Todas | Barramento por partida proposto; combinar aplicação de consequências sem alterar iteração de combate |
 | Payloads dos outros eventos, renderer, áudio, telas e persistência | B/C/D | Fora da A1; permanecem pendentes nas respectivas seções |
 
@@ -778,3 +813,4 @@ explicitamente indefinidos nem antecipa implementação de outras entregas.
 | 10/10/2026 | Implementação A5 — §§2.3 e 3 | Materializados `Damageable`, barramento e quatro eventos com assinaturas ratificadas; dano efetivo, desativação e morte única por ID; consumidores e políticas pendentes preservados | Registro técnico por Codex conforme pedido da A5; sem nova ratificação de contratos |
 | 10/10/2026 | Implementação A6 — §4.4 | Definições, carga validada, armas genéricas e inventário de dois slots com cooldowns independentes; JSON e políticas pendentes preservados; A7 não iniciada | Registro técnico por Codex conforme pedido da A6; sem nova ratificação de contratos |
 | 10/10/2026 | Implementação A7 — §§7.3 e 8–9 | Miras, visão espacial, seed injetada e quatro execuções integradas a A4/A5/A6; decisões técnicas de ausência de alvo, primeiro impacto e deduplicação; assinaturas e JSON preservados | Registro técnico por Codex conforme pedido da A7; sem nova ratificação humana |
+| 11/10/2026 | Implementação A8 — §§2.1–2.2 e 7.4 | Modificadores, loaders e comandos de upgrade/evolução; cooldown proporcional, snapshots e descarte de efeitos antigos; JSONs e limites entre frentes preservados | Registro técnico por Codex conforme pedido da A8; sem nova ratificação humana |

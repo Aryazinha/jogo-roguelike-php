@@ -86,6 +86,22 @@ final class CombatInventory
         array_splice($this->weapons, $slot, 1, [new Weapon($definition, $execute)]);
     }
 
+    public function assertProgressionSafe(): void
+    {
+        if ($this->updating) {
+            throw new LogicException('A progressão deve ser aplicada fora da atualização do inventário.');
+        }
+    }
+
+    /** Mantém slot, executor e progresso; não altera a substituição genérica da A6. */
+    public function evolve(int $slot, WeaponDefinition $definition): void
+    {
+        $this->assertProgressionSafe();
+        $weapon = $this->at($slot) ?? throw new OutOfBoundsException("O slot {$slot} está vazio.");
+        $this->assertNewId($definition->id);
+        $weapon->evolve($definition);
+    }
+
     /** Atualiza um snapshot dos slots em ordem e retorna a quantidade de execuções aceitas. */
     public function update(float $deltaSeconds): int
     {

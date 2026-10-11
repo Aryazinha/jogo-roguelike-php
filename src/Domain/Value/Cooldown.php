@@ -20,7 +20,7 @@ final class Cooldown
 
     private float $timeCorrection = 0.0;
 
-    public function __construct(private readonly float $durationSeconds)
+    public function __construct(private float $durationSeconds)
     {
         if (! is_finite($durationSeconds) || $durationSeconds <= 0.0) {
             throw new InvalidArgumentException('A duração do cooldown deve ser um número finito maior que zero.');
@@ -30,6 +30,25 @@ final class Cooldown
     public function durationSeconds(): float
     {
         return $this->durationSeconds;
+    }
+
+    /** Preserva a proporção restante; valida toda a operação antes de alterar o relógio. */
+    public function changeDuration(float $durationSeconds): void
+    {
+        if (! is_finite($durationSeconds) || $durationSeconds <= 0.0) {
+            throw new InvalidArgumentException('A duração do cooldown deve ser finita e maior que zero.');
+        }
+        if ($durationSeconds === $this->durationSeconds) {
+            return;
+        }
+        $remaining = ($this->remainingSeconds / $this->durationSeconds) * $durationSeconds;
+        if (! is_finite($remaining) || (! $this->isReady() && $remaining <= 0.0)) {
+            throw new InvalidArgumentException('A proporção restante não é representável na nova duração.');
+        }
+        $this->durationSeconds = $durationSeconds;
+        $this->remainingSeconds = $remaining;
+        $this->elapsedSeconds = $durationSeconds - $remaining;
+        $this->timeCorrection = 0.0;
     }
 
     public function remainingSeconds(): float
