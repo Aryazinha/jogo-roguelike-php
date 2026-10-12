@@ -27,6 +27,7 @@ o que o jogo precisa ter, como o código está organizado e como enviar o seu tr
 | 3 | [docs/AMBIENTE.md](docs/AMBIENTE.md) | Como deixar sua máquina pronta. **Faça antes da primeira reunião** |
 | 4 | [docs/CONTRATOS.md](docs/CONTRATOS.md) | As assinaturas compartilhadas, congeladas na semana 1 |
 | 5 | [docs/GIT.md](docs/GIT.md) | Como abrir um Pull Request e os comandos de Git do dia a dia |
+| 6 | [Plano B](docs/PLANO_FRENTE_B.md) · [Plano C](docs/PLANO_FRENTE_C.md) · [Plano D](docs/PLANO_FRENTE_D.md) | Roteiro completo da sua frente: entregas, dependências, testes e critérios de aceite |
 
 ---
 
@@ -115,6 +116,10 @@ A primeira entrega da Frente A está explicada em
 [docs/FRONTE_A.md](docs/FRONTE_A.md), incluindo exemplos de uso e as invariantes adotadas.
 As entregas e suas dependências estão registradas em
 [docs/PLANO_FRENTE_A.md](docs/PLANO_FRENTE_A.md), com cronograma e critérios de aceite.
+Os responsáveis pelas demais frentes devem seguir seus roteiros próprios:
+[Frente B — progressão e dados](docs/PLANO_FRENTE_B.md),
+[Frente C — conteúdo e dificuldade](docs/PLANO_FRENTE_C.md) e
+[Frente D — apresentação](docs/PLANO_FRENTE_D.md).
 O loop da A2 está documentado em [docs/LOOP_FIXO.md](docs/LOOP_FIXO.md), incluindo relógio,
 pausa, controle de atraso e testes de independência da taxa de quadros.
 
