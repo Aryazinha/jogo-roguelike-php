@@ -8,10 +8,10 @@ surgem no mapa.
 Trabalho da disciplina de Paradigmas de Programação — 2026.2. Escrito **exclusivamente em
 PHP**.
 
-> **Estado atual do repositório: implementação iniciada.** O domínio já contém os objetos
-> fundamentais de posição, vida, cooldown e entidade, acompanhados por testes unitários.
-> A A1 foi ratificada e a A2 fornece o loop fixo testado sem janela. O jogo executável e a
-> integração com o Raylib ainda serão construídos nas próximas etapas.
+> **Frente A concluída no seu escopo: A1–A10.** O núcleo lógico integra movimento,
+> colisão, dano/eventos, quatro armas, modificadores, evoluções e pool, com testes e
+> benchmark headless aprovado na configuração registrada. Jogador/conteúdo reais B/C
+> e apresentação D permanecem integrações externas; o jogo gráfico não está concluído.
 
 ---
 
@@ -62,6 +62,8 @@ php jogo.php
 | `composer stan` | Análise estática (PHPStan) |
 | `composer fmt` | Formata o código no padrão PSR-12 (Pint) |
 | `composer sim` | Executa a simulação de combate da A9, sem janela |
+| `composer benchmark` | Mede a integração A10: 300 inimigos, pico de 200 projéteis, tempo e colisões |
+| `composer check` | Verifica Pint, PHPStan nível 9 e todos os testes |
 
 Simulação reproduzível, com armas reais e alvos sintéticos, sem conteúdo definitivo:
 
@@ -73,7 +75,19 @@ php -d ffi.enable=false tools/simulate.php --seed 123 --steps 600 --json
 
 O relatório separa métricas lógicas e checksum de tempos medidos na máquina. Parâmetros,
 ciclo de vida e limites estão em [docs/OBJECT_POOL_SIMULACAO.md](docs/OBJECT_POOL_SIMULACAO.md).
-A ferramenta não substitui a interface gráfica do jogo nem certifica as metas finais da A10.
+A simulação A9 não substitui a interface gráfica. O benchmark A10 mede separadamente as
+metas headless e publica um [relatório reproduzível](docs/DESEMPENHO_A10.md):
+
+```bash
+composer benchmark -- --seed=20261012 --warmup=600 --steps=1800 --runs=5 --enemies=300 --projectiles=200 --json
+php -d opcache.enable_cli=0 -d ffi.enable=false tools/benchmark.php --json
+```
+
+O orçamento usa p95 ≤ 16,6 ms em cada execução e máximo estritamente menor que 40 testes
+geométricos por entidade ativa por passo. Argumento inválido retorna 1; meta reprovada, 2.
+As taxas publicadas são atualizações lógicas/s. **Meta visual de 50 FPS pendente de validação
+conjunta com a Frente D.** Para reproduzir o ambiente Windows desta medição, inicie também
+o Composer com `php -d opcache.enable_cli=0 /caminho/composer.phar ...`; veja o relatório.
 
 ---
 
@@ -94,12 +108,12 @@ docs/                 plano, ambiente, contratos, guia de Git e enunciado
   docs/enunciado/     o documento do professor — fonte da verdade
   docs/historico/     versões superadas, guardadas só para consulta
 src/                  código do jogo; o domínio fundamental já está implementado
-tests/                testes unitários e, futuramente, integração e simulação
+tests/                testes unitários, integração, simulação e benchmark
 ```
 
 A primeira entrega da Frente A está explicada em
 [docs/FRONTE_A.md](docs/FRONTE_A.md), incluindo exemplos de uso e as invariantes adotadas.
-O trabalho restante está organizado em
+As entregas e suas dependências estão registradas em
 [docs/PLANO_FRENTE_A.md](docs/PLANO_FRENTE_A.md), com cronograma e critérios de aceite.
 O loop da A2 está documentado em [docs/LOOP_FIXO.md](docs/LOOP_FIXO.md), incluindo relógio,
 pausa, controle de atraso e testes de independência da taxa de quadros.

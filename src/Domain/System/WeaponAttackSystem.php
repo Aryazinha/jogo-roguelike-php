@@ -64,13 +64,14 @@ final class WeaponAttackSystem implements WeaponMutationGuard
         private readonly DamageSystem $damage,
         RandomIndex $random,
         private readonly ProjectilePool $projectilePool = new ProjectilePool,
+        private readonly ?GeometryMetrics $geometry = null,
     ) {
         CombatValidation::requiredId($sourceEntityId, 'sourceEntityId');
         $this->metrics = new ProjectileCollisionMetrics;
         $this->strategies = [
             'direcao_do_olhar' => new FacingTargeting,
-            'inimigo_mais_proximo' => new NearestEnemyTargeting,
-            'inimigo_aleatorio' => new RandomEnemyTargeting($random),
+            'inimigo_mais_proximo' => new NearestEnemyTargeting($geometry),
+            'inimigo_aleatorio' => new RandomEnemyTargeting($random, $geometry),
             'area_ao_redor' => new SurroundingTargeting,
         ];
     }
@@ -120,7 +121,7 @@ final class WeaponAttackSystem implements WeaponMutationGuard
                     throw new LogicException('Ângulo ausente na definição validada.');
                 }
                 foreach ($this->enemies($context->origin, $definition->range) as $view) {
-                    if (AttackGeometry::inSector($context, $view->position, $angle)) {
+                    if (AttackGeometry::inSector($context, $view->position, $angle, $this->geometry)) {
                         $this->pendingHits[] = [$attack, $view->id];
                     }
                 }
@@ -245,7 +246,7 @@ final class WeaponAttackSystem implements WeaponMutationGuard
                 continue;
             }
             $this->metrics->recordNarrowTest();
-            $fraction = CollisionSystem::segmentCircleFirstHit($start, $end, $view->position, $view->collisionRadius);
+            $fraction = CollisionSystem::segmentCircleFirstHit($start, $end, $view->position, $view->collisionRadius, $this->geometry);
             if ($fraction !== null) {
                 $hits[] = [$fraction, $view->id];
             }
@@ -282,7 +283,7 @@ final class WeaponAttackSystem implements WeaponMutationGuard
         $enemies = [];
         foreach ($this->world->neighbors($center, $radius) as $view) {
             if ($view->kind === 'enemy' && $view->isAlive === true && $view->id !== $this->sourceEntityId
-                && CollisionSystem::circlesIntersect($center, $radius, $view->position, 0.0)) {
+                && CollisionSystem::circlesIntersect($center, $radius, $view->position, 0.0, $this->geometry)) {
                 $enemies['id:'.$view->id] = $view;
             }
         }

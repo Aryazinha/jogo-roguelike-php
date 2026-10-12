@@ -40,6 +40,7 @@
         "fmt": "pint",
         "fmt:check": "pint --test",
         "sim": "@php -d opcache.enable_cli=0 tools/simulate.php",
+        "benchmark": "@php -d opcache.enable_cli=0 -d ffi.enable=false tools/benchmark.php",
         "check": [
             "@fmt:check",
             "@stan",
@@ -52,6 +53,7 @@
         "fmt": "Formata o codigo no padrao PSR-12 com Pint",
         "fmt:check": "Verifica a formatacao sem alterar arquivos",
         "sim": "Roda uma partida sem abrir janela, para balanceamento",
+        "benchmark": "Mede a integracao headless A10 com 300 inimigos e 200 projeteis",
         "check": "Roda formatacao, analise estatica e testes — o mesmo que a CI"
     }
 }

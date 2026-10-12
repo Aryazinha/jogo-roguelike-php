@@ -7,18 +7,19 @@ namespace Jogo\Domain\Weapon\Targeting;
 use Jogo\Domain\Ai\EntityView;
 use Jogo\Domain\Ai\WorldView;
 use Jogo\Domain\System\CollisionSystem;
+use Jogo\Domain\System\GeometryMetrics;
 use Jogo\Domain\Value\Vector2;
 
 /** @internal Filtragem defensiva compartilhada pelas miras individuais. */
 final class TargetCandidates
 {
     /** @return list<EntityView> */
-    public static function enemies(TargetingContext $context, WorldView $world): array
+    public static function enemies(TargetingContext $context, WorldView $world, ?GeometryMetrics $metrics = null): array
     {
         $candidates = [];
         foreach ($world->neighbors($context->origin, $context->range) as $view) {
             if ($view->kind === 'enemy' && $view->isAlive === true
-                && CollisionSystem::circlesIntersect($context->origin, $context->range, $view->position, 0.0)) {
+                && CollisionSystem::circlesIntersect($context->origin, $context->range, $view->position, 0.0, $metrics)) {
                 $candidates['id:'.$view->id] = $view;
             }
         }

@@ -11,10 +11,14 @@ use Jogo\Domain\Value\Vector2;
 /** Fase estreita: confirma interseções geométricas, sem consequências de gameplay. */
 final class CollisionSystem
 {
+    public function __construct(private readonly ?GeometryMetrics $metrics = null) {}
+
     /** Primeiro contato de um ponto em movimento com um círculo, como fração em [0, 1]. */
-    public static function segmentCircleFirstHit(Vector2 $start, Vector2 $end, Vector2 $center, float $radius): ?float
+    public static function segmentCircleFirstHit(Vector2 $start, Vector2 $end, Vector2 $center, float $radius, ?GeometryMetrics $metrics = null): ?float
     {
-        if (self::circlesIntersect($start, 0.0, $center, $radius)) {
+        $inside = self::circlesIntersect($start, 0.0, $center, $radius, $metrics);
+        $metrics?->recordSegment();
+        if ($inside) {
             return 0.0;
         }
         $offset = $end->subtract($start);
@@ -51,11 +55,12 @@ final class CollisionSystem
         return self::circlesIntersect(
             $first->position(), $first->collisionRadius(),
             $second->position(), $second->collisionRadius(),
+            $this->metrics,
         );
     }
 
     /** Tangência exata conta como interseção, inclusive para círculos de raio zero. */
-    public static function circlesIntersect(Vector2 $first, float $firstRadius, Vector2 $second, float $secondRadius): bool
+    public static function circlesIntersect(Vector2 $first, float $firstRadius, Vector2 $second, float $secondRadius, ?GeometryMetrics $metrics = null): bool
     {
         foreach ([$firstRadius, $secondRadius] as $radius) {
             if (! is_finite($radius) || $radius < 0.0) {
@@ -63,6 +68,7 @@ final class CollisionSystem
             }
         }
 
+        $metrics?->recordCircle();
         $dx = $first->x() - $second->x();
         $dy = $first->y() - $second->y();
         $sum = $firstRadius + $secondRadius;

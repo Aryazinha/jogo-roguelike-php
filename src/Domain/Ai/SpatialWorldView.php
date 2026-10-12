@@ -8,6 +8,7 @@ use Closure;
 use InvalidArgumentException;
 use Jogo\Domain\Spatial\SpatialHash;
 use Jogo\Domain\System\CollisionSystem;
+use Jogo\Domain\System\GeometryMetrics;
 use Jogo\Domain\Value\Vector2;
 use Jogo\Domain\Weapon\ProjectileCollisionView;
 
@@ -17,11 +18,18 @@ final class SpatialWorldView implements ProjectileCollisionView, WorldView
     /** @var Closure(): Vector2 */
     private readonly Closure $player;
 
+    /** @var array<string, WorldEntity>|null Preparação explícita; nunca ativada implicitamente. */
+    private ?array $prepared = null;
+
+    /** @var array<string, list<EntityView>> Consultas exatas somente durante a preparação explícita. */
+    private array $queries = [];
+
     /** @param callable(): Vector2 $player */
     public function __construct(
         private readonly WorldEntityProvider $provider,
         callable $player,
         private readonly SpatialHash $spatial = new SpatialHash,
+        private readonly ?GeometryMetrics $metrics = null,
     ) {
         $this->player = Closure::fromCallable($player);
     }
@@ -37,7 +45,7 @@ final class SpatialWorldView implements ProjectileCollisionView, WorldView
     {
         $views = $this->query($center, $radius);
 
-        return array_values(array_filter($views, static fn (EntityView $view): bool => CollisionSystem::circlesIntersect($center, $radius, $view->position, 0.0)));
+        return array_values(array_filter($views, fn (EntityView $view): bool => CollisionSystem::circlesIntersect($center, $radius, $view->position, 0.0, $this->metrics)));
     }
 
     public function candidates(Vector2 $start, Vector2 $end): array
@@ -48,8 +56,41 @@ final class SpatialWorldView implements ProjectileCollisionView, WorldView
         return $this->query($midpoint, $difference->length() * 0.5);
     }
 
+    /** Após movimento; o chamador deve invalidar ao alterar posição, atividade ou metadados. */
+    public function refresh(): void
+    {
+        $this->invalidate();
+        $this->prepared = $this->rebuildCurrent();
+    }
+
+    public function invalidate(): void
+    {
+        $this->prepared = null;
+        $this->queries = [];
+    }
+
     /** @return list<EntityView> */
     private function query(Vector2 $center, float $radius): array
+    {
+        // Os bits preservam a precisão dos doubles; não há arredondamento de coordenadas.
+        $key = pack('ddd', $center->x(), $center->y(), $radius);
+        if ($this->prepared !== null && isset($this->queries[$key])) {
+            return $this->queries[$key];
+        }
+        $records = $this->prepared ?? $this->rebuildCurrent();
+        $views = [];
+        foreach ($this->spatial->queryRadius($center, $radius)->entities as $entity) {
+            $views[] = $records['id:'.$entity->id()]->snapshot();
+        }
+        if ($this->prepared !== null) {
+            $this->queries[$key] = $views;
+        }
+
+        return $views;
+    }
+
+    /** @return array<string, WorldEntity> */
+    private function rebuildCurrent(): array
     {
         $records = [];
         $entities = [];
@@ -66,11 +107,7 @@ final class SpatialWorldView implements ProjectileCollisionView, WorldView
             $entities[] = $record->entity;
         }
         $this->spatial->rebuild($entities);
-        $views = [];
-        foreach ($this->spatial->queryRadius($center, $radius)->entities as $entity) {
-            $views[] = $records['id:'.$entity->id()]->snapshot();
-        }
 
-        return $views;
+        return $records;
     }
 }

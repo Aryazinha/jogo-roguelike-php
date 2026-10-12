@@ -60,7 +60,8 @@ final class A3ArchitectureTest extends TestCase
                 if ($name === 'ffi' || str_starts_with($name, 'ffi\\')
                     || str_contains($name, 'raylib') || in_array($name, $ioFunctions, true)
                     || (str_contains($source, 'namespace Jogo\\Domain\\')
-                        && (str_starts_with($name, 'jogo\\infrastructure\\') || str_starts_with($name, 'jogo\\core\\')))) {
+                        && (str_starts_with($name, 'jogo\\infrastructure\\') || str_starts_with($name, 'jogo\\core\\')
+                            || str_starts_with($name, 'jogo\\application\\')))) {
                     $violations[] = "$file:$line: $text";
                 }
             }

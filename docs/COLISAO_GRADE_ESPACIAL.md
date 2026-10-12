@@ -188,6 +188,12 @@ incluindo as novas classes, contra dependências gráficas e I/O.
 
 ## Verificações
 
+A10 adiciona `GeometryMetrics` opcional compartilhado entre grade, colisão, visão e armas.
+Conta círculos, segmentos e setores efetivos, candidatos amplos e reconstruções separadas,
+sem consequências de gameplay. O índice pode ser preparado explicitamente na
+`SpatialWorldView` após movimento e invalidado após mutações; consultas sem preparação
+continuam frescas. Método, denominador e limites estão em [DESEMPENHO_A10.md](DESEMPENHO_A10.md).
+
 Na A7, `CollisionSystem::segmentCircleFirstHit()` foi acrescentado sem alterar as APIs da
 A4. Retorna a fração do primeiro contato em `[0, 1]` ou `null`, incluindo tangência, origem
 dentro do círculo e fim do segmento. A fase ampla usa a grade, e o arco confirma contato

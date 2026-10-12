@@ -6,19 +6,21 @@ namespace Jogo\Domain\Weapon;
 
 use InvalidArgumentException;
 use Jogo\Domain\System\CollisionSystem;
+use Jogo\Domain\System\GeometryMetrics;
 use Jogo\Domain\Value\CombatValidation;
 use Jogo\Domain\Value\Vector2;
 use Jogo\Domain\Weapon\Targeting\TargetingContext;
 
 final class AttackGeometry
 {
-    public static function inSector(TargetingContext $context, Vector2 $position, float $angleDegrees): bool
+    public static function inSector(TargetingContext $context, Vector2 $position, float $angleDegrees, ?GeometryMetrics $metrics = null): bool
     {
         CombatValidation::positive($angleDegrees, 'angleDegrees');
         if ($angleDegrees > 360.0) {
             throw new InvalidArgumentException('angleDegrees deve ser no máximo 360.');
         }
-        if (! CollisionSystem::circlesIntersect($context->origin, $context->range, $position, 0.0)) {
+        $metrics?->recordSector();
+        if (! CollisionSystem::circlesIntersect($context->origin, $context->range, $position, 0.0, $metrics)) {
             return false;
         }
         $offset = $position->subtract($context->origin);

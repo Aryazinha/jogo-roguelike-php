@@ -4,7 +4,8 @@ A7 concluída, com execução sem janela e integração com A4/A5/A6. As políti
 **decisões técnicas da implementação A7**, conforme a tarefa autorizada; não representam
 nova ratificação da equipe nem requisitos adicionais do professor. A8 está em
 [MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md). A9 integra pool de projéteis em
-[OBJECT_POOL_SIMULACAO.md](OBJECT_POOL_SIMULACAO.md); A10 não iniciada.
+[OBJECT_POOL_SIMULACAO.md](OBJECT_POOL_SIMULACAO.md); a integração e medição A10 estão em
+[DESEMPENHO_A10.md](DESEMPENHO_A10.md).
 Nenhum valor ou metadado de `config/weapons.json` foi alterado.
 
 ## Arquitetura e dependências
@@ -212,4 +213,7 @@ já criados mantêm o snapshot anterior, incluindo ID. `WeaponAttackSystem` tamb
 `WeaponMutationGuard`, rejeitando comandos durante combate/listeners. Conteúdo real da C,
 seed da partida e apresentação D permanecem externas. A9 fixa capacidade máxima 200,
 reserva rajadas antes de consumir ID/cooldown e libera após dano/eventos no fim do passo.
-Recusa não produz disparo parcial nem remove ativos. A10 conserva a medição final.
+Recusa não produz disparo parcial nem remove ativos. A10 mede essa composição em
+[DESEMPENHO_A10.md](DESEMPENHO_A10.md). `SpatialWorldView` conserva consultas frescas por
+padrão; preparação/reutilização explícitas exigem invalidação após mutações. O contador
+geométrico opcional cobre visão/miras/áreas/segmentos sem modificar regras de ataque.

@@ -6,15 +6,16 @@ namespace Jogo\Domain\Weapon\Targeting;
 
 use Jogo\Domain\Ai\WorldView;
 use Jogo\Domain\Random\RandomIndex;
+use Jogo\Domain\System\GeometryMetrics;
 use UnexpectedValueException;
 
 final class RandomEnemyTargeting implements TargetingStrategy
 {
-    public function __construct(private readonly RandomIndex $random) {}
+    public function __construct(private readonly RandomIndex $random, private readonly ?GeometryMetrics $metrics = null) {}
 
     public function select(TargetingContext $context, WorldView $world): ?TargetingResult
     {
-        $candidates = TargetCandidates::enemies($context, $world);
+        $candidates = TargetCandidates::enemies($context, $world, $this->metrics);
         if ($candidates === []) {
             return null;
         }

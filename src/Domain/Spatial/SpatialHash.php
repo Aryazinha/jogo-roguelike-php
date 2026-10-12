@@ -7,6 +7,7 @@ namespace Jogo\Domain\Spatial;
 use InvalidArgumentException;
 use Jogo\Domain\Entity\Collidable;
 use Jogo\Domain\System\CollisionSystem;
+use Jogo\Domain\System\GeometryMetrics;
 use Jogo\Domain\Value\Vector2;
 
 /** Fase ampla com círculos registrados em todas as células do retângulo envolvente. */
@@ -26,6 +27,7 @@ final class SpatialHash
     public function __construct(
         private readonly float $cellSize = self::DEFAULT_CELL_SIZE,
         private readonly int $maxCellsPerOperation = self::DEFAULT_MAX_CELLS_PER_OPERATION,
+        private readonly ?GeometryMetrics $metrics = null,
     ) {
         if (! is_finite($cellSize) || $cellSize <= 0.0) {
             throw new InvalidArgumentException('O tamanho de célula deve ser finito e positivo.');
@@ -89,7 +91,7 @@ final class SpatialHash
      */
     public function rebuild(iterable $entities): void
     {
-        $next = new self($this->cellSize, $this->maxCellsPerOperation);
+        $next = new self($this->cellSize, $this->maxCellsPerOperation, $this->metrics);
 
         foreach ($entities as $entity) {
             $next->insert($entity);
@@ -97,6 +99,7 @@ final class SpatialHash
 
         $this->cells = $next->cells;
         $this->entities = $next->entities;
+        $this->metrics?->recordRebuild();
     }
 
     /** Devolve candidatos das nove células; não confirma distância nem colisão. */
@@ -116,7 +119,7 @@ final class SpatialHash
         $matches = [];
 
         foreach ($candidates->entities as $entity) {
-            if (CollisionSystem::circlesIntersect($center, $radius, $entity->position(), $entity->collisionRadius())) {
+            if (CollisionSystem::circlesIntersect($center, $radius, $entity->position(), $entity->collisionRadius(), $this->metrics)) {
                 $matches[] = $entity;
             }
         }
@@ -143,6 +146,7 @@ final class SpatialHash
         }
 
         ksort($candidates, SORT_STRING);
+        $this->metrics?->recordCandidates(count($candidates));
 
         return new SpatialQueryResult(array_values($candidates), count($candidates), $visited);
     }
