@@ -8,6 +8,7 @@ use Closure;
 use InvalidArgumentException;
 use Jogo\Domain\Spatial\SpatialHash;
 use Jogo\Domain\System\CollisionSystem;
+use Jogo\Domain\System\GeometryMetrics;
 use Jogo\Domain\Value\Vector2;
 use Jogo\Domain\Weapon\ProjectileCollisionView;
 
@@ -22,6 +23,7 @@ final class SpatialWorldView implements ProjectileCollisionView, WorldView
         private readonly WorldEntityProvider $provider,
         callable $player,
         private readonly SpatialHash $spatial = new SpatialHash,
+        private readonly ?GeometryMetrics $metrics = null,
     ) {
         $this->player = Closure::fromCallable($player);
     }
@@ -37,7 +39,7 @@ final class SpatialWorldView implements ProjectileCollisionView, WorldView
     {
         $views = $this->query($center, $radius);
 
-        return array_values(array_filter($views, static fn (EntityView $view): bool => CollisionSystem::circlesIntersect($center, $radius, $view->position, 0.0)));
+        return array_values(array_filter($views, fn (EntityView $view): bool => CollisionSystem::circlesIntersect($center, $radius, $view->position, 0.0, $this->metrics)));
     }
 
     public function candidates(Vector2 $start, Vector2 $end): array
