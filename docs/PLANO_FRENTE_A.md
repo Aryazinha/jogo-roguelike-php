@@ -5,7 +5,7 @@
 | Responsável | Thales |
 | Escopo | Loop, entrada abstrata, movimentação, colisão, dano, armas e desempenho |
 | Duração de referência | 8 semanas do projeto |
-| Estado | Base do domínio e A1–A9 concluídas; A10 não iniciada |
+| Estado | Base do domínio e A1–A10 concluídas no escopo da Frente A; integrações externas pendentes |
 
 Este plano transforma o escopo da Frente A em entregas verificáveis. Ele não altera o
 enunciado nem o plano geral: apenas organiza o trabalho de uma frente. Em caso de conflito,
@@ -119,6 +119,10 @@ de teste, e não implementar a responsabilidade da outra frente.
 - [x] reset, identidade, liberação após dano e limpeza explícita do combate;
 - [x] `composer sim` com entrada neutra, loop fixo e alvos sintéticos por seed;
 - [x] métricas lógicas/temporais separadas e APIs em `docs/OBJECT_POOL_SIMULACAO.md`;
+- [x] A10: integração headless A1–A9, carga sustentada 300/200 e instrumentação geométrica completa;
+- [x] baseline e otimizações comprovadas, p95 por execução ≤ 16,6 ms e máximo < 40 testes/entidade/passo;
+- [x] regressão longa de estado/eventos/métricas/checksum em 30/60/144/240 FPS e quadros irregulares;
+- [x] ferramenta `composer benchmark` e relatório versionado em `docs/DESEMPENHO_A10.md`;
 - [x] `composer check` verde na base e nas entregas integradas.
 
 ### Contratos confirmados na A1
@@ -188,8 +192,9 @@ de outra frente atrasar, sem retirar requisito obrigatório.
 | 7 | Upgrades, evoluções, pool e simulação | RF19, RF37, RNF03, RNF06 | Modificadores aplicados e simulação sem janela executável |
 | 8 | Integração, desempenho e regressão | Todos acima | Sistemas integrados, metas medidas e suíte final verde |
 
-Com a base e A1–A9 concluídas, A10 permanece separada.
-A execução da A9 termina após sua integração; A10 exige uma próxima tarefa.
+Com a base e A1–A10 concluídas, o escopo planejado da Frente A está encerrado.
+Conteúdo, progressão e apresentação reais dependem das frentes B/C/D; a meta visual de
+50 FPS permanece pendente de validação conjunta com D.
 
 ---
 
@@ -415,7 +420,7 @@ lógico. Integração com A6/A5 preservada, cooldowns individuais e danos único
 93 novos cenários; 635 testes e 8.061 asserções, Pint e PHPStan nível 9 aprovados, incluindo
 suíte completa com FFI desabilitado. Estados e eventos iguais em 30/60/144/240 FPS e quadros
 irregulares, com pausa comprovada. [MIRAS_ARMAS.md](MIRAS_ARMAS.md) documenta decisões técnicas
-sem nova ratificação humana. A8/A9 estão descritas abaixo; A10 não iniciada.
+sem nova ratificação humana. A8/A9/A10 estão descritas abaixo.
 
 **Branch sugerida:** `frente-a/miras-e-armas`.
 
@@ -445,7 +450,7 @@ descartam efeitos antigos e conservam snapshots de ataques existentes. Loaders v
 16 upgrades e duas evoluções sem editar JSONs ou decidir elegibilidade. Suíte completa:
 796 testes, 8.722 asserções, Pint e PHPStan nível 9 aprovados. Estados/eventos iguais em
 30/60/144/240 FPS e quadros irregulares. Decisões técnicas e APIs em
-[MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md). A9 está abaixo; A10 não iniciada.
+[MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md). A9/A10 estão abaixo.
 
 **Branch sugerida:** `frente-a/modificadores-de-armas`.
 
@@ -475,7 +480,8 @@ projéteis e cancela cargas; métricas conservam histórico, com ocupação zera
 `composer sim` executa combate real sobre alvos sintéticos, por seed e passo fixo,
 com entrada neutra e renderização por callback nulo. Checksum e métricas lógicas
 independem da medição real e do FPS. [OBJECT_POOL_SIMULACAO.md](OBJECT_POOL_SIMULACAO.md)
-documenta políticas, testes e reprodução. Nenhuma meta final foi certificada; A10 não iniciada.
+documenta políticas, testes e reprodução. A9 não certificou metas finais; A10 registra
+a medição headless abaixo, sem certificação visual.
 73 cenários adicionados; suíte com 869 testes e 9.350 asserções, também com FFI desabilitado.
 Pint, PHPStan nível 9, CLI direta, `composer sim` e `git diff --check` aprovados.
 
@@ -499,6 +505,21 @@ Pint, PHPStan nível 9, CLI direta, `composer sim` e `git diff --check` aprovado
 
 **Critério de aceite:** metas registradas com máquina, cenário, semente e resultado; toda a
 suíte passa.
+
+**Estado:** concluída no escopo da A em 12/10/2026. Sistemas reais A1–A9 compõem ensaio
+headless com entidades sintéticas isoladas em Application; não existe conteúdo B/C/D
+executável compatível nesta main para integrar. Configurações permaneceram idênticas.
+Seed 20261012, aquecimento 600, medição 1.800, cinco execuções: 300 inimigos sustentados,
+pico exatamente 200, reutilização/recusa atômica/limpeza e checksum idêntico à baseline.
+P95 agregado 8,9303 ms, pior p95 individual 9,7013 ms; máximo 5,209302326 testes/entidade/passo.
+P95 por execução e razão estrita são avaliados sem arredondar; o máximo temporal é publicado.
+
+`composer check`, suíte com FFI desabilitada, Pint e PHPStan nível 9 passaram:
+907 testes, 12.301 asserções. `composer sim`, `composer benchmark` e `git diff --check`
+passaram. [DESEMPENHO_A10.md](DESEMPENHO_A10.md) registra baseline, duas otimizações,
+resultados intermediários/finais, máquina/configuração, APIs e limites. Nenhuma nova
+ratificação humana foi declarada. **Meta visual de 50 FPS pendente de validação conjunta
+com a Frente D.**
 
 **Branch sugerida:** `frente-a/integracao-e-desempenho`.
 
@@ -594,14 +615,16 @@ Antes de integrar:
 
 ---
 
-## 12. Próxima ação
+## 12. Encerramento da Frente A
 
-1. Encerrar a execução após integrar e sincronizar a A9; não iniciar A10 automaticamente.
+1. Encerrar esta execução após integrar e sincronizar a A10; não iniciar nova entrega.
 2. Preservar as pendências explícitas de `docs/CONTRATOS.md` §9 nas entregas futuras.
 3. Substituir os marcadores B/C/D no registro da equipe quando os nomes forem informados.
 
 Não começar armas antes de movimento, colisão e dano estarem estáveis: armas dependem dos
 três sistemas e implementá-las antes aumenta o retrabalho.
 
-A1 foi aprovada por humanos. A2 até A9 foram implementadas nas suas execuções autorizadas.
-Esta execução está limitada à A9; não iniciar A10 após sua integração.
+A1 foi aprovada por humanos. A2 até A10 foram implementadas nas suas execuções autorizadas.
+O encerramento do escopo técnico da A não conclui automaticamente o jogo ou o trabalho
+das outras frentes. Conteúdo real, apresentação, FPS visual e demais políticas pendentes
+continuam nas responsabilidades documentadas.

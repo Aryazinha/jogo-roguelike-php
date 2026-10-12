@@ -12,6 +12,9 @@ o núcleo A1–A9, loaders e adaptadores de entrada/tempo. Não contém Player d
 B, inimigos/IA/ondas da C, nem renderer, entrada real, estados, áudio ou Raylib da D.
 Não foram integradas branches dessas frentes.
 
+O pedido citava `COMBATE_DANO.md`; neste repositório a referência A5 é
+[DANO_MORTE_EVENTOS.md](DANO_MORTE_EVENTOS.md), consultada na preparação.
+
 `BenchmarkPlayer` e `BenchmarkEnemy` usam `Entity`, `Movable`, `Collidable` e
 `Damageable`. Têm círculo de 6 px e 1 bilhão de HP para manter a população durante
 a amostra; não há reposição, spawn, invulnerabilidade ou dano por contato. Qualquer morte
@@ -90,7 +93,8 @@ torna a comparação conservadora. Uma morte não mantém artificialmente o deno
 `GeometryMetrics` acompanha todas as chamadas geométricas relevantes do cenário: filtros
 circulares da grade, visão, miras e áreas; contatos; setores; segmento–círculo de projéteis.
 Chamadas compostas contam também seu teste circular interno, além de setor/segmento.
-Candidatos são entidades únicas por consulta espacial ampla, somadas entre consultas;
+Candidatos são entidades únicas por consulta espacial ampla efetivamente executada,
+somadas entre consultas; reutilização de um resultado não executa nem soma novos testes;
 reconstruções são publicadas separadamente. Snapshots, ordenações, acesso por ID, raio
 envolvente de consulta e iteração administrativa não são testes de colisão. Os contadores
 de projéteis A9 continuam separados e não são somados novamente.
@@ -103,7 +107,147 @@ cumulativo entre repetições, sem fingir que é exclusivo de cada uma.
 
 ## Baseline e otimização
 
-Em preparação: resultados serão registrados antes da conclusão do aceite.
+Os resultados completos permanecem versionados, inclusive as reprovações:
+
+| Versão medida | Arquivo | Situação |
+| --- | --- | --- |
+| `5696c7497bdca5d8c1adef1c30663d24e8363934` | [a10-baseline.json](benchmarks/a10-baseline.json) | Consultas frescas; p95 566,1959 ms, reprovado |
+| `7115c2bbebe53ad470393469adbbf6c55df8b3de` | [a10-indice-preparado.json](benchmarks/a10-indice-preparado.json) | Uma reconstrução por passo; cinco execuções, p95 agregado 35,8192 ms, reprovado |
+| `7115c2bbebe53ad470393469adbbf6c55df8b3de` | [a10-jit.json](benchmarks/a10-jit.json) | Ensaio adicional com JIT/cache isolado, uma execução, p95 5,1375 ms; configuração diferente, fora do aceite principal |
+
+A baseline percorreu a carga completa, com 600 passos de aquecimento e 1.800 medidos,
+em uma execução. Encontrou **224.786 reconstruções** durante a janela: cada consulta de
+trajetória reconstruía os 301 registros do mundo. A primeira otimização introduziu
+`SpatialWorldView::refresh()` explícito após movimento, reduzindo para **1.800 reconstruções**,
+sem alterar candidatos, testes geométricos, estado, eventos ou checksum.
+
+Essa melhoria ainda reprovou o orçamento em quatro das cinco execuções: p95 individuais
+14,5750 / 30,9708 / 35,9887 / 46,3202 / 28,0107 ms. Todas as amostras foram preservadas.
+Não foi aceita apenas a primeira repetição favorável.
+
+Inspeção mostrou 200 projéteis irmãos com trajetórias idênticas consultando a mesma área.
+Um microensaio de 200 chamadas de `candidates((0,0), (7,0))`, após preparar o mundo de
+300 inimigos, levou **7,1100 ms**, 1.800 candidatos e testes circulares. A segunda otimização
+reutiliza resultados **exatos e imutáveis** durante a preparação explícita. O mesmo ensaio
+passou a **1,9534 ms**, nove candidatos/testes efetivamente calculados. Não são medições
+do passo completo nem estatísticas de aceite; servem como evidência do gargalo.
+
+As chaves usam os bits dos três doubles (centro x/y e raio), sem quantização ou aproximação.
+`refresh()` e `invalidate()` eliminam o índice preparado e os resultados reutilizados;
+não existe cache global ou persistente. Toda mutação de posição, atividade ou metadados
+exige invalidação antes da próxima consulta. A composição invalida em dano/morte e encerramento,
+e renova após movimento em cada passo. Consultas comuns sem preparação continuam frescas.
+Os testes confirmam falha de renovação sem preparação antiga, preservação dos snapshots e
+equivalência de estado/eventos/contadores lógicos. Segmentos e setores continuam calculados;
+candidatos e círculos repetidos caem porque seus resultados são reutilizados corretamente.
+
+### Ambiente e OPcache/JIT
+
+Máquina registrada automaticamente: Windows 10.0, AMD64, CPU identificada como
+`AMD64 Family 23 Model 104 Stepping 1, AuthenticAMD`, 16 processadores lógicos. PHP CLI
+**8.5.11**, limite de memória 512M. RAM física e versão Composer não disponíveis no coletor
+portátil; nenhum valor foi estimado. Caminho do PHP e data/hora UTC constam dos JSONs.
+
+O aceite principal usa `opcache.enable_cli=0` e `ffi.enable=false`: OPcache e JIT efetivamente
+inativos. A extensão FFI permanece carregada, com API desabilitada e nenhuma chamada.
+A9 registrou falhas nativas intermitentes `-1073741819` com OPcache/JIT compartilhados;
+não foram apagadas nem se identificou um defeito específico do PHP.
+
+A medição adicional utilizou OPcache CLI ativo, JIT `tracing`, buffer 64M, FFI desabilitada
+e `opcache.cache_id=a10-extra-20261012`, isolando o cache no Windows. Executou 600 + 1.800
+passos sem falha nativa, com checksum idêntico. Isso não certifica o cache compartilhado
+da A9 nem estabilidade geral do JIT/FFI. Não houve alteração de `php.ini` ou do ambiente global.
+O resultado está separado porque versão e configuração precisam acompanhar toda comparação.
+
+```bash
+php -d opcache.enable_cli=1 -d opcache.jit=tracing -d opcache.jit_buffer_size=64M -d opcache.cache_id=a10-extra-20261012 -d ffi.enable=false tools/benchmark.php --seed=20261012 --warmup=600 --steps=1800 --runs=1 --enemies=300 --projectiles=200 --json
+```
+
+### Medição de aceite após as duas otimizações
+
+Commit medido: **`c46e91d99c08fbc9848a3f0d4a5e49cfd1df54cd`**. Registro UTC
+**2026-10-12T15:20:45+00:00** na branch `codex/frente-a-a10-integracao-desempenho`.
+Arquivos rastreados limpos no início. Working tree completo aparece dirty porque havia
+`tmp/` pré-existente e o próprio resultado ainda não rastreado; eles constam do ambiente.
+Nenhum temporário foi incluído no Git. Os commits posteriores acrescentam documentação,
+sem alterar o código medido. Resultado completo: [a10-resultado.json](benchmarks/a10-resultado.json).
+
+Mesmo cenário e configuração estável, sem OPcache/JIT ativo ou uso de FFI:
+
+| Métrica | Baseline, 1 execução | Índice preparado, 5 execuções | Final, 5 execuções |
+| --- | ---: | ---: | ---: |
+| Amostras | 1.800 | 9.000 | 9.000 |
+| Total medido (ms) | 495.919,9609 | 132.063,9170 | 51.326,2231 |
+| Média (ms) | 275,511089389 | 14,673768556 | 5,702913678 |
+| Mediana (ms) | 371,1856 | 11,93355 | 5,06135 |
+| p95 (ms) | 566,1959 | 35,8192 | 8,9303 |
+| p99 (ms) | 915,9936 | 51,0079 | 11,4600 |
+| Máximo (ms) | 1.866,5018 | 133,5904 | 66,4362 |
+| Atualizações/s | 3,629617966 | 68,148819181 | 175,348963092 |
+| Reconstruções / execução | 224.786 | 1.800 | 1.800 |
+| Candidatos / execução | 1.648.961 | 1.648.961 | 258.790 |
+| Testes estreitos / execução | 2.289.442 | 2.289.442 | 899.271 |
+| Máximo testes / entidade / passo | 10,541528239 | 10,541528239 | 5,209302326 |
+
+Os totais de tempo têm quantidades diferentes de execuções; compare distribuições e
+contadores por execução, não os totais como se fossem cargas iguais. A baseline única é
+evidência de gargalo, não estimativa estatística universal de aceleração. Há interferência
+da máquina; nenhuma amostra lenta foi omitida. O máximo final excedeu 16,6 ms, mas a política
+explicitamente exigida usa p95, que passou em **cada** repetição:
+
+| Execução | Média ms | Mediana ms | p95 ms | p99 ms | Máximo ms | Memória inicial B | Pico do processo B |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 6,105306889 | 5,41630 | 9,7013 | 12,8035 | 66,4362 | 1.779.888 | 3.521.888 |
+| 2 | 5,700396222 | 4,99875 | 8,7652 | 10,1016 | 21,5151 | 2.799.312 | 3.869.480 |
+| 3 | 5,562585778 | 5,03940 | 8,8873 | 11,0418 | 19,5272 | 3.049.920 | 4.120.088 |
+| 4 | 5,542175222 | 4,95095 | 8,7477 | 11,8221 | 17,2461 | 3.300.528 | 4.370.696 |
+| 5 | 5,604104278 | 4,88445 | 8,4847 | 10,0006 | 14,7156 | 3.551.136 | 4.621.304 |
+
+A baseline começou com 1.775.160 B e atingiu pico de 3.497.000 B. No processo final,
+relatórios de repetições anteriores permanecem em memória para agregação/comparação;
+o aumento entre repetições inclui essa retenção. Não se afirma vazamento ou pico exclusivo
+de cada partida. Estado/samples completos ficam em memória; a CLI exporta somente resumos.
+
+Geometria final **por execução**: 760.215 círculos, 138.200 segmentos e 856 setores,
+total 899.271. Segmentos/setores são os mesmos da baseline. Testes por passo: média
+499,595, mediana 461,5, p95 984, p99 1.223, máximo 1.568. Por entidade ativa: média
+1,659784053, p95 3,269102990, máximo **5,209302326**, no passo lógico **1.717**.
+O denominador observado foi sempre 301. Candidatos/testes acima são da janela de 1.800 passos;
+nos cinco relatórios são 1.293.950 candidatos e 4.496.355 testes estreitos medidos.
+
+Cada execução manteve 300 inimigos (mínimo = máximo), criou 988 ataques aceitos,
+3.510 impactos, 762 contatos e nenhuma morte. Houve **178.200 aquisições/reutilizações**
+de posições do pool, pico 200, **618 rajadas recusadas integralmente**, 178.200 liberações
+e zero ativos no fim e após limpeza; todas as 200 posições disponíveis. Esses contadores
+incluem aquecimento. As cinco execuções totalizam 891.000 aquisições, com teto simultâneo
+de 200 e pré-alocação de 200 objetos em cada composição, não 891.000 objetos novos.
+
+Checksum lógico idêntico na baseline, nas otimizações, no ensaio JIT e nas cinco execuções:
+
+```text
+babd5b28f3fef0968d9a42785e753a7318b2eaf9ed7480f5551ac91b6d09a90d
+```
+
+Checksum dos eventos, também idêntico:
+
+```text
+d635eca3e29dc990ebc0daf69215e1ba0186ce8a29f40122022d8b829e2979a8
+```
+
+| Meta do escopo A | Resultado |
+| --- | --- |
+| 300 inimigos durante toda a janela | Aprovada nas cinco execuções |
+| Pico exatamente 200 e nunca 201 | Aprovada; capacidade/pico 200 |
+| Reutilização, recusa atômica e limpeza | Aprovada; métricas acima e testes A9/A10 |
+| Nenhuma morte para manter carga | Aprovada; zero, sem reposição |
+| p95 ≤ 16,6 ms por execução | Aprovada; pior p95 9,7013 ms |
+| Máximo estritamente < 40 testes/entidade/passo | Aprovada; máximo 5,209302326 |
+| Checksums iguais | Aprovada; cinco execuções e baseline |
+| FPS visual ≥ 50 | Não avaliado; depende da D |
+
+As aprovações são avaliações técnicas da carga nesta máquina, não ratificação humana dos
+contratos nem certificação de requisitos externos. As metas visuais e de inicialização do
+jogo permanecem intactas em `PLANO.md`; A10 não as reclassifica ou substitui.
 
 ## Reprodução e saídas
 
@@ -152,6 +296,21 @@ projéteis/TNT, efeitos FLAT/PERCENT, evolução, pool cheio/reset/limpeza e fro
 Os testes A10 acrescentam estatística, validação da CLI/JSON/códigos de saída, instrumentação,
 preparação/invalidação da visão e regressão longa com 300/200 em 30/60/144/240 FPS e quadros
 irregulares. Comparações incluem estado, eventos, métricas lógicas/geométricas e checksum.
+
+Foram acrescentados **38 cenários**. `composer check` e suíte completa com
+`php -d opcache.enable_cli=0 -d ffi.enable=false vendor/bin/phpunit` passaram com
+**907 testes e 12.301 asserções**. Pint e PHPStan nível 9 passaram; a regra de arquitetura
+também verifica importações de Application pelo domínio. `git diff --check` passou e
+todos os JSONs de configuração permanecem idênticos à main de partida.
+
+`composer sim -- --seed=123 --steps=600 --enemies=24 --json` preservou o checksum A9
+`35f3ee30f41fb78004f3162bd2fc02b841330b9fc48ff52d27fc10a04780fb62`.
+`composer benchmark -- --json` também passou, com as cinco execuções padrão: p95 agregado
+7,6214 ms e p95 individuais 7,6828 / 7,7278 / 7,7653 / 7,3290 / 7,5203 ms; mesmo checksum
+lógico da medição versionada. Esse segundo ensaio não substitui nem oculta o primeiro.
+Testes, simulação e benchmark são repetidos após a integração; a entrega encerra após
+sincronizar main/origin/main/GitHub. **A1–A10 concluídas no escopo técnico da A**,
+com as dependências externas explicitadas abaixo.
 
 ## Limitações e dependências externas
 

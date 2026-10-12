@@ -5,7 +5,7 @@ As assinaturas e os dados que mais de uma frente usa. A
 evitar incompatibilidades antes de implementar os sistemas de jogo.
 
 **Estado:** contratos da A1 ratificados pelas quatro frentes em 09/10/2026.
-**Revisão documental:** 09/10/2026, preparada por Codex a pedido da Frente A.
+**Revisão documental:** 12/10/2026 (A10), preparada por Codex a pedido da Frente A.
 **Ratificação humana:** confirmada pelo usuário em nome dos quatro integrantes.
 
 | Frente | Participante informado |
@@ -653,7 +653,7 @@ São escolhas de implementação, **sem nova ratificação da equipe**. A seed d
 conteúdo real, contato/invulnerabilidade, modificadores, pool e consequências B/C continuam
 nas respectivas entregas. [MIRAS_ARMAS.md](MIRAS_ARMAS.md) registra geometria, validações,
 ordem de eventos, falhas e integração. A8 foi implementada posteriormente (§7.4);
-A9 está registrada na §7.5; A10 não iniciada.
+A9/A10 estão registradas nas §§7.5–7.6.
 
 ### 7.4 Materialização na A8 — 11/10/2026
 
@@ -684,7 +684,7 @@ São **decisões técnicas da A8, sem nova ratificação humana**, incluindo coo
 descarte de efeitos na evolução e rejeição de frações. Interfaces anteriores são preservadas;
 a extensão de duração é necessária à tarefa autorizada. [MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md)
 registra APIs, limites e integração. Sincronização de vida/coleta/personagem permanece com B.
-A9 está registrada na §7.5; A10 não iniciada.
+A9/A10 estão registradas nas §§7.5–7.6.
 
 ### 7.5 Materialização na A9 — 11/10/2026
 
@@ -713,11 +713,15 @@ fora dele, não afeta gameplay/checksum e é injetável em testes. A ferramenta 
 conteúdo C, progressão B, apresentação D ou integração final A10.
 [OBJECT_POOL_SIMULACAO.md](OBJECT_POOL_SIMULACAO.md) registra APIs e migração.
 São **decisões técnicas da A9, sem nova ratificação humana**. Contato/invulnerabilidade
-e demais pendências da equipe continuam abertas. A10 não iniciada.
+e demais pendências da equipe continuam abertas. A10 está registrada na §7.6.
 
 ---
 
 ### 7.6 Integração e instrumentação A10 — 12/10/2026
+
+A1–A10 concluídas no escopo da A. Metas headless aprovadas na configuração registrada;
+conteúdo B/C e apresentação D continuam externos. `composer check` e suíte sem FFI:
+907 testes, 12.301 asserções; Pint/PHPStan nível 9, simulação, benchmark e diff aprovados.
 
 `Application/Benchmark` compõe os sistemas reais A1–A9 sem implementar conteúdo B/C/D.
 `BenchmarkPlayer`/`BenchmarkEnemy` são entidades sintéticas; entrada programada e render
@@ -877,3 +881,4 @@ explicitamente indefinidos nem antecipa implementação de outras entregas.
 | 10/10/2026 | Implementação A7 — §§7.3 e 8–9 | Miras, visão espacial, seed injetada e quatro execuções integradas a A4/A5/A6; decisões técnicas de ausência de alvo, primeiro impacto e deduplicação; assinaturas e JSON preservados | Registro técnico por Codex conforme pedido da A7; sem nova ratificação humana |
 | 11/10/2026 | Implementação A8 — §§2.1–2.2 e 7.4 | Modificadores, loaders e comandos de upgrade/evolução; cooldown proporcional, snapshots e descarte de efeitos antigos; JSONs e limites entre frentes preservados | Registro técnico por Codex conforme pedido da A8; sem nova ratificação humana |
 | 11/10/2026 | Implementação A9 — §7.5 | Pool genérico/projéteis, teto 200, rajadas atômicas, migração da leitura de projéteis liberados e simulação por seed; métricas lógicas/temporais separadas e limpeza explícita | Registro técnico por Codex conforme pedido da A9; sem nova ratificação humana |
+| 12/10/2026 | Implementação A10 — §7.6 | Composição headless A1–A9, cenário 300/200, instrumentação completa, preparação/invalidação e consultas exatas reutilizadas; baseline/resultados/regressão aprovados, FPS visual pendente D | Registro técnico por Codex conforme pedido da A10; sem nova ratificação humana |

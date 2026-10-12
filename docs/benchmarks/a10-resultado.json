@@ -1,0 +1,459 @@
+{
+    "scenario": "a10-load-v1",
+    "tool": "tools\/benchmark.php",
+    "parameters": {
+        "seed": 20261012,
+        "warmup": 600,
+        "steps": 1800,
+        "runs": 5,
+        "enemies": 300,
+        "projectiles": 200,
+        "json": true,
+        "freshQueries": false
+    },
+    "environment": {
+        "executedAtUtc": "2026-10-12T15:20:45+00:00",
+        "os": "Windows",
+        "osRelease": "10.0",
+        "architecture": "AMD64",
+        "processorIdentifier": "AMD64 Family 23 Model 104 Stepping 1, AuthenticAMD",
+        "logicalProcessors": "16",
+        "physicalMemoryBytes": null,
+        "phpMemoryLimit": "512M",
+        "phpVersion": "8.5.11",
+        "phpBinary": "C:\\Users\\thale\\AppData\\Local\\Programs\\PHP\\8.5.11\\php.exe",
+        "sapi": "cli",
+        "composerVersion": null,
+        "opcacheEnableCli": "0",
+        "opcacheActive": false,
+        "jitConfigured": "tracing",
+        "jitActive": false,
+        "jitBufferSize": "64M",
+        "opcacheCacheId": "",
+        "ffiEnable": "",
+        "ffiExtensionLoaded": true,
+        "gitCommit": "c46e91d99c08fbc9848a3f0d4a5e49cfd1df54cd",
+        "gitBranch": "codex\/frente-a-a10-integracao-desempenho",
+        "trackedWorkingTree": "",
+        "trackedDirty": false,
+        "workingTreeDirty": true,
+        "untrackedFiles": "docs\/benchmarks\/a10-resultado.json\ntmp\/pdfs\/antigo-1.png\ntmp\/pdfs\/antigo-2.png\ntmp\/pdfs\/novo-1.png\ntmp\/pdfs\/novo-2.png\ntmp\/pdfs\/novo-3.png\ntmp\/php-install\/composer.bat\ntmp\/php-install\/php.ini\ntmp\/pr-frente-a.md",
+        "configSha256": {
+            "config\/weapons.json": "5c6f3045d93353923578df5cf3dae5479529129bb57139807bab598497e43610",
+            "config\/upgrades.json": "d134acebdd55ae1d7541660d24658c1eacafaea9fd46a8a46abbbf993f267cb8",
+            "config\/evolutions.json": "fecf952a85ba16f9bc880b5db4f3ddc98c6cd018720cbd0ba5b4a68090c86466"
+        }
+    },
+    "measurement": {
+        "scope": "movement, spatial index, contacts, weapons, damage, events and geometry counters",
+        "excluded": "configuration loading, initialization, warmup, serialization, checksums, reports and cleanup",
+        "percentiles": "nearest rank: ceil(p * n)",
+        "timeCriterion": "every run: p95 <= 16600000 nanoseconds",
+        "collisionDenominator": "active Collidable world entities at the end of each fixed step; logical projectiles are excluded conservatively"
+    },
+    "timingMilliseconds": {
+        "samples": 9000,
+        "total": 51326.2231,
+        "mean": 5.702913677777778,
+        "median": 5.06135,
+        "p95": 8.9303,
+        "p99": 11.46,
+        "maximum": 66.4362
+    },
+    "updatesPerSecond": 175.3489630917339,
+    "collisionRatios": {
+        "samples": 9000,
+        "total": 14938.056478405177,
+        "mean": 1.6597840531561308,
+        "median": 1.5332225913621262,
+        "p95": 3.2691029900332227,
+        "p99": 4.06312292358804,
+        "maximum": 5.209302325581396
+    },
+    "acceptance": {
+        "300Enemies": true,
+        "200Projectiles": true,
+        "poolReuse": true,
+        "cleanup": true,
+        "noDeaths": true,
+        "p95AtMost16.6ms": true,
+        "collisionMaximumBelow40": true,
+        "identicalChecksums": true
+    },
+    "visualFps": {
+        "status": "not_evaluated",
+        "reason": "Meta visual de 50 FPS pendente de validação conjunta com a Frente D."
+    },
+    "runs": [
+        {
+            "logical": {
+                "warmupSteps": 600,
+                "measuredSteps": 1800,
+                "minimumEnemies": 300,
+                "maximumEnemies": 300,
+                "minimumActiveEntities": 301,
+                "measuredProjectilePeak": 200,
+                "acceptedAttacks": 988,
+                "impacts": 3510,
+                "deaths": 0,
+                "contacts": 762,
+                "poolAtEnd": {
+                    "capacity": 200,
+                    "active": 0,
+                    "available": 200,
+                    "peakActive": 200,
+                    "acquisitions": 178200,
+                    "releases": 178200,
+                    "refusedBatches": 618
+                },
+                "poolAfterCleanup": {
+                    "capacity": 200,
+                    "active": 0,
+                    "available": 200,
+                    "peakActive": 200,
+                    "acquisitions": 178200,
+                    "releases": 178200,
+                    "refusedBatches": 618
+                }
+            },
+            "checksum": "babd5b28f3fef0968d9a42785e753a7318b2eaf9ed7480f5551ac91b6d09a90d",
+            "eventChecksum": "d635eca3e29dc990ebc0daf69215e1ba0186ce8a29f40122022d8b829e2979a8",
+            "timingMilliseconds": {
+                "samples": 1800,
+                "total": 10989.5524,
+                "mean": 6.105306888888889,
+                "median": 5.4163,
+                "p95": 9.7013,
+                "p99": 12.8035,
+                "maximum": 66.4362
+            },
+            "updatesPerSecond": 163.7919302336645,
+            "collisions": {
+                "totalCandidates": 258790,
+                "totalNarrowTests": 899271,
+                "circles": 760215,
+                "segments": 138200,
+                "sectors": 856,
+                "indexRebuilds": 1800,
+                "perStep": {
+                    "samples": 1800,
+                    "total": 899271.0,
+                    "mean": 499.595,
+                    "median": 461.5,
+                    "p95": 984.0,
+                    "p99": 1223.0,
+                    "maximum": 1568.0
+                },
+                "perActiveEntity": {
+                    "samples": 1800,
+                    "total": 2987.6112956810884,
+                    "mean": 1.6597840531561603,
+                    "median": 1.5332225913621262,
+                    "p95": 3.2691029900332227,
+                    "p99": 4.06312292358804,
+                    "maximum": 5.209302325581396
+                },
+                "maximumRatioStep": 1717,
+                "strictlyBelow40": true
+            },
+            "memoryStartBytes": 1779888,
+            "processMemoryPeakBytes": 3521888
+        },
+        {
+            "logical": {
+                "warmupSteps": 600,
+                "measuredSteps": 1800,
+                "minimumEnemies": 300,
+                "maximumEnemies": 300,
+                "minimumActiveEntities": 301,
+                "measuredProjectilePeak": 200,
+                "acceptedAttacks": 988,
+                "impacts": 3510,
+                "deaths": 0,
+                "contacts": 762,
+                "poolAtEnd": {
+                    "capacity": 200,
+                    "active": 0,
+                    "available": 200,
+                    "peakActive": 200,
+                    "acquisitions": 178200,
+                    "releases": 178200,
+                    "refusedBatches": 618
+                },
+                "poolAfterCleanup": {
+                    "capacity": 200,
+                    "active": 0,
+                    "available": 200,
+                    "peakActive": 200,
+                    "acquisitions": 178200,
+                    "releases": 178200,
+                    "refusedBatches": 618
+                }
+            },
+            "checksum": "babd5b28f3fef0968d9a42785e753a7318b2eaf9ed7480f5551ac91b6d09a90d",
+            "eventChecksum": "d635eca3e29dc990ebc0daf69215e1ba0186ce8a29f40122022d8b829e2979a8",
+            "timingMilliseconds": {
+                "samples": 1800,
+                "total": 10260.7132,
+                "mean": 5.700396222222222,
+                "median": 4.99875,
+                "p95": 8.7652,
+                "p99": 10.1016,
+                "maximum": 21.5151
+            },
+            "updatesPerSecond": 175.42640213352811,
+            "collisions": {
+                "totalCandidates": 258790,
+                "totalNarrowTests": 899271,
+                "circles": 760215,
+                "segments": 138200,
+                "sectors": 856,
+                "indexRebuilds": 1800,
+                "perStep": {
+                    "samples": 1800,
+                    "total": 899271.0,
+                    "mean": 499.595,
+                    "median": 461.5,
+                    "p95": 984.0,
+                    "p99": 1223.0,
+                    "maximum": 1568.0
+                },
+                "perActiveEntity": {
+                    "samples": 1800,
+                    "total": 2987.6112956810884,
+                    "mean": 1.6597840531561603,
+                    "median": 1.5332225913621262,
+                    "p95": 3.2691029900332227,
+                    "p99": 4.06312292358804,
+                    "maximum": 5.209302325581396
+                },
+                "maximumRatioStep": 1717,
+                "strictlyBelow40": true
+            },
+            "memoryStartBytes": 2799312,
+            "processMemoryPeakBytes": 3869480
+        },
+        {
+            "logical": {
+                "warmupSteps": 600,
+                "measuredSteps": 1800,
+                "minimumEnemies": 300,
+                "maximumEnemies": 300,
+                "minimumActiveEntities": 301,
+                "measuredProjectilePeak": 200,
+                "acceptedAttacks": 988,
+                "impacts": 3510,
+                "deaths": 0,
+                "contacts": 762,
+                "poolAtEnd": {
+                    "capacity": 200,
+                    "active": 0,
+                    "available": 200,
+                    "peakActive": 200,
+                    "acquisitions": 178200,
+                    "releases": 178200,
+                    "refusedBatches": 618
+                },
+                "poolAfterCleanup": {
+                    "capacity": 200,
+                    "active": 0,
+                    "available": 200,
+                    "peakActive": 200,
+                    "acquisitions": 178200,
+                    "releases": 178200,
+                    "refusedBatches": 618
+                }
+            },
+            "checksum": "babd5b28f3fef0968d9a42785e753a7318b2eaf9ed7480f5551ac91b6d09a90d",
+            "eventChecksum": "d635eca3e29dc990ebc0daf69215e1ba0186ce8a29f40122022d8b829e2979a8",
+            "timingMilliseconds": {
+                "samples": 1800,
+                "total": 10012.6544,
+                "mean": 5.562585777777778,
+                "median": 5.0394,
+                "p95": 8.8873,
+                "p99": 11.0418,
+                "maximum": 19.5272
+            },
+            "updatesPerSecond": 179.77250867662025,
+            "collisions": {
+                "totalCandidates": 258790,
+                "totalNarrowTests": 899271,
+                "circles": 760215,
+                "segments": 138200,
+                "sectors": 856,
+                "indexRebuilds": 1800,
+                "perStep": {
+                    "samples": 1800,
+                    "total": 899271.0,
+                    "mean": 499.595,
+                    "median": 461.5,
+                    "p95": 984.0,
+                    "p99": 1223.0,
+                    "maximum": 1568.0
+                },
+                "perActiveEntity": {
+                    "samples": 1800,
+                    "total": 2987.6112956810884,
+                    "mean": 1.6597840531561603,
+                    "median": 1.5332225913621262,
+                    "p95": 3.2691029900332227,
+                    "p99": 4.06312292358804,
+                    "maximum": 5.209302325581396
+                },
+                "maximumRatioStep": 1717,
+                "strictlyBelow40": true
+            },
+            "memoryStartBytes": 3049920,
+            "processMemoryPeakBytes": 4120088
+        },
+        {
+            "logical": {
+                "warmupSteps": 600,
+                "measuredSteps": 1800,
+                "minimumEnemies": 300,
+                "maximumEnemies": 300,
+                "minimumActiveEntities": 301,
+                "measuredProjectilePeak": 200,
+                "acceptedAttacks": 988,
+                "impacts": 3510,
+                "deaths": 0,
+                "contacts": 762,
+                "poolAtEnd": {
+                    "capacity": 200,
+                    "active": 0,
+                    "available": 200,
+                    "peakActive": 200,
+                    "acquisitions": 178200,
+                    "releases": 178200,
+                    "refusedBatches": 618
+                },
+                "poolAfterCleanup": {
+                    "capacity": 200,
+                    "active": 0,
+                    "available": 200,
+                    "peakActive": 200,
+                    "acquisitions": 178200,
+                    "releases": 178200,
+                    "refusedBatches": 618
+                }
+            },
+            "checksum": "babd5b28f3fef0968d9a42785e753a7318b2eaf9ed7480f5551ac91b6d09a90d",
+            "eventChecksum": "d635eca3e29dc990ebc0daf69215e1ba0186ce8a29f40122022d8b829e2979a8",
+            "timingMilliseconds": {
+                "samples": 1800,
+                "total": 9975.9154,
+                "mean": 5.542175222222222,
+                "median": 4.95095,
+                "p95": 8.7477,
+                "p99": 11.8221,
+                "maximum": 17.2461
+            },
+            "updatesPerSecond": 180.43456944312098,
+            "collisions": {
+                "totalCandidates": 258790,
+                "totalNarrowTests": 899271,
+                "circles": 760215,
+                "segments": 138200,
+                "sectors": 856,
+                "indexRebuilds": 1800,
+                "perStep": {
+                    "samples": 1800,
+                    "total": 899271.0,
+                    "mean": 499.595,
+                    "median": 461.5,
+                    "p95": 984.0,
+                    "p99": 1223.0,
+                    "maximum": 1568.0
+                },
+                "perActiveEntity": {
+                    "samples": 1800,
+                    "total": 2987.6112956810884,
+                    "mean": 1.6597840531561603,
+                    "median": 1.5332225913621262,
+                    "p95": 3.2691029900332227,
+                    "p99": 4.06312292358804,
+                    "maximum": 5.209302325581396
+                },
+                "maximumRatioStep": 1717,
+                "strictlyBelow40": true
+            },
+            "memoryStartBytes": 3300528,
+            "processMemoryPeakBytes": 4370696
+        },
+        {
+            "logical": {
+                "warmupSteps": 600,
+                "measuredSteps": 1800,
+                "minimumEnemies": 300,
+                "maximumEnemies": 300,
+                "minimumActiveEntities": 301,
+                "measuredProjectilePeak": 200,
+                "acceptedAttacks": 988,
+                "impacts": 3510,
+                "deaths": 0,
+                "contacts": 762,
+                "poolAtEnd": {
+                    "capacity": 200,
+                    "active": 0,
+                    "available": 200,
+                    "peakActive": 200,
+                    "acquisitions": 178200,
+                    "releases": 178200,
+                    "refusedBatches": 618
+                },
+                "poolAfterCleanup": {
+                    "capacity": 200,
+                    "active": 0,
+                    "available": 200,
+                    "peakActive": 200,
+                    "acquisitions": 178200,
+                    "releases": 178200,
+                    "refusedBatches": 618
+                }
+            },
+            "checksum": "babd5b28f3fef0968d9a42785e753a7318b2eaf9ed7480f5551ac91b6d09a90d",
+            "eventChecksum": "d635eca3e29dc990ebc0daf69215e1ba0186ce8a29f40122022d8b829e2979a8",
+            "timingMilliseconds": {
+                "samples": 1800,
+                "total": 10087.3877,
+                "mean": 5.604104277777778,
+                "median": 4.88445,
+                "p95": 8.4847,
+                "p99": 10.0006,
+                "maximum": 14.7156
+            },
+            "updatesPerSecond": 178.44064821658435,
+            "collisions": {
+                "totalCandidates": 258790,
+                "totalNarrowTests": 899271,
+                "circles": 760215,
+                "segments": 138200,
+                "sectors": 856,
+                "indexRebuilds": 1800,
+                "perStep": {
+                    "samples": 1800,
+                    "total": 899271.0,
+                    "mean": 499.595,
+                    "median": 461.5,
+                    "p95": 984.0,
+                    "p99": 1223.0,
+                    "maximum": 1568.0
+                },
+                "perActiveEntity": {
+                    "samples": 1800,
+                    "total": 2987.6112956810884,
+                    "mean": 1.6597840531561603,
+                    "median": 1.5332225913621262,
+                    "p95": 3.2691029900332227,
+                    "p99": 4.06312292358804,
+                    "maximum": 5.209302325581396
+                },
+                "maximumRatioStep": 1717,
+                "strictlyBelow40": true
+            },
+            "memoryStartBytes": 3551136,
+            "processMemoryPeakBytes": 4621304
+        }
+    ]
+}

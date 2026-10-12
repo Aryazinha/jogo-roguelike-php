@@ -154,4 +154,6 @@ das etapas 4–6 e documenta nascimento de objetos, ordem de eventos e pausa de 
 em [MIRAS_ARMAS.md](MIRAS_ARMAS.md). A8 recebe comandos entre updates, na etapa 7,
 e conserva pausa e determinismo em [MODIFICADORES_EVOLUCOES.md](MODIFICADORES_EVOLUCOES.md).
 A9 compõe simulação com entrada neutra e callback de render nulo em
-[OBJECT_POOL_SIMULACAO.md](OBJECT_POOL_SIMULACAO.md). A10 não iniciada.
+[OBJECT_POOL_SIMULACAO.md](OBJECT_POOL_SIMULACAO.md). A10 compõe movimento, entrada lógica
+roteirizada, grade, combate e modificadores em [DESEMPENHO_A10.md](DESEMPENHO_A10.md),
+com regressão longa em 30/60/144/240 FPS e quadros irregulares. A API do loop permanece igual.

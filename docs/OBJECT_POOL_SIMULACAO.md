@@ -2,7 +2,7 @@
 
 A9 fornece a infraestrutura estrutural de RNF03/RNF06: reutilização real de projéteis,
 teto de 200 ativos e simulação sem janela. As políticas abaixo são **decisões técnicas
-da A9**, sem nova ratificação humana. A10 não foi iniciada; os números deste cenário
+da A9**, sem nova ratificação humana. A10 tem relatório separado; os números deste cenário
 não certificam 300 inimigos, 16,6 ms, 50 FPS ou menos de 40 verificações por entidade.
 
 ## Componentes
@@ -93,7 +93,8 @@ identidade e ausência de referências residuais, além de comparar a soma com u
 
 ## Rajada cheia, ID e ordem do passo
 
-`WeaponAttackSystem` aceita um `ProjectilePool` opcional como último argumento; chamadas
+`WeaponAttackSystem` aceita um `ProjectilePool` opcional na posição original, seguido
+na A10 por `GeometryMetrics` opcional; chamadas
 anteriores criam o pool padrão de 200. A composição deve dar a cada coordenador seu próprio
 pool e não liberar seus objetos externamente durante combate.
 
@@ -264,6 +265,10 @@ D mantém renderer, entrada real e feedback. Não foi criado `RendererInterface`
 `NullRenderer`, jogo completo ou protótipo vertical. O plano geral menciona esses adaptadores
 da D, mas A9 usa somente o callback nulo autorizado.
 
-Para A10 ficam integração final com conteúdo real e apresentação, cenário de carga,
-metas oficiais com máquina/seed documentadas e otimização de gargalos comprovados.
-Não há certificação de FPS ou orçamento por quadro nesta entrega.
+A10 compõe os sistemas A1–A9 com jogador/inimigos sintéticos, movimento, quatro armas,
+modificadores/evoluções e carga 300/200. [DESEMPENHO_A10.md](DESEMPENHO_A10.md) e
+`composer benchmark` registram tempo, ambiente, colisões completas, baseline e otimizações.
+O contador A9 continua restrito às trajetórias; A10 usa contador compartilhado separado
+para todos os testes geométricos. `composer sim` e seu checksum permanecem preservados.
+Conteúdo real B/C e apresentação D continuam dependências externas.
+**Meta visual de 50 FPS pendente de validação conjunta com a Frente D.**
