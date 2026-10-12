@@ -732,6 +732,9 @@ Testes geométricos de todas essas rotas entram na A10; métricas A9 não são d
 
 `SpatialWorldView::refresh(): void` prepara explicitamente registros/índice após movimento;
 `invalidate(): void` elimina a preparação. Sem `refresh()`, cada consulta continua fresca.
+Consultas amplas repetidas com coordenadas/raio exatamente iguais reutilizam snapshots
+imutáveis nessa preparação; chaves preservam os bits dos doubles, sem aproximar geometria.
+Renovação/invalidação elimina também esses resultados e não existe cache entre partidas.
 O dono da composição deve invalidar após **qualquer** mudança de posição, atividade ou
 vida/metadados, antes da próxima consulta. A composição A10 renova a cada passo e invalida
 em eventos de dano/morte e no encerramento. Falha de renovação não reutiliza preparação

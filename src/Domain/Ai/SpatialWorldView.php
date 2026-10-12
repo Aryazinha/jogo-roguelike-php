@@ -21,6 +21,9 @@ final class SpatialWorldView implements ProjectileCollisionView, WorldView
     /** @var array<string, WorldEntity>|null Preparação explícita; nunca ativada implicitamente. */
     private ?array $prepared = null;
 
+    /** @var array<string, list<EntityView>> Consultas exatas somente durante a preparação explícita. */
+    private array $queries = [];
+
     /** @param callable(): Vector2 $player */
     public function __construct(
         private readonly WorldEntityProvider $provider,
@@ -63,15 +66,24 @@ final class SpatialWorldView implements ProjectileCollisionView, WorldView
     public function invalidate(): void
     {
         $this->prepared = null;
+        $this->queries = [];
     }
 
     /** @return list<EntityView> */
     private function query(Vector2 $center, float $radius): array
     {
+        // Os bits preservam a precisão dos doubles; não há arredondamento de coordenadas.
+        $key = pack('ddd', $center->x(), $center->y(), $radius);
+        if ($this->prepared !== null && isset($this->queries[$key])) {
+            return $this->queries[$key];
+        }
         $records = $this->prepared ?? $this->rebuildCurrent();
         $views = [];
         foreach ($this->spatial->queryRadius($center, $radius)->entities as $entity) {
             $views[] = $records['id:'.$entity->id()]->snapshot();
+        }
+        if ($this->prepared !== null) {
+            $this->queries[$key] = $views;
         }
 
         return $views;

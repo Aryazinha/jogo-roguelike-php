@@ -71,4 +71,25 @@ final class PreparedWorldViewTest extends TestCase
         $provider->fail = false;
         self::assertSame([], $view->neighbors(Vector2::zero(), 10.0));
     }
+
+    public function test_identical_prepared_queries_reuse_immutable_results_and_refresh_expires_them(): void
+    {
+        $world = new FakeCombatWorld;
+        $enemy = $world->add('target', 1.0);
+        $metrics = new GeometryMetrics;
+        $view = new SpatialWorldView($world, static fn () => Vector2::zero(), new SpatialHash(metrics: $metrics), $metrics);
+        $view->refresh();
+        $start = Vector2::zero();
+        $end = new Vector2(2.0, 0.0);
+        $first = $view->candidates($start, $end);
+        $counts = $metrics->snapshot();
+        self::assertSame($first, $view->candidates($start, $end));
+        self::assertEquals($counts, $metrics->snapshot());
+        self::assertCount(1, $first);
+        $enemy->health()->damage(100.0);
+        $view->refresh();
+        self::assertFalse($view->candidates($start, $end)[0]->isAlive);
+        self::assertTrue($first[0]->isAlive);
+        self::assertSame(2, $metrics->snapshot()->rebuilds);
+    }
 }

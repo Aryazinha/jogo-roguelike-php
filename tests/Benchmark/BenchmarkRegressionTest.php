@@ -52,10 +52,10 @@ final class BenchmarkRegressionTest extends TestCase
         self::assertSame($baseline->events, $prepared->events);
         self::assertEquals($baseline->logical, $prepared->logical);
         self::assertSame($baseline->checksum, $prepared->checksum);
-        self::assertSame($baseline->collisions->circles, $prepared->collisions->circles);
+        self::assertLessThan($baseline->collisions->circles, $prepared->collisions->circles);
         self::assertSame($baseline->collisions->segments, $prepared->collisions->segments);
         self::assertSame($baseline->collisions->sectors, $prepared->collisions->sectors);
-        self::assertSame($baseline->collisions->totalCandidates, $prepared->collisions->totalCandidates);
+        self::assertLessThan($baseline->collisions->totalCandidates, $prepared->collisions->totalCandidates);
         self::assertSame(150, $prepared->collisions->rebuilds);
         self::assertGreaterThan($prepared->collisions->rebuilds, $baseline->collisions->rebuilds);
     }
