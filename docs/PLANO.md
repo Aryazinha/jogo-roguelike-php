@@ -3,8 +3,9 @@
 **Revisão 3 (enxuta)** · 2026-09-18 · Equipe de 4 integrantes · Disciplina: Paradigmas de Programação
 
 > Documento de escopo e arquitetura: o que construir, como está organizado e o que falta
-> decidir. Cronograma, divisão de tarefas e acompanhamento ficam fora daqui, nas issues do
-> repositório.
+> decidir. O acompanhamento detalhado fica nas issues do repositório; os roteiros de execução
+> de cada responsável estão em [Frente A](PLANO_FRENTE_A.md), [Frente B](PLANO_FRENTE_B.md),
+> [Frente C](PLANO_FRENTE_C.md) e [Frente D](PLANO_FRENTE_D.md).
 >
 > **Convenção de marcação:** `[RF/RNF]` = exigência literal do enunciado ·
 > `[SUGESTÃO]` = proposta da equipe, não exigida pelo enunciado ·
