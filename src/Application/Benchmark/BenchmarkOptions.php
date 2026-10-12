@@ -10,7 +10,7 @@ final readonly class BenchmarkOptions
 {
     public function __construct(public int $seed = 20261012, public int $warmup = 600,
         public int $steps = 1800, public int $runs = 5, public int $enemies = 300,
-        public int $projectiles = 200, public bool $json = false, public bool $freshQueries = true)
+        public int $projectiles = 200, public bool $json = false, public bool $freshQueries = false)
     {
         if ($warmup < 0 || $steps < 1 || $runs < 1 || $enemies < 1 || $projectiles < 1 || $projectiles > 200
             || $warmup > PHP_INT_MAX - $steps) {
@@ -57,6 +57,6 @@ final readonly class BenchmarkOptions
 
         return new self($integer('--seed', 20261012), $integer('--warmup', 600), $integer('--steps', 1800),
             $integer('--runs', 5), $integer('--enemies', 300), $integer('--projectiles', 200),
-            isset($values['--json']), true);
+            isset($values['--json']), isset($values['--fresh-queries']));
     }
 }

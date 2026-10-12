@@ -1,0 +1,159 @@
+{
+    "scenario": "a10-load-v1",
+    "tool": "tools\/benchmark.php",
+    "parameters": {
+        "seed": 20261012,
+        "warmup": 600,
+        "steps": 1800,
+        "runs": 1,
+        "enemies": 300,
+        "projectiles": 200,
+        "json": true,
+        "freshQueries": true
+    },
+    "environment": {
+        "executedAtUtc": "2026-10-12T14:44:02+00:00",
+        "os": "Windows",
+        "osRelease": "10.0",
+        "architecture": "AMD64",
+        "processorIdentifier": "AMD64 Family 23 Model 104 Stepping 1, AuthenticAMD",
+        "logicalProcessors": "16",
+        "physicalMemoryBytes": null,
+        "phpMemoryLimit": "512M",
+        "phpVersion": "8.5.11",
+        "phpBinary": "C:\\Users\\thale\\AppData\\Local\\Programs\\PHP\\8.5.11\\php.exe",
+        "sapi": "cli",
+        "composerVersion": null,
+        "opcacheEnableCli": "0",
+        "opcacheActive": false,
+        "jitConfigured": "tracing",
+        "jitActive": false,
+        "ffiEnable": "",
+        "ffiExtensionLoaded": true,
+        "gitCommit": "5696c7497bdca5d8c1adef1c30663d24e8363934",
+        "gitBranch": "codex\/frente-a-a10-integracao-desempenho",
+        "trackedWorkingTree": "",
+        "untrackedFiles": "tmp\/pdfs\/antigo-1.png\ntmp\/pdfs\/antigo-2.png\ntmp\/pdfs\/novo-1.png\ntmp\/pdfs\/novo-2.png\ntmp\/pdfs\/novo-3.png\ntmp\/php-install\/composer.bat\ntmp\/php-install\/php.ini\ntmp\/pr-frente-a.md",
+        "configSha256": {
+            "config\/weapons.json": "5c6f3045d93353923578df5cf3dae5479529129bb57139807bab598497e43610",
+            "config\/upgrades.json": "d134acebdd55ae1d7541660d24658c1eacafaea9fd46a8a46abbbf993f267cb8",
+            "config\/evolutions.json": "fecf952a85ba16f9bc880b5db4f3ddc98c6cd018720cbd0ba5b4a68090c86466"
+        }
+    },
+    "measurement": {
+        "scope": "movement, spatial index, contacts, weapons, damage, events and geometry counters",
+        "excluded": "configuration loading, initialization, warmup, serialization, checksums, reports and cleanup",
+        "percentiles": "nearest rank: ceil(p * n)",
+        "timeCriterion": "every run: p95 <= 16600000 nanoseconds",
+        "collisionDenominator": "active Collidable world entities at the end of each fixed step; logical projectiles are excluded conservatively"
+    },
+    "timingMilliseconds": {
+        "samples": 1800,
+        "total": 495919.9609,
+        "mean": 275.5110893888889,
+        "median": 371.1856,
+        "p95": 566.1959,
+        "p99": 915.9936,
+        "maximum": 1866.5018
+    },
+    "updatesPerSecond": 3.6296179664422943,
+    "collisionRatios": {
+        "samples": 1800,
+        "total": 7606.119601328935,
+        "mean": 4.225622000738297,
+        "median": 4.415282392026578,
+        "p95": 7.8604651162790695,
+        "p99": 9.259136212624584,
+        "maximum": 10.541528239202657
+    },
+    "acceptance": {
+        "300Enemies": true,
+        "200Projectiles": true,
+        "poolReuse": true,
+        "cleanup": true,
+        "noDeaths": true,
+        "p95AtMost16.6ms": false,
+        "collisionMaximumBelow40": true,
+        "identicalChecksums": true
+    },
+    "visualFps": {
+        "status": "not_evaluated",
+        "reason": "Meta visual de 50 FPS pendente de validação conjunta com a Frente D."
+    },
+    "runs": [
+        {
+            "logical": {
+                "warmupSteps": 600,
+                "measuredSteps": 1800,
+                "minimumEnemies": 300,
+                "maximumEnemies": 300,
+                "minimumActiveEntities": 301,
+                "measuredProjectilePeak": 200,
+                "acceptedAttacks": 988,
+                "impacts": 3510,
+                "deaths": 0,
+                "contacts": 762,
+                "poolAtEnd": {
+                    "capacity": 200,
+                    "active": 0,
+                    "available": 200,
+                    "peakActive": 200,
+                    "acquisitions": 178200,
+                    "releases": 178200,
+                    "refusedBatches": 618
+                },
+                "poolAfterCleanup": {
+                    "capacity": 200,
+                    "active": 0,
+                    "available": 200,
+                    "peakActive": 200,
+                    "acquisitions": 178200,
+                    "releases": 178200,
+                    "refusedBatches": 618
+                }
+            },
+            "checksum": "babd5b28f3fef0968d9a42785e753a7318b2eaf9ed7480f5551ac91b6d09a90d",
+            "eventChecksum": "d635eca3e29dc990ebc0daf69215e1ba0186ce8a29f40122022d8b829e2979a8",
+            "timingMilliseconds": {
+                "samples": 1800,
+                "total": 495919.9609,
+                "mean": 275.5110893888889,
+                "median": 371.1856,
+                "p95": 566.1959,
+                "p99": 915.9936,
+                "maximum": 1866.5018
+            },
+            "updatesPerSecond": 3.6296179664422943,
+            "collisions": {
+                "totalCandidates": 1648961,
+                "totalNarrowTests": 2289442,
+                "circles": 2150386,
+                "segments": 138200,
+                "sectors": 856,
+                "indexRebuilds": 224786,
+                "perStep": {
+                    "samples": 1800,
+                    "total": 2289442.0,
+                    "mean": 1271.9122222222222,
+                    "median": 1329.0,
+                    "p95": 2366.0,
+                    "p99": 2787.0,
+                    "maximum": 3173.0
+                },
+                "perActiveEntity": {
+                    "samples": 1800,
+                    "total": 7606.119601328935,
+                    "mean": 4.225622000738297,
+                    "median": 4.415282392026578,
+                    "p95": 7.8604651162790695,
+                    "p99": 9.259136212624584,
+                    "maximum": 10.541528239202657
+                },
+                "maximumRatioStep": 871,
+                "strictlyBelow40": true
+            },
+            "memoryStartBytes": 1775160,
+            "processMemoryPeakBytes": 3497000
+        }
+    ]
+}

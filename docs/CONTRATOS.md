@@ -717,6 +717,36 @@ e demais pendências da equipe continuam abertas. A10 não iniciada.
 
 ---
 
+### 7.6 Integração e instrumentação A10 — 12/10/2026
+
+`Application/Benchmark` compõe os sistemas reais A1–A9 sem implementar conteúdo B/C/D.
+`BenchmarkPlayer`/`BenchmarkEnemy` são entidades sintéticas; entrada programada e render
+vazio permitem medir 300 inimigos e pico de 200 projéteis sem janela/FFI. Cenário e critérios
+estão em [DESEMPENHO_A10.md](DESEMPENHO_A10.md); `composer sim` conserva o comportamento A9.
+
+`GeometryMetrics`/`GeometrySnapshot` são contadores opcionais por passo, sem I/O/relógio.
+Argumentos opcionais **ao final** dos construtores/métodos de colisão, grade, visão, miras
+e combate recebem a mesma instância; chamadas existentes continuam válidas. O pool permanece
+na posição anterior do construtor de `WeaponAttackSystem`, antes do novo contador opcional.
+Testes geométricos de todas essas rotas entram na A10; métricas A9 não são duplicadas.
+
+`SpatialWorldView::refresh(): void` prepara explicitamente registros/índice após movimento;
+`invalidate(): void` elimina a preparação. Sem `refresh()`, cada consulta continua fresca.
+O dono da composição deve invalidar após **qualquer** mudança de posição, atividade ou
+vida/metadados, antes da próxima consulta. A composição A10 renova a cada passo e invalida
+em eventos de dano/morte e no encerramento. Falha de renovação não reutiliza preparação
+antiga. Não se adicionou método a `WorldView` ou `ProjectileCollisionView`, nem cache global.
+
+Tempo monotônico fica em Application, separado de `dt` lógico. O checksum conserva estado,
+eventos e contadores lógicos; tempos, memória e reconstruções ficam fora. Estatísticas de
+tempo/geometria, hashes das configurações e ambiente são publicados no relatório versionado.
+Essas são **decisões técnicas da A10, sem nova ratificação humana**. Contato, invulnerabilidade,
+atributos reais e todas as pendências explícitas da §9 continuam abertas.
+
+**Meta visual de 50 FPS pendente de validação conjunta com a Frente D.**
+
+---
+
 ## 8. BehaviorStrategy e WorldView
 
 O comportamento dos inimigos. A `WorldView` é **somente leitura**: a IA lê o mundo e devolve

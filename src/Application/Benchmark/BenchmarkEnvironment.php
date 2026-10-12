@@ -17,6 +17,8 @@ final class BenchmarkEnvironment
         foreach (['weapons.json', 'upgrades.json', 'evolutions.json'] as $file) {
             $files['config/'.$file] = hash_file('sha256', $root.'/config/'.$file);
         }
+        $tracked = self::git($root, ['status', '--porcelain', '--untracked-files=no']);
+        $untracked = self::git($root, ['ls-files', '--others', '--exclude-standard']);
 
         return ['executedAtUtc' => (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format(DATE_ATOM),
             'os' => PHP_OS_FAMILY, 'osRelease' => php_uname('r'), 'architecture' => php_uname('m'),
@@ -25,10 +27,12 @@ final class BenchmarkEnvironment
             'phpBinary' => PHP_BINARY, 'sapi' => PHP_SAPI, 'composerVersion' => null,
             'opcacheEnableCli' => ini_get('opcache.enable_cli'), 'opcacheActive' => $status !== false && $status['opcache_enabled'],
             'jitConfigured' => ini_get('opcache.jit'), 'jitActive' => $status !== false && ($status['jit']['on'] ?? false),
+            'jitBufferSize' => ini_get('opcache.jit_buffer_size'), 'opcacheCacheId' => ini_get('opcache.cache_id'),
             'ffiEnable' => ini_get('ffi.enable'), 'ffiExtensionLoaded' => extension_loaded('FFI'),
             'gitCommit' => self::git($root, ['rev-parse', 'HEAD']), 'gitBranch' => self::git($root, ['branch', '--show-current']),
-            'trackedWorkingTree' => self::git($root, ['status', '--porcelain', '--untracked-files=no']),
-            'untrackedFiles' => self::git($root, ['ls-files', '--others', '--exclude-standard']), 'configSha256' => $files];
+            'trackedWorkingTree' => $tracked, 'trackedDirty' => $tracked === null ? null : $tracked !== '',
+            'workingTreeDirty' => $tracked === null || $untracked === null ? null : $tracked !== '' || $untracked !== '',
+            'untrackedFiles' => $untracked, 'configSha256' => $files];
     }
 
     /** @param list<string> $arguments */

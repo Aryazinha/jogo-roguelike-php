@@ -60,11 +60,13 @@ final readonly class BenchmarkSession
         $bus = new EventBus;
         $pendingEvents = [];
         $impacts = $deaths = 0;
-        $bus->subscribe(EnemyHit::class, static function (EnemyHit $event) use (&$pendingEvents, &$impacts): void {
+        $bus->subscribe(EnemyHit::class, static function (EnemyHit $event) use (&$pendingEvents, &$impacts, $view): void {
+            $view->invalidate();
             $pendingEvents[] = $event;
             $impacts++;
         });
-        $bus->subscribe(EnemyKilled::class, static function (EnemyKilled $event) use (&$pendingEvents, &$deaths): void {
+        $bus->subscribe(EnemyKilled::class, static function (EnemyKilled $event) use (&$pendingEvents, &$deaths, $view): void {
+            $view->invalidate();
             $pendingEvents[] = $event;
             $deaths++;
         });
@@ -86,7 +88,7 @@ final readonly class BenchmarkSession
         $maximumEnemies = 0;
         $durations = $geometrySamples = $entityCounts = $eventValues = [];
         $eventHash = hash_init('sha256');
-        $loop = new GameLoop($clock, function (float $dt) use ($options, $world, $movement, $input, $geometry, $grid, $collision,
+        $loop = new GameLoop($clock, function (float $dt) use ($options, $world, $movement, $input, $geometry, $grid, $view, $collision,
             $combat, $inventory, $progression, &$step, &$accepted, &$contacts, &$durations, &$geometrySamples, &$entityCounts,
             &$minimumEnemies, &$minimumEntities, &$maximumEnemies, &$peakProjectiles, &$pendingEvents, &$eventValues, $eventHash, $captureEvents): void {
             if ($step >= $options->warmup + $options->steps) {
@@ -98,7 +100,12 @@ final readonly class BenchmarkSession
             $geometry->beginStep();
             $movement->update($world->player, $world->player->facing, $input->poll(), 240.0, $dt, $world->player->isActive());
             $world->moveEnemies($movement, $dt, $step);
-            $grid->rebuild($world->collidables());
+            if ($options->freshQueries) {
+                $view->invalidate();
+                $grid->rebuild($world->collidables());
+            } else {
+                $view->refresh();
+            }
             foreach ($grid->queryRadius($world->player->position(), $world->player->collisionRadius(), $world->player->id())->entities as $other) {
                 // Exercita contato sem inventar dano por contato ou resposta física.
                 if ($collision->intersects($world->player, $other)) {
@@ -167,6 +174,7 @@ final readonly class BenchmarkSession
                 'charges' => array_map(static fn ($c): array => [$c->attack->id, $c->attack->definition, $c->position->x(), $c->position->y(), $c->remainingSeconds()], $combat->charges())];
         } finally {
             $combat->clear();
+            $view->invalidate();
             $grid->clear();
             $world->clear();
         }

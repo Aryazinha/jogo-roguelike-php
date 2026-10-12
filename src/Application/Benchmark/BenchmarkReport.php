@@ -90,6 +90,7 @@ final readonly class BenchmarkReport
         foreach ($this->acceptance() as $goal => $passed) {
             $lines[] = $goal.': '.($passed ? 'APROVADO' : 'REPROVADO');
         }
+        $lines[] = 'Ambiente: '.json_encode($this->environment, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
         $lines[] = 'Meta visual de 50 FPS pendente de validação conjunta com a Frente D.';
 
         return implode("\n", $lines)."\n";
