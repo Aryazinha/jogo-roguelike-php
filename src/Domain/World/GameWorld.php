@@ -10,6 +10,7 @@ use Jogo\Domain\Ai\SpatialWorldView;
 use Jogo\Domain\Ai\WorldEntity;
 use Jogo\Domain\Ai\WorldEntityProvider;
 use Jogo\Domain\Enemy\Enemy;
+use Jogo\Domain\Enemy\EnemyProjectile;
 use Jogo\Domain\Entity\Damageable;
 use Jogo\Domain\Entity\Entity;
 use Jogo\Domain\Spatial\SpatialHash;
@@ -35,6 +36,9 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
     /** @var list<Enemy> */
     private array $queued = [];
 
+    /** @var array<string, EnemyProjectile> */
+    private array $projectiles = [];
+
     public function __construct(
         private readonly Entity&Damageable $player,
         private readonly MapLayout $layout,
@@ -54,27 +58,36 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
 
     public function addEnemy(Enemy $enemy): void
     {
-        $key = 'id:'.$enemy->id();
-        if (isset($this->enemies[$key]) || $enemy->id() === $this->player->id() || $this->isQueued($enemy->id())) {
-            throw new InvalidArgumentException("ID já usado no mundo: {$enemy->id()}.");
-        }
+        $this->assertFreeId($enemy->id());
         if (! $enemy->isActive() || $enemy->health()->isDead()) {
             throw new InvalidArgumentException("Inimigo {$enemy->id()} já chegou morto ou inativo.");
         }
-        $this->enemies[$key] = $enemy;
+        $this->enemies['id:'.$enemy->id()] = $enemy;
+    }
+
+    /** Projéteis de inimigos entram na hora: nascem de um sistema, não de um evento de combate. */
+    public function addProjectile(EnemyProjectile $projectile): void
+    {
+        $this->assertFreeId($projectile->id());
+        $this->projectiles['id:'.$projectile->id()] = $projectile;
+    }
+
+    /** @return list<EnemyProjectile> */
+    public function projectiles(): array
+    {
+        return array_values($this->projectiles);
     }
 
     /** Agenda o inimigo para o próximo flush(); seguro de chamar dentro de listeners. */
     public function queueEnemy(Enemy $enemy): void
     {
-        if ($this->has($enemy->id()) || $this->isQueued($enemy->id())) {
-            throw new InvalidArgumentException("ID já usado no mundo: {$enemy->id()}.");
-        }
+        $this->assertFreeId($enemy->id());
         $this->queued[] = $enemy;
     }
 
     /**
-     * Ponto seguro do passo: insere os agendados e retira mortos e inativos.
+     * Ponto seguro do passo: insere os agendados e retira mortos, inativos e
+     * projéteis que já acertaram ou chegaram ao fim do alcance.
      *
      * @return list<Enemy> Inimigos retirados, para quem precisar reagir à saída.
      */
@@ -88,6 +101,8 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
                 unset($this->enemies[$key]);
             }
         }
+
+        $this->projectiles = array_filter($this->projectiles, static fn (EnemyProjectile $p) => $p->isActive());
 
         $queued = $this->queued;
         $this->queued = [];
@@ -138,6 +153,9 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
         foreach ($this->enemies() as $enemy) {
             yield new WorldEntity($enemy, 'enemy', ! $enemy->health()->isDead());
         }
+        foreach ($this->projectiles() as $projectile) {
+            yield new WorldEntity($projectile, 'projectile', null);
+        }
     }
 
     /**
@@ -156,6 +174,13 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
                     $entity->collisionRadius(), $entity === $this->player ? 'player' : 'enemy', ! $entity->health()->isDead());
             }
         }
+        foreach ($this->projectiles as $projectile) {
+            if ($projectile->isActive()) {
+                $position = $projectile->position();
+                $views[] = new EntityView($projectile->id(), new Vector2($position->x(), $position->y()),
+                    $projectile->collisionRadius(), 'projectile', null);
+            }
+        }
 
         return $views;
     }
@@ -164,6 +189,14 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
     public function createView(SpatialHash $spatial = new SpatialHash): SpatialWorldView
     {
         return new SpatialWorldView($this, fn () => $this->player->position(), $spatial);
+    }
+
+    private function assertFreeId(string $id): void
+    {
+        if ($id === $this->player->id() || isset($this->enemies['id:'.$id])
+            || isset($this->projectiles['id:'.$id]) || $this->isQueued($id)) {
+            throw new InvalidArgumentException("ID já usado no mundo: {$id}.");
+        }
     }
 
     private function isQueued(string $id): bool

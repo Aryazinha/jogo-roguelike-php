@@ -7,6 +7,7 @@ namespace Jogo\Tests\Unit\Domain\World;
 use InvalidArgumentException;
 use Jogo\Domain\Ai\WorldEntity;
 use Jogo\Domain\Enemy\Enemy;
+use Jogo\Domain\Enemy\EnemyProjectile;
 use Jogo\Domain\Value\Health;
 use Jogo\Domain\Value\Vector2;
 use Jogo\Domain\World\GameWorld;
@@ -65,6 +66,40 @@ final class GameWorldTest extends TestCase
         self::assertSame([['player-1', 'player', true], ['enemy-1', 'enemy', true], ['enemy-2', 'enemy', false]],
             array_map(static fn ($v) => [$v->id, $v->kind, $v->isAlive], $views));
         self::assertTrue($views[1]->position->equals(new Vector2(100.0, 100.0)));
+    }
+
+    public function test_projectiles_are_listed_seen_and_cleaned_up(): void
+    {
+        $world = self::world();
+        $arrow = new EnemyProjectile('arrow-1', new Vector2(200.0, 200.0), 4.0, 'enemy-1', 3.0, new Vector2(1.0, 0.0), 100.0);
+        $spent = new EnemyProjectile('arrow-2', new Vector2(300.0, 200.0), 4.0, 'enemy-1', 3.0, new Vector2(1.0, 0.0), 100.0);
+        $world->addProjectile($arrow);
+        $world->addProjectile($spent);
+        $spent->deactivate();
+
+        $kinds = array_map(static fn ($v) => [$v->id, $v->kind, $v->isAlive], $world->snapshots());
+        self::assertSame([['player-1', 'player', true], ['arrow-1', 'projectile', null]], $kinds);
+        self::assertContains('projectile', array_map(static fn (WorldEntity $r) => $r->kind, iterator_to_array($world->entities(), false)));
+        self::assertSame(0, $world->aliveEnemyCount(), 'flecha não conta como inimigo');
+
+        $world->flush();
+        self::assertSame([$arrow], $world->projectiles());
+    }
+
+    public function test_ids_are_unique_across_enemies_projectiles_and_queue(): void
+    {
+        $world = self::world();
+        $world->addProjectile(new EnemyProjectile('x-1', Vector2::zero(), 4.0, 'enemy-1', 3.0, new Vector2(1.0, 0.0), 10.0));
+        $world->queueEnemy(self::zombie('x-2'));
+
+        foreach (['x-1', 'x-2', 'player-1'] as $id) {
+            try {
+                $world->queueEnemy(self::zombie($id));
+                self::fail("{$id} repetido deveria falhar.");
+            } catch (InvalidArgumentException $error) {
+                self::assertStringContainsString('ID já usado', $error->getMessage());
+            }
+        }
     }
 
     public function test_repeated_ids_are_rejected(): void
