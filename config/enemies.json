@@ -4,6 +4,13 @@
     "requisitos": ["RF05", "RF22-a", "RF22-b", "RF28", "RF36"],
     "nota": "RF22-a exige no minimo 3 inimigos comuns com atributos proprios. RF36 exige no minimo 2 inimigos especiais. RF22-b exige um boss com atributos distintos dos comuns."
   },
+  "separacao": {
+    "raioPixels": 40,
+    "pesoPerseguir": 1.0,
+    "pesoSeparacao": 1.4,
+    "_fonte": "provisorio",
+    "_nota": "PLANO.md 4.1: pesos e raio da separacao entre inimigos. Nao vem do enunciado; ajustar pelo teste de 50 inimigos e pelo olho na tela."
+  },
   "comuns": {
     "zombie": {
       "nome": "Zombie",
