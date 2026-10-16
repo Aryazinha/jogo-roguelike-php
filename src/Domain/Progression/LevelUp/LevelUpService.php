@@ -8,6 +8,7 @@ use Closure;
 use InvalidArgumentException;
 use Jogo\Domain\Event\EventBusInterface;
 use Jogo\Domain\Event\LevelUp;
+use Jogo\Domain\Progression\EvolutionService;
 use Jogo\Domain\Progression\PassiveInventory;
 use Jogo\Domain\Progression\ProgressionEffects;
 use Jogo\Domain\Progression\WeaponLevels;
@@ -46,6 +47,7 @@ final class LevelUpService
         private readonly WeaponLevels $weaponLevels,
         private readonly CombatInventory $inventory,
         callable $execute,
+        private readonly ?EvolutionService $evolutions = null,
     ) {
         $this->execute = Closure::fromCallable($execute);
         foreach ($inventory->weapons() as $weapon) {
@@ -137,6 +139,12 @@ final class LevelUpService
     private function upgradeWeapon(LevelUpOption $option, ?int $replaceSlot): void
     {
         $this->assertNoReplacement($replaceSlot);
+        if ($option->evolutionId !== null) {
+            $evolutions = $this->evolutions ?? throw new LogicException('Evoluções não estão habilitadas nesta partida.');
+            $evolutions->evolve($option->evolutionId);
+
+            return;
+        }
         $upgrade = $this->upgrades->get($option->contentId, $option->level);
         $this->progression->applyUpgrade($this->slotOf($option->contentId), $upgrade);
         $this->weaponLevels->promote($option->contentId, $option->level);

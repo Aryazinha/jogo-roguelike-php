@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jogo\Domain\Progression\LevelUp;
 
+use Jogo\Domain\Progression\EvolutionService;
 use Jogo\Domain\Progression\PassiveCatalog;
 use Jogo\Domain\Progression\PassiveInventory;
 use Jogo\Domain\Progression\WeaponLevels;
@@ -28,6 +29,7 @@ final readonly class LevelUpOfferGenerator
         private WeaponLevels $weaponLevels,
         private CombatInventory $inventory,
         private RandomIndex $random,
+        private ?EvolutionService $evolutions = null,
     ) {}
 
     /** @return list<LevelUpOption> */
@@ -79,9 +81,16 @@ final readonly class LevelUpOfferGenerator
             if ($this->weaponLevels->isEvolved($baseId)) {
                 continue;
             }
-            $next = $this->weaponLevels->level($baseId) + 1;
-            if (isset($available[$baseId.':'.$next])) {
-                $options[] = new LevelUpOption(LevelUpOptionKind::UPGRADE_WEAPON, $baseId, $next);
+            $level = $this->weaponLevels->level($baseId);
+            if (isset($available[$baseId.':'.($level + 1)])) {
+                $options[] = new LevelUpOption(LevelUpOptionKind::UPGRADE_WEAPON, $baseId, $level + 1);
+
+                continue;
+            }
+            $evolution = $this->evolutions?->eligibleFor($baseId);
+            if ($evolution !== null) {
+                $options[] = new LevelUpOption(LevelUpOptionKind::UPGRADE_WEAPON, $baseId, $level,
+                    evolutionId: $evolution->definition->id);
             }
         }
 
