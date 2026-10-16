@@ -1,0 +1,157 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Jogo\Domain\World;
+
+use InvalidArgumentException;
+use Jogo\Domain\Ai\SpatialWorldView;
+use Jogo\Domain\Ai\WorldEntity;
+use Jogo\Domain\Ai\WorldEntityProvider;
+use Jogo\Domain\Enemy\Enemy;
+use Jogo\Domain\Entity\Damageable;
+use Jogo\Domain\Entity\Entity;
+use Jogo\Domain\Spatial\SpatialHash;
+use Jogo\Domain\Weapon\EnemyTarget;
+use Jogo\Domain\Weapon\EnemyTargetResolver;
+
+/**
+ * Tudo o que existe no mapa durante uma partida (RF03).
+ *
+ * É o lado da Frente C do contrato com a A: fornece as entidades para a
+ * SpatialWorldView e resolve IDs em alvos de dano, sem a A conhecer Enemy.
+ *
+ * Inimigos criados durante o combate (filhos do Slime, invocações do boss)
+ * entram pela fila e só passam a existir em flush(), que a partida chama
+ * num ponto seguro, depois de dano e eventos do passo.
+ */
+final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
+{
+    /** @var array<string, Enemy> */
+    private array $enemies = [];
+
+    /** @var list<Enemy> */
+    private array $queued = [];
+
+    public function __construct(
+        private readonly Entity&Damageable $player,
+        private readonly MapLayout $layout,
+    ) {
+        $this->player->moveTo($layout->playerStart());
+    }
+
+    public function player(): Entity&Damageable
+    {
+        return $this->player;
+    }
+
+    public function layout(): MapLayout
+    {
+        return $this->layout;
+    }
+
+    public function addEnemy(Enemy $enemy): void
+    {
+        $key = 'id:'.$enemy->id();
+        if (isset($this->enemies[$key]) || $enemy->id() === $this->player->id() || $this->isQueued($enemy->id())) {
+            throw new InvalidArgumentException("ID já usado no mundo: {$enemy->id()}.");
+        }
+        if (! $enemy->isActive() || $enemy->health()->isDead()) {
+            throw new InvalidArgumentException("Inimigo {$enemy->id()} já chegou morto ou inativo.");
+        }
+        $this->enemies[$key] = $enemy;
+    }
+
+    /** Agenda o inimigo para o próximo flush(); seguro de chamar dentro de listeners. */
+    public function queueEnemy(Enemy $enemy): void
+    {
+        if ($this->has($enemy->id()) || $this->isQueued($enemy->id())) {
+            throw new InvalidArgumentException("ID já usado no mundo: {$enemy->id()}.");
+        }
+        $this->queued[] = $enemy;
+    }
+
+    /**
+     * Ponto seguro do passo: insere os agendados e retira mortos e inativos.
+     *
+     * @return list<Enemy> Inimigos retirados, para quem precisar reagir à saída.
+     */
+    public function flush(): array
+    {
+        $removed = [];
+        foreach ($this->enemies as $key => $enemy) {
+            if (! $enemy->isActive() || $enemy->health()->isDead()) {
+                $enemy->deactivate();
+                $removed[] = $enemy;
+                unset($this->enemies[$key]);
+            }
+        }
+
+        $queued = $this->queued;
+        $this->queued = [];
+        foreach ($queued as $enemy) {
+            $this->addEnemy($enemy);
+        }
+
+        return $removed;
+    }
+
+    public function has(string $id): bool
+    {
+        return isset($this->enemies['id:'.$id]);
+    }
+
+    public function enemy(string $id): ?Enemy
+    {
+        return $this->enemies['id:'.$id] ?? null;
+    }
+
+    /** @return list<Enemy> Em ordem de entrada; uma cópia, então pode ser percorrida enquanto o mundo muda. */
+    public function enemies(): array
+    {
+        return array_values($this->enemies);
+    }
+
+    /** Inimigos vivos e ativos, que contam para o teto de 300 (RNF06). */
+    public function aliveEnemyCount(): int
+    {
+        $alive = 0;
+        foreach ($this->enemies as $enemy) {
+            if ($enemy->isActive() && ! $enemy->health()->isDead()) {
+                $alive++;
+            }
+        }
+
+        return $alive + count($this->queued);
+    }
+
+    public function resolve(string $id): ?EnemyTarget
+    {
+        return $this->enemy($id)?->asTarget();
+    }
+
+    public function entities(): iterable
+    {
+        yield new WorldEntity($this->player, 'player', ! $this->player->health()->isDead());
+        foreach ($this->enemies() as $enemy) {
+            yield new WorldEntity($enemy, 'enemy', ! $enemy->health()->isDead());
+        }
+    }
+
+    /** Visão de leitura da A sobre este mundo; chame refresh() nela depois de mover entidades. */
+    public function createView(SpatialHash $spatial = new SpatialHash): SpatialWorldView
+    {
+        return new SpatialWorldView($this, fn () => $this->player->position(), $spatial);
+    }
+
+    private function isQueued(string $id): bool
+    {
+        foreach ($this->queued as $enemy) {
+            if ($enemy->id() === $id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
