@@ -22,12 +22,14 @@ final class EnemyFactory
         CombatValidation::requiredId($idPrefix, 'idPrefix');
     }
 
-    public function create(string $typeId, Vector2 $position): Enemy
+    public function create(string $typeId, Vector2 $position, float $healthMultiplier = 1.0, float $damageMultiplier = 1.0): Enemy
     {
         $archetype = $this->catalog->get($typeId);
+        // Valida antes de gastar o número da sequência.
+        $enemy = new Enemy("{$this->idPrefix}-".($this->created + 1), $archetype, $position, $healthMultiplier, $damageMultiplier);
         $this->created++;
 
-        return new Enemy("{$this->idPrefix}-{$this->created}", $archetype, $position);
+        return $enemy;
     }
 
     public function createdCount(): int

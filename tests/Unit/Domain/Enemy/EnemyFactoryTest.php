@@ -88,6 +88,33 @@ final class EnemyFactoryTest extends TestCase
         self::assertSame('enemy-1', $factory->create('zombie', Vector2::zero())->id());
     }
 
+    public function test_multipliers_scale_health_and_damage_but_not_the_archetype(): void
+    {
+        $factory = self::factory();
+
+        $strong = $factory->create('zombie', Vector2::zero(), 1.5, 1.2);
+        $normal = $factory->create('zombie', Vector2::zero());
+
+        self::assertSame(19.5, $strong->health()->maximum());
+        self::assertEqualsWithDelta(3.6, $strong->contactDamage(), 1e-12);
+        self::assertSame(13.0, $normal->health()->maximum());
+        self::assertSame(3.0, $normal->contactDamage());
+        self::assertSame(13.0, $strong->archetype()->maxHealth);
+    }
+
+    public function test_invalid_multiplier_does_not_consume_an_id(): void
+    {
+        $factory = self::factory();
+
+        try {
+            $factory->create('zombie', Vector2::zero(), 0.0);
+            self::fail('Multiplicador zero deveria falhar.');
+        } catch (InvalidArgumentException) {
+        }
+
+        self::assertSame('enemy-1', $factory->create('zombie', Vector2::zero())->id());
+    }
+
     public function test_custom_prefix_is_used(): void
     {
         $factory = new EnemyFactory(new EnemyCatalog(EnemyFixtures::fullSet()), 'summon');

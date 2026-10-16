@@ -6,6 +6,7 @@ namespace Jogo\Domain\Enemy;
 
 use Jogo\Domain\Entity\Damageable;
 use Jogo\Domain\Entity\Entity;
+use Jogo\Domain\Value\CombatValidation;
 use Jogo\Domain\Value\Facing;
 use Jogo\Domain\Value\Health;
 use Jogo\Domain\Value\Vector2;
@@ -23,10 +24,24 @@ final class Enemy extends Entity implements Damageable
 
     private readonly Facing $facing;
 
-    public function __construct(string $id, private readonly EnemyArchetype $archetype, Vector2 $position)
-    {
+    private readonly float $contactDamage;
+
+    /**
+     * Os multiplicadores vêm do escalonamento por nível (RF28): 1.0 é o
+     * valor do arquétipo, sem alteração.
+     */
+    public function __construct(
+        string $id,
+        private readonly EnemyArchetype $archetype,
+        Vector2 $position,
+        float $healthMultiplier = 1.0,
+        float $damageMultiplier = 1.0,
+    ) {
         parent::__construct($id, $position, $archetype->collisionRadius);
-        $this->health = new Health($archetype->maxHealth);
+        CombatValidation::positive($healthMultiplier, 'healthMultiplier');
+        CombatValidation::nonNegative($damageMultiplier, 'damageMultiplier');
+        $this->health = new Health($archetype->maxHealth * $healthMultiplier);
+        $this->contactDamage = $archetype->damage * $damageMultiplier;
         // Começa olhando para a direita; o movimento atualiza a cada passo.
         $this->facing = new Facing(new Vector2(1.0, 0.0));
     }
@@ -59,7 +74,7 @@ final class Enemy extends Entity implements Damageable
 
     public function contactDamage(): float
     {
-        return $this->archetype->damage;
+        return $this->contactDamage;
     }
 
     public function speed(): float
