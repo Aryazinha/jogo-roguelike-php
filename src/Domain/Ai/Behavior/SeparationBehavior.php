@@ -12,15 +12,14 @@ use Jogo\Domain\Value\Vector2;
 /**
  * Separation: afastar-se dos outros inimigos que estão perto demais (PLANO.md §4.1).
  *
- * Cada vizinho empurra na direção oposta a ele com força 1/d, então quem
- * está colado empurra muito e quem está longe quase nada. A consulta usa
- * a grade espacial da A, sem comparar todos contra todos.
+ * Cada vizinho empurra na direção oposta a ele com força 1 - d/raio: vale 1
+ * quando está colado e cai até 0 na borda do raio. A soma é limitada a
+ * comprimento 1, mas não é esticada até 1: no meio de um grupo os empurrões
+ * se anulam e o inimigo quase não sai do lugar, em vez de disparar para um
+ * lado qualquer. A consulta usa a grade espacial da A.
  */
 final readonly class SeparationBehavior implements BehaviorStrategy
 {
-    /** Abaixo de 1 px a força ficaria enorme; trata como se estivesse a 1 px. */
-    private const MIN_DISTANCE = 1.0;
-
     public function __construct(private float $radius)
     {
         CombatValidation::positive($radius, 'radius');
@@ -37,10 +36,10 @@ final readonly class SeparationBehavior implements BehaviorStrategy
             $away = $enemy->position->subtract($other->position);
             $distance = $away->length();
             $direction = $distance > 0.0 ? $away->scale(1.0 / $distance) : self::tieBreak($enemy->id, $other->id);
-            $push = $push->add($direction->scale(1.0 / max($distance, self::MIN_DISTANCE)));
+            $push = $push->add($direction->scale(max(0.0, 1.0 - $distance / $this->radius)));
         }
 
-        return $push->normalized();
+        return $push->length() > 1.0 ? $push->normalized() : $push;
     }
 
     /**

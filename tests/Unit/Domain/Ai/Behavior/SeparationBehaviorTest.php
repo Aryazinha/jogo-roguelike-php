@@ -18,9 +18,32 @@ final class SeparationBehaviorTest extends TestCase
         $self = FixedWorldView::enemy('enemy-1', 0.0, 0.0);
         $world = new FixedWorldView(new Vector2(500.0, 0.0), [$self, FixedWorldView::enemy('enemy-2', 10.0, 0.0)]);
 
-        $direction = (new SeparationBehavior(36.0))->direction($self, $world, 1 / 60);
+        $direction = (new SeparationBehavior(40.0))->direction($self, $world, 1 / 60);
 
-        self::assertTrue($direction->equals(new Vector2(-1.0, 0.0)));
+        // Força 1 - 10/40 = 0,75 para a esquerda.
+        self::assertTrue($direction->equals(new Vector2(-0.75, 0.0)));
+    }
+
+    public function test_push_is_capped_at_unit_length(): void
+    {
+        $self = FixedWorldView::enemy('enemy-1', 0.0, 0.0);
+        $world = new FixedWorldView(Vector2::zero(), [$self, FixedWorldView::enemy('enemy-2', 2.0, 0.0),
+            FixedWorldView::enemy('enemy-3', 2.0, 1.0)]);
+
+        $direction = (new SeparationBehavior(40.0))->direction($self, $world, 1 / 60);
+
+        self::assertEqualsWithDelta(1.0, $direction->length(), 1e-9);
+    }
+
+    public function test_enemy_surrounded_on_both_sides_barely_moves(): void
+    {
+        $self = FixedWorldView::enemy('enemy-1', 0.0, 0.0);
+        $world = new FixedWorldView(Vector2::zero(), [$self, FixedWorldView::enemy('enemy-2', 10.0, 0.0),
+            FixedWorldView::enemy('enemy-3', -10.5, 0.0)]);
+
+        $direction = (new SeparationBehavior(40.0))->direction($self, $world, 1 / 60);
+
+        self::assertLessThan(0.05, $direction->length());
     }
 
     public function test_closer_neighbor_pushes_harder(): void
@@ -32,9 +55,9 @@ final class SeparationBehaviorTest extends TestCase
 
         $direction = (new SeparationBehavior(36.0))->direction($self, $world, 1 / 60);
 
-        self::assertLessThan(-0.9, $direction->x());
-        self::assertLessThan(0.0, $direction->y());
-        self::assertEqualsWithDelta(1.0, $direction->length(), 1e-9);
+        // Forças 1 - 5/36 para a esquerda e 1 - 20/36 para cima.
+        self::assertTrue($direction->equals(new Vector2(-(1 - 5 / 36), -(1 - 20 / 36))));
+        self::assertGreaterThan(abs($direction->y()), abs($direction->x()));
     }
 
     public function test_ignores_itself_the_player_others_kinds_dead_and_far_entities(): void
