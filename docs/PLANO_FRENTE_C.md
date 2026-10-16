@@ -5,7 +5,7 @@
 | Responsável | Lara Fernandes |
 | Escopo | Inimigos, IA, spawn, boss, ondas, baús, eventos e elementos quebráveis |
 | Requisitos principais | RF03, RF05, RF08–RF09, RF11, RF22, RF26–RF29, RF35–RF36, RF38, RNF03 e RNF06 |
-| Estado | C1 ([INIMIGOS_ARQUETIPOS.md](INIMIGOS_ARQUETIPOS.md)), C2 ([MUNDO_MAPA.md](MUNDO_MAPA.md)) e C3 ([COMPORTAMENTOS_INIMIGOS.md](COMPORTAMENTOS_INIMIGOS.md)) concluídas; C4 a C11 planejadas |
+| Estado | C1 ([INIMIGOS_ARQUETIPOS.md](INIMIGOS_ARQUETIPOS.md)), C2 ([MUNDO_MAPA.md](MUNDO_MAPA.md)), C3 ([COMPORTAMENTOS_INIMIGOS.md](COMPORTAMENTOS_INIMIGOS.md)) e C4 ([DANO_AO_JOGADOR.md](DANO_AO_JOGADOR.md)) concluídas; C5 a C11 planejadas |
 
 Este documento organiza o trabalho da Frente C. Ele não substitui o enunciado nem
 `docs/PLANO.md`. A Frente C define o conteúdo e decide quando seus comportamentos acontecem;
