@@ -87,3 +87,25 @@ frente a elas, levar para `CONTRATOS.md` com a concordância da equipe.
 > **Para a equipe:** com o RF39 aplicado literalmente, o cooldown de 1,8 s do arco da Alex
 > chega a zero no nível 36. A partir daí a passiva deixa de alcançar o arco. Vale decidir em
 > conjunto se isso é aceitável ou se o balanceamento das armas deve mudar.
+
+## B5 — escolhas de level up (RF14, RF15, RF19, RF21)
+
+- `LevelUpService` assina `LevelUp` e guarda uma escolha pendente por nível. Enquanto
+  `hasPendingChoice()` for verdadeiro, Application mantém o `GameLoop` pausado e a Frente D
+  mostra `currentOffer()`; `choose($indice, $slotParaSubstituir)` aplica a opção uma única vez.
+- `LevelUpOfferGenerator` sorteia até três `LevelUpOption`, primeiro uma de cada tipo do RF14
+  (nova arma, melhoria de arma, item passivo) e depois completa com as restantes. Mesma seed e
+  mesmo estado geram as mesmas opções.
+- `WeaponLevels` guarda o nível de cada arma pelo ID base. Ficou na B5, e não na B6, porque as
+  opções de melhoria dependem dele; a B6 acrescenta as evoluções.
+- Arma nova é equipada no slot livre e recebe os efeitos de passivos já adquiridos.
+
+### Decisões técnicas da B5
+
+| Ponto | Decisão | Motivo |
+| --- | --- | --- |
+| Quantidade de opções | Até 3, uma de cada tipo quando houver | `PLANO.md` registra 3 opções para o RF14 |
+| Inventário cheio (RF15) | Arma nova continua oferecida, com `requiresReplacement`; `choose` exige o slot a substituir | `PLANO_FRENTE_B.md` pede o fluxo de substituição |
+| Arma substituída | Sai do registro de níveis e pode ser oferecida de novo, recomeçando do nível 1 | A substituição cria uma arma nova, como em `CombatInventory::replace` |
+| Nenhuma opção elegível | `currentOffer()` devolve lista vazia e consome o nível; Application não pausa | Evita uma tela de level up sem escolha |
+| Payload para a D | `LevelUpOption(kind, contentId, level, requiresReplacement)` | Proposta da B, a confirmar com a D |
