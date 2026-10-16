@@ -158,3 +158,40 @@ A Frente C decide quando e onde baús, drops e eventos aparecem; a B aplica o ef
 | XP com multiplicador | Arredondado para o inteiro mais próximo | XP é inteiro na B3 |
 | `item_especial` e quantidade de `xp_pequeno` | **Pendente da Frente C**; `collectXp()` já recebe a quantidade | Nenhum arquivo define esses valores |
 | `ChestOpened` | Não criado pela B; a C publica e chama `grantWeaponUpgrades` | O evento pertence à C (`CONTRATOS.md` §3) |
+
+## B8 — estado, fim e resumo da partida (RF09, RF30)
+
+- `RunState` assina `EnemyKilled` e `PlayerDied`. `advance($delta)` é chamado a cada passo fixo,
+  então o tempo de pausa não entra na conta (RF30); a soma é compensada como em `Cooldown`.
+- Cada `enemyId` é contado uma única vez. `EnemyKilled` com `isBoss = true` marca vitória, e a
+  partida **continua em modo livre** até a morte (`PLANO.md` §1.3). `recordVictory()` existe para
+  o caso de a C sinalizar a vitória por outro caminho.
+- A morte encerra a partida uma única vez; depois disso nenhuma chamada altera o estado.
+  `summary()` devolve um `RunSummary` imutável (personagem, nível, mortes, tempo, vitória, seed).
+
+## B9 — pontuação e nome do jogador (RF32, RF33)
+
+- `ScoreCalculator` (versão 1): `nível × 100 + inimigos × 10 + segundos inteiros × 2 + vitória × 500`,
+  a fórmula registrada em `PLANO.md` §1.3.
+- `PlayerName` normaliza espaços e recusa nome vazio, caractere de controle, UTF-8 inválido e
+  mais de 20 caracteres. `ScoreEntry::fromSummary()` associa o nome ao resumo.
+
+## B10 — SQLite e ranking (RF34, RNF01)
+
+- `Domain/Score/ScoreRepositoryInterface` fica no domínio; `Infrastructure/Persistence` tem
+  `SqliteConnection`, `Migrator` e `SqliteScoreRepository`. Nenhuma classe de `Domain/` usa PDO.
+- `Migrator` aplica `database/migrations/*.sql` em ordem de nome, um arquivo por transação, e
+  registra a versão em `schema_migrations`; rodar de novo não reaplica nada.
+- `ranking($limite, $personagem)` ordena por pontuação decrescente, menor tempo, partida mais
+  antiga e, como último critério, menor `id` (o `criado_em` do SQLite tem resolução de 1 s).
+- O banco padrão é `database/jogo.sqlite`, já ignorado pelo `.gitignore`. Os testes usam um
+  arquivo temporário, fecham e reabrem o banco e apagam o arquivo no fim.
+
+### Decisões técnicas da B8 a B10
+
+| Ponto | Decisão | Motivo |
+| --- | --- | --- |
+| Tempo na pontuação | Segundos inteiros, arredondados para baixo | `scores.tempo_segundos` é `INTEGER` |
+| Fonte da vitória | `EnemyKilled.isBoss`, classificação fornecida pela C | Evita um evento novo na lista fechada |
+| Tamanho máximo do nome | 20 caracteres | Cabe na tela de ranking; o enunciado não define |
+| Empate no mesmo segundo | `id` crescente decide a partida mais antiga | `criado_em` não distingue registros do mesmo segundo |
