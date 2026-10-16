@@ -109,3 +109,24 @@ frente a elas, levar para `CONTRATOS.md` com a concordância da equipe.
 | Arma substituída | Sai do registro de níveis e pode ser oferecida de novo, recomeçando do nível 1 | A substituição cria uma arma nova, como em `CombatInventory::replace` |
 | Nenhuma opção elegível | `currentOffer()` devolve lista vazia e consome o nível; Application não pausa | Evita uma tela de level up sem escolha |
 | Payload para a D | `LevelUpOption(kind, contentId, level, requiresReplacement)` | Proposta da B, a confirmar com a D |
+
+## B6 — upgrades e evoluções especiais (RF19, RF37)
+
+- `EvolutionService` verifica os requisitos de `evolutions.json` (arma equipada no nível mínimo
+  e passivo no nível mínimo), pede a troca à Frente A por `WeaponProgressionService::evolve()` e
+  reaplica os efeitos de passivos com `syncWeapon`. Cada arma evolui uma única vez.
+- Combinações reais testadas: Stone Sword 5 + Sharpness 3 → Enchanted Stone Sword e
+  TNT 5 + Gunpowder 3 → Mega TNT. Requisito ausente falha com a causa e não altera arma,
+  modificadores nem cooldown.
+- No level up, a melhoria de uma arma no último upgrade vira a evolução quando elegível:
+  `LevelUpOption(UPGRADE_WEAPON, 'stone_sword', 5, evolutionId: 'enchanted_stone_sword')`.
+  Depois de evoluída, a arma não recebe mais melhorias.
+- Os 16 upgrades de `upgrades.json` (níveis 2 a 5 das quatro armas) passam pelo controle de nível.
+
+### Decisões técnicas da B6
+
+| Ponto | Decisão | Motivo |
+| --- | --- | --- |
+| Onde a evolução aparece | Como a melhoria da arma no level up; os baús (B7) usam o mesmo serviço | RF19: "durante o level up ou em baús"; RF14 continua com três tipos |
+| Nível da arma evoluída | Mantém o nível alcançado e não recebe mais upgrades | `upgrades.json` só tem níveis para as armas base |
+| Efeitos depois da evolução | Upgrades descartados (decisão A8); passivos e passivas reaplicados | Os passivos continuam adquiridos; os upgrades eram da arma base |
