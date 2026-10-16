@@ -11,6 +11,11 @@
     "_fonte": "provisorio",
     "_nota": "PLANO.md 4.1: pesos e raio da separacao entre inimigos. Nao vem do enunciado; ajustar pelo teste de 50 inimigos e pelo olho na tela."
   },
+  "contato": {
+    "invulnerabilidadeSegundos": 0.5,
+    "_fonte": "provisorio",
+    "_nota": "RF08: tempo em que o jogador nao recebe outro dano depois de um golpe. Sem isso, 20 inimigos encostados tirariam 20 golpes por quadro. Confirmar com a Frente A."
+  },
   "comuns": {
     "zombie": {
       "nome": "Zombie",

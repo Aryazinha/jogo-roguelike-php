@@ -36,8 +36,8 @@ final class EnemyDefinitionMapper
     {
         $root = ConfigSchema::object($decoded, $source);
         $groups = array_map(static fn (EnemyCategory $c) => $c->value, EnemyCategory::cases());
-        // A seção separacao pertence à IA e é lida pelo SteeringConfigLoader.
-        ConfigSchema::fields($root, [...$groups, 'separacao'], $source);
+        // separacao e contato são regras gerais, lidas pelo SteeringConfigLoader e pelo ContactConfigLoader.
+        ConfigSchema::fields($root, [...$groups, 'separacao', 'contato'], $source);
         $this->assertMeta($root, $source);
 
         $archetypes = [];
