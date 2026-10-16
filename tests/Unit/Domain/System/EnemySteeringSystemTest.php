@@ -28,7 +28,7 @@ final class EnemySteeringSystemTest extends TestCase
         $zombie = new Enemy('enemy-1', EnemyFixtures::common('zombie'), new Vector2(800.0, 1000.0));
         $world->addEnemy($zombie);
 
-        self::system()->update($world, $world->createView(), 1.0);
+        self::system()->update($world, 1.0);
 
         self::assertTrue($zombie->position()->equals(new Vector2(855.0, 1000.0)));
         self::assertTrue($zombie->facing()->direction()->equals(new Vector2(1.0, 0.0)));
@@ -40,7 +40,7 @@ final class EnemySteeringSystemTest extends TestCase
         $zombie = new Enemy('enemy-1', EnemyFixtures::common('zombie'), new Vector2(1000.0, 1300.0));
         $world->addEnemy($zombie);
 
-        self::system()->update($world, $world->createView(), 0.5);
+        self::system()->update($world, 0.5);
 
         self::assertTrue($zombie->facing()->direction()->equals(new Vector2(0.0, -1.0)));
     }
@@ -51,7 +51,7 @@ final class EnemySteeringSystemTest extends TestCase
         $zombie = new Enemy('enemy-1', EnemyFixtures::common('zombie'), new Vector2(800.0, 1000.0));
         $world->addEnemy($zombie);
 
-        self::system()->update($world, $world->createView(), 0.0);
+        self::system()->update($world, 0.0);
 
         self::assertTrue($zombie->position()->equals(new Vector2(800.0, 1000.0)));
     }
@@ -66,7 +66,7 @@ final class EnemySteeringSystemTest extends TestCase
         $dead->health()->damage(100.0);
         $inactive->deactivate();
 
-        self::system()->update($world, $world->createView(), 1.0);
+        self::system()->update($world, 1.0);
 
         self::assertSame(800.0, $dead->position()->x());
         self::assertSame(1200.0, $inactive->position()->x());
@@ -82,7 +82,7 @@ final class EnemySteeringSystemTest extends TestCase
                 $world->addEnemy(new Enemy($id, EnemyFixtures::common('zombie'), $start[$id]));
             }
             (new EnemySteeringSystem(new MovementSystem($world->layout()->bounds()),
-                ['perseguir' => self::chaseWithSeparation()]))->update($world, $world->createView(), 0.5);
+                ['perseguir' => self::chaseWithSeparation()]))->update($world, 0.5);
 
             $positions[] = [(string) $world->enemy('enemy-1')?->position()->x(), (string) $world->enemy('enemy-2')?->position()->x()];
         }
@@ -98,7 +98,7 @@ final class EnemySteeringSystemTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Nenhuma estratégia registrada para o comportamento manter_distancia.');
 
-        self::system()->update($world, $world->createView(), 1.0);
+        self::system()->update($world, 1.0);
     }
 
     private static function system(): EnemySteeringSystem
