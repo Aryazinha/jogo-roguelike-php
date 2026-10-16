@@ -113,7 +113,7 @@
         "investindo": { "duracaoSegundos": 1.0, "multiplicadorVelocidade": 3.0 },
         "recuperando": { "duracaoSegundos": 1.0 },
         "cooldownInvestidaSegundos": 8.0,
-        "invocando": { "emVidaPercentual": [0.7, 0.4], "quantidade": 8, "tipo": "zombie" },
+        "invocando": { "emVidaPercentual": [0.7, 0.4], "quantidade": 8, "tipo": "zombie", "duracaoSegundos": 1.0 },
         "enfurecido": {
           "emVidaPercentual": 0.25,
           "modificadores": [
