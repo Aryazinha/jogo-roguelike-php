@@ -86,6 +86,27 @@ final class ProgressionEffects
         return $applied;
     }
 
+    /** Remove um efeito do jogador e de todas as armas, sem tocar nas demais origens. */
+    public function revoke(string $source): bool
+    {
+        $removed = $this->player->removeModifier($source);
+        $before = count($this->weaponEffects);
+        $this->weaponEffects = array_values(array_filter(
+            $this->weaponEffects,
+            static fn (StatModifier $modifier): bool => $modifier->source !== $source,
+        ));
+        if (count($this->weaponEffects) === $before) {
+            return $removed;
+        }
+        foreach ($this->player->inventory()->weapons() as $slot => $weapon) {
+            if ($weapon->modifier($source) !== null) {
+                $this->weapons->remove($slot, $source);
+            }
+        }
+
+        return true;
+    }
+
     /** @return list<StatModifier> */
     public function weaponEffects(): array
     {

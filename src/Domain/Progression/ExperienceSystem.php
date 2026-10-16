@@ -16,6 +16,8 @@ final class ExperienceSystem
     /** @var array<string, true> */
     private array $rewardedEnemies = [];
 
+    private float $xpMultiplier = 1.0;
+
     public function __construct(
         private readonly string $playerId,
         private readonly Experience $experience,
@@ -33,6 +35,21 @@ final class ExperienceSystem
         });
     }
 
+    /**
+     * Multiplicador de XP por morte, usado pela Chuva de XP (RF35). O resultado é arredondado
+     * para o inteiro mais próximo; 1.0 restaura o valor normal.
+     */
+    public function setXpMultiplier(float $multiplier): void
+    {
+        CombatValidation::nonNegative($multiplier, 'multiplicador de XP');
+        $this->xpMultiplier = $multiplier;
+    }
+
+    public function xpMultiplier(): float
+    {
+        return $this->xpMultiplier;
+    }
+
     public function experience(): Experience
     {
         return $this->experience;
@@ -45,7 +62,7 @@ final class ExperienceSystem
         if (isset($this->rewardedEnemies[$key])) {
             return 0;
         }
-        $amount = $this->xpTable->get($event->enemyTypeId)->roll($this->random);
+        $amount = (int) round($this->xpTable->get($event->enemyTypeId)->roll($this->random) * $this->xpMultiplier);
         $this->rewardedEnemies[$key] = true;
         $this->grant($amount, $event->elapsedSeconds);
 
