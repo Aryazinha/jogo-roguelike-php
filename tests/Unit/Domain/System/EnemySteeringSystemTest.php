@@ -8,6 +8,8 @@ use InvalidArgumentException;
 use Jogo\Domain\Ai\Behavior\BehaviorStrategy;
 use Jogo\Domain\Ai\Behavior\SeekBehavior;
 use Jogo\Domain\Ai\Behavior\SteeringSettings;
+use Jogo\Domain\Ai\EntityView;
+use Jogo\Domain\Ai\WorldView;
 use Jogo\Domain\Enemy\Enemy;
 use Jogo\Domain\System\EnemySteeringSystem;
 use Jogo\Domain\System\MovementSystem;
@@ -88,6 +90,28 @@ final class EnemySteeringSystemTest extends TestCase
         }
 
         self::assertSame($positions[0], $positions[1]);
+    }
+
+    public function test_strategy_for_the_type_wins_over_the_behavior(): void
+    {
+        $world = self::world();
+        $spider = new Enemy('enemy-1', EnemyFixtures::common('spider'), new Vector2(800.0, 1000.0));
+        $zombie = new Enemy('enemy-2', EnemyFixtures::common('zombie'), new Vector2(800.0, 900.0));
+        $world->addEnemy($spider);
+        $world->addEnemy($zombie);
+        $stay = new class implements BehaviorStrategy
+        {
+            public function direction(EntityView $enemy, WorldView $world, float $deltaSeconds): Vector2
+            {
+                return Vector2::zero();
+            }
+        };
+
+        (new EnemySteeringSystem(new MovementSystem($world->layout()->bounds()),
+            ['perseguir' => new SeekBehavior, 'spider' => $stay]))->update($world, 1.0);
+
+        self::assertTrue($spider->position()->equals(new Vector2(800.0, 1000.0)));
+        self::assertFalse($zombie->position()->equals(new Vector2(800.0, 900.0)));
     }
 
     public function test_missing_strategy_is_reported(): void

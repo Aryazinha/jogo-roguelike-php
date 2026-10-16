@@ -22,7 +22,8 @@ use Jogo\Domain\World\GameWorld;
 final readonly class EnemySteeringSystem
 {
     /**
-     * @param  array<string, BehaviorStrategy>  $behaviors  Estratégia por ID de comportamento do arquétipo.
+     * @param  array<string, BehaviorStrategy>  $behaviors  Estratégia por ID do tipo (ex.: skeleton) ou,
+     *                                                      se não houver, por ID de comportamento (ex.: perseguir).
      * @param  float  $cellSize  Tamanho da célula do retrato; o ideal é o raio de separação.
      */
     public function __construct(
@@ -66,7 +67,8 @@ final readonly class EnemySteeringSystem
     {
         $id = $enemy->archetype()->behaviorId;
 
-        return $this->behaviors[$id]
+        // Pelo tipo primeiro: cada inimigo à distância tem a própria faixa de tiro.
+        return $this->behaviors[$enemy->typeId()] ?? $this->behaviors[$id]
             ?? throw new InvalidArgumentException("Nenhuma estratégia registrada para o comportamento {$id}.");
     }
 }
