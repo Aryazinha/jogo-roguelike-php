@@ -195,3 +195,44 @@ A Frente C decide quando e onde baús, drops e eventos aparecem; a B aplica o ef
 | Fonte da vitória | `EnemyKilled.isBoss`, classificação fornecida pela C | Evita um evento novo na lista fechada |
 | Tamanho máximo do nome | 20 caracteres | Cabe na tela de ranking; o enunciado não define |
 | Empate no mesmo segundo | `id` crescente decide a partida mais antiga | `criado_em` não distingue registros do mesmo segundo |
+
+## B11 — integração e regressão
+
+`Application/Progression/ProgressionSession` monta toda a Frente B para uma partida a partir de
+`config/*.json` e liga os assinantes no `EventBus`. `ProgressionSessionTest` percorre, sem
+janela, o fluxo completo: inimigos derrotados → XP → níveis → escolhas → Steak e Fúria → baú →
+boss (vitória) → morte → pontuação → ranking em SQLite, e confere que a mesma seed reproduz
+exatamente o mesmo resultado. `B11ArchitectureTest` garante que `src/Domain` não depende de PDO,
+SQLite, FFI, Raylib, `Core/Config`, `Application` ou `Infrastructure`.
+
+### Como as outras frentes usam a B
+
+```php
+$b = ProgressionSession::start('config', 'steve', 'player', $posicao, $raio, $seed, $eventBus,
+    $weaponAttackSystem, $weaponAttackSystem);
+```
+
+| Quem | Quando | Chamada |
+| --- | --- | --- |
+| Application | A cada passo fixo | `$b->update($dt)` (regeneração, bônus e tempo) |
+| Application | Depois de cada passo | se `$b->levelUps->hasPendingChoice()`, pausar o `GameLoop` |
+| D | Tela de level up | `$b->levelUps->currentOffer()` e `$b->levelUps->choose($i, $slot)`; lista vazia = não pausar |
+| D | HUD | `$b->player->health()`, `$b->experience->experience()`, `$b->bonuses->remainingSeconds($id)` |
+| C | Steak coletado | `$b->pickups->collectHealing($pickupId, $b->steak, $tempo)` |
+| C | Bônus coletado | `$b->pickups->collectBonus($pickupId, $bonusId, $tempo)` |
+| C | Baú aberto | `$b->chests->grantWeaponUpgrades($bauId, $quantidade)` |
+| C | Chuva de XP | `$b->experience->setXpMultiplier(2.0)` no início e `1.0` no fim |
+| A | Inimigo e jogador morrem | nada a fazer: `EnemyKilled` e `PlayerDied` já chegam pelo `EventBus` |
+| D | Fim da partida | `$b->run->summary()` e `$b->finish(new PlayerName($nome), $repositorio)` |
+| D | Tela de ranking | `SqliteScoreRepository::ranking(10)` depois de `Migrator::migrate()` |
+
+### Pendências que dependem de outras frentes
+
+| Ponto | Frente | Situação |
+| --- | --- | --- |
+| Payload de `LevelUp` e `LevelUpOption` | D | Proposto pela B; confirmar antes da tela de level up |
+| Payload de `ItemPicked` | C/D | Proposto pela B |
+| `item_especial` e quantidade de `xp_pequeno` | C | Sem definição em `scenery.json` |
+| Bases de `velocidadeJogador` e `raioColeta` | A/B/C | Sem valor no enunciado; Feather, Magnet e Agilidade ficam sem efeito até lá |
+| Cooldown do arco da Alex no nível 36 | Todas | Ver alerta na B4 |
+| Teste da A que depende de `pcre.jit` | A | `WeaponConfigLoaderTest` falha com o JIT ligado (padrão do PHP); passa com `-d pcre.jit=0` |
