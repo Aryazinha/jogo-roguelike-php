@@ -128,6 +128,10 @@ final class PassiveProgressionTest extends TestCase
         for ($level = 2; $level <= 10; $level++) {
             $system->onLevel($level);
         }
+        self::assertSame([5, 10], $system->pendingLevels());
+        self::assertSame(2.5, $this->weapon(0)->definition()->damage);
+
+        self::assertSame([5, 10], $system->applyPending());
 
         self::assertSame([5, 10], $system->grantedLevels());
         self::assertEqualsWithDelta(2.5 * 1.1 * 1.1, $this->weapon(0)->definition()->damage, 1.0E-12);
@@ -144,6 +148,7 @@ final class PassiveProgressionTest extends TestCase
         $xp->subscribe();
 
         $this->harness->events->publish(new EnemyKilled('boss-1', 'warden', true, Vector2::zero(), 'player', 'bow', 300.0));
+        $passive->applyPending();
 
         self::assertSame(9, $xp->experience()->level());
         self::assertSame([4, 8], $passive->grantedLevels());
@@ -158,6 +163,7 @@ final class PassiveProgressionTest extends TestCase
         for ($level = 4; $level <= 40; $level += 4) {
             self::assertTrue($system->onLevel($level));
         }
+        $system->applyPending();
 
         $bow = $this->weapon(0);
         self::assertCount(10, $this->effects->weaponEffects());

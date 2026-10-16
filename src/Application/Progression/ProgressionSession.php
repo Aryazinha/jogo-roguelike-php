@@ -40,14 +40,20 @@ use Jogo\Domain\Weapon\WeaponMutationGuard;
 
 /**
  * Composição da Frente B para uma partida: lê os config/*.json, cria o jogador e liga todos
- * os assinantes no EventBus da partida. Application chama `update()` a cada passo fixo e,
- * enquanto `levelUps->hasPendingChoice()`, mantém o GameLoop pausado para a tela da D.
+ * os assinantes no EventBus da partida.
+ *
+ * Ordem de cada passo fixo em Application: primeiro o combate da Frente A, depois `update()`.
+ * `update()` é o ponto seguro: aplica o que foi enfileirado durante o combate (passivas de
+ * personagem) antes de regeneração, bônus e tempo. Enquanto `levelUps->hasPendingChoice()`,
+ * Application mantém o GameLoop pausado para a tela da D.
  *
  * Cada subsistema sorteia com sua própria seed derivada da seed da partida, então XP, opções
  * de level up e baús são reproduzíveis de forma independente.
  */
 final class ProgressionSession
 {
+    private ?ScoreEntry $finished = null;
+
     private function __construct(
         public readonly Player $player,
         public readonly ExperienceSystem $experience,
@@ -64,13 +70,20 @@ final class ProgressionSession
         public readonly RunState $run,
     ) {}
 
-    /** @param callable(WeaponDefinition): bool $execute Executor de ataques da Frente A. */
+    /**
+     * `movementSpeed` (px/s) e `pickupRadius` (px) não têm valor no enunciado nem no JSON; quem
+     * compõe a partida os fornece, e Feather, Agilidade e Magnet passam a alterá-los de fato.
+     *
+     * @param  callable(WeaponDefinition): bool  $execute  Executor de ataques da Frente A.
+     */
     public static function start(
         string $configDir,
         string $characterId,
         string $playerId,
         Vector2 $position,
         float $collisionRadius,
+        float $movementSpeed,
+        float $pickupRadius,
         int $seed,
         EventBusInterface $events,
         callable $execute,
@@ -84,7 +97,8 @@ final class ProgressionSession
         $xpTable = (new EnemyXpConfigLoader)->load($configDir.'/enemies.json');
         $rewards = new RewardConfigLoader;
 
-        $player = (new PlayerFactory($characters, $weapons))->create($characterId, $playerId, $position, $collisionRadius, $execute);
+        $player = (new PlayerFactory($characters, $weapons))->create($characterId, $playerId, $position, $collisionRadius,
+            $execute, ['velocidadeJogador' => $movementSpeed, 'raioColeta' => $pickupRadius]);
         $inventory = $player->inventory();
         $progression = new WeaponProgressionService($inventory, $evolutionCatalog, $combatGuard);
         $effects = new ProgressionEffects($player, $progression);
@@ -114,12 +128,14 @@ final class ProgressionSession
     }
 
     /**
-     * Passo fixo da Frente B: regeneração, duração dos bônus e tempo de sobrevivência.
+     * Passo fixo da Frente B, chamado depois do combate: aplica o que ficou pendente, depois
+     * regeneração, duração dos bônus e tempo de sobrevivência.
      *
      * @return list<string> Bônus que expiraram neste passo.
      */
     public function update(float $deltaSeconds): array
     {
+        $this->applyPending();
         if ($this->run->isEnded()) {
             return [];
         }
@@ -129,12 +145,41 @@ final class ProgressionSession
         return $this->bonuses->update($deltaSeconds);
     }
 
-    /** Fim da partida: associa o nome (RF33), calcula a pontuação (RF32) e grava no ranking (RF34). */
+    /**
+     * Ponto seguro fora do combate: concede as alterações enfileiradas durante o update da A.
+     *
+     * @return list<int> Níveis cuja passiva de personagem foi concedida agora.
+     */
+    public function applyPending(): array
+    {
+        return $this->characterPassive->applyPending();
+    }
+
+    /** Pickup ao alcance do raio de coleta atual (base + Magnet). */
+    public function canReach(Vector2 $pickupPosition): bool
+    {
+        return $this->player->reaches($pickupPosition);
+    }
+
+    /**
+     * Fim da partida: associa o nome (RF33), calcula a pontuação (RF32) e grava no ranking (RF34).
+     * Idempotente: chamadas seguintes devolvem o mesmo resultado sem gravar de novo. Se a gravação
+     * falhar, nada é marcado e a chamada pode ser repetida.
+     */
     public function finish(PlayerName $name, ScoreRepositoryInterface $scores): ScoreEntry
     {
+        if ($this->finished !== null) {
+            return $this->finished;
+        }
         $entry = ScoreEntry::fromSummary($this->run->summary(), $name, new ScoreCalculator);
         $scores->save($entry);
+        $this->finished = $entry;
 
         return $entry;
+    }
+
+    public function isFinished(): bool
+    {
+        return $this->finished !== null;
     }
 }

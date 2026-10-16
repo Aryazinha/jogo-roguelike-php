@@ -9,6 +9,8 @@ use Jogo\Domain\Event\EnemyKilled;
 use Jogo\Domain\Event\LevelUp;
 use Jogo\Domain\Event\PlayerDied;
 use Jogo\Domain\Score\PlayerName;
+use Jogo\Domain\Score\ScoreEntry;
+use Jogo\Domain\Score\ScoreRepositoryInterface;
 use Jogo\Domain\Value\Vector2;
 use Jogo\Domain\Weapon\Weapon;
 use Jogo\Infrastructure\Persistence\Migrator;
@@ -16,6 +18,7 @@ use Jogo\Infrastructure\Persistence\SqliteConnection;
 use Jogo\Infrastructure\Persistence\SqliteScoreRepository;
 use Jogo\Tests\Support\CombatHarness;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class ProgressionSessionTest extends TestCase
 {
@@ -75,6 +78,53 @@ final class ProgressionSessionTest extends TestCase
 
         self::assertSame(10.0, $session->run->survivalSeconds());
         self::assertTrue($session->run->isEnded());
+    }
+
+    public function test_finish_twice_saves_a_single_ranking_entry(): void
+    {
+        $harness = new CombatHarness;
+        $session = $this->session($harness, 5);
+        $session->update(30.0);
+        $harness->events->publish(new PlayerDied('player', Vector2::zero(), null, 30.0));
+        $repository = $this->repository();
+
+        $first = $session->finish(new PlayerName('Carol'), $repository);
+        $second = $session->finish(new PlayerName('Outro nome'), $repository);
+
+        self::assertSame($first, $second);
+        self::assertTrue($session->isFinished());
+        self::assertCount(1, $this->repository()->ranking());
+        self::assertSame('Carol', $this->repository()->ranking()[0]->entry->playerName);
+    }
+
+    public function test_failed_save_can_be_retried_and_is_stored_once(): void
+    {
+        $harness = new CombatHarness;
+        $session = $this->session($harness, 5);
+        $harness->events->publish(new PlayerDied('player', Vector2::zero(), null, 0.0));
+        $failing = new class implements ScoreRepositoryInterface
+        {
+            public function save(ScoreEntry $entry): int
+            {
+                throw new RuntimeException('banco indisponível');
+            }
+
+            public function ranking(int $limit = 10, ?string $characterId = null): array
+            {
+                return [];
+            }
+        };
+
+        try {
+            $session->finish(new PlayerName('Carol'), $failing);
+            self::fail('A falha de gravação deveria ser propagada.');
+        } catch (RuntimeException) {
+        }
+        self::assertFalse($session->isFinished());
+
+        $session->finish(new PlayerName('Carol'), $this->repository());
+        $session->finish(new PlayerName('Carol'), $this->repository());
+        self::assertCount(1, $this->repository()->ranking());
     }
 
     /**
@@ -156,8 +206,8 @@ final class ProgressionSessionTest extends TestCase
 
     private function session(CombatHarness $harness, int $seed): ProgressionSession
     {
-        return ProgressionSession::start(dirname(__DIR__, 2).'/config', 'steve', 'player', Vector2::zero(), 6.0, $seed,
-            $harness->events, $harness->combat, $harness->combat);
+        return ProgressionSession::start(dirname(__DIR__, 2).'/config', 'steve', 'player', Vector2::zero(), 6.0,
+            100.0, 40.0, $seed, $harness->events, $harness->combat, $harness->combat);
     }
 
     private function repository(): SqliteScoreRepository

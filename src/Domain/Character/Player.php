@@ -92,6 +92,24 @@ final class Player extends Entity implements Damageable
         return $this->stats;
     }
 
+    /** Velocidade final em px/s (base + Feather, Agilidade...), usada pelo MovementSystem da A. */
+    public function movementSpeed(): float
+    {
+        return $this->stats->value('velocidadeJogador');
+    }
+
+    /** Raio de coleta final em px (base + Magnet), usado para decidir se um pickup é alcançado. */
+    public function pickupRadius(): float
+    {
+        return $this->stats->value('raioColeta');
+    }
+
+    /** Pickup é alcançado quando seu centro está dentro do raio de coleta, borda inclusa. */
+    public function reaches(Vector2 $pickupPosition): bool
+    {
+        return $this->position()->distanceTo($pickupPosition) <= $this->pickupRadius();
+    }
+
     /** @return list<StatModifier> */
     public function modifiers(): array
     {
