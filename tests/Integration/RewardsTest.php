@@ -26,6 +26,7 @@ use Jogo\Domain\Progression\Reward\TemporaryBonuses;
 use Jogo\Domain\Progression\WeaponLevels;
 use Jogo\Domain\Progression\XpRange;
 use Jogo\Domain\Value\ModifierType;
+use Jogo\Domain\Value\StatModifier;
 use Jogo\Domain\Value\Vector2;
 use Jogo\Domain\Weapon\Upgrade\UpgradeCatalog;
 use Jogo\Domain\Weapon\Upgrade\WeaponProgressionService;
@@ -177,6 +178,70 @@ final class RewardsTest extends TestCase
         $this->bonuses->update(15.0);
 
         self::assertNull($this->player->modifier('bonus:agilidade:1:0'));
+    }
+
+    public function test_failed_bonus_keeps_the_pickup_available(): void
+    {
+        $this->start();
+
+        try {
+            $this->pickups->collectBonus('drop-1', 'invisibilidade', 1.0);
+            self::fail('Bônus desconhecido deveria falhar.');
+        } catch (InvalidArgumentException) {
+        }
+
+        self::assertFalse($this->pickups->wasCollected('drop-1'));
+        self::assertSame([], $this->picked);
+        self::assertTrue($this->pickups->collectBonus('drop-1', 'furia', 1.0));
+        self::assertTrue($this->pickups->wasCollected('drop-1'));
+    }
+
+    public function test_invalid_xp_keeps_the_pickup_available_and_grants_nothing(): void
+    {
+        $this->start();
+
+        try {
+            $this->pickups->collectXp('drop-1', 'xp_pequeno', -5, 1.0);
+            self::fail('XP negativo deveria falhar.');
+        } catch (InvalidArgumentException) {
+        }
+
+        self::assertFalse($this->pickups->wasCollected('drop-1'));
+        self::assertSame(0, $this->experience->experience()->totalXp());
+        self::assertSame([], $this->pickups->collectXp('drop-1', 'xp_pequeno', 3, 1.0));
+        self::assertSame(3, $this->experience->experience()->totalXp());
+    }
+
+    public function test_invalid_time_fails_before_healing_and_keeps_the_pickup(): void
+    {
+        $this->start();
+        $this->player->health()->damage(10.0);
+
+        try {
+            $this->pickups->collectHealing('drop-1', $this->steak, -1.0);
+            self::fail('Tempo negativo deveria falhar.');
+        } catch (InvalidArgumentException) {
+        }
+
+        self::assertSame(10.0, $this->player->health()->current());
+        self::assertFalse($this->pickups->wasCollected('drop-1'));
+        self::assertSame(5.0, $this->pickups->collectHealing('drop-1', $this->steak, 2.0));
+    }
+
+    public function test_failure_while_applying_the_bonus_effect_keeps_the_pickup(): void
+    {
+        $this->start();
+        $this->effects->grant([new StatModifier('dano', ModifierType::PERCENT, 0.5, 'bonus:furia:1:0')]);
+
+        try {
+            $this->pickups->collectBonus('drop-1', 'furia', 1.0);
+            self::fail('Origem repetida deveria falhar durante a aplicação.');
+        } catch (InvalidArgumentException $error) {
+            self::assertStringContainsString('source duplicada', $error->getMessage());
+        }
+
+        self::assertFalse($this->pickups->wasCollected('drop-1'));
+        self::assertFalse($this->bonuses->isActive('furia'));
     }
 
     public function test_unknown_bonus_is_rejected(): void
