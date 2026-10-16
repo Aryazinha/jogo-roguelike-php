@@ -114,6 +114,17 @@ final class EnemySteeringSystemTest extends TestCase
         self::assertFalse($zombie->position()->equals(new Vector2(800.0, 900.0)));
     }
 
+    public function test_boss_is_left_to_the_boss_system(): void
+    {
+        $world = self::world();
+        $boss = new Enemy('enemy-1', EnemyFixtures::boss(), new Vector2(800.0, 1000.0));
+        $world->addEnemy($boss);
+
+        self::system()->update($world, 1.0);
+
+        self::assertTrue($boss->position()->equals(new Vector2(800.0, 1000.0)));
+    }
+
     public function test_missing_strategy_is_reported(): void
     {
         $world = self::world();

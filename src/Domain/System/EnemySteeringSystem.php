@@ -48,7 +48,8 @@ final readonly class EnemySteeringSystem
         $crowd = CrowdWorldView::fromViews($world->snapshots(), $world->player()->position(), $this->cellSize);
         $plans = [];
         foreach ($world->enemies() as $enemy) {
-            if (! $enemy->isActive() || $enemy->health()->isDead()) {
+            // O boss muda de velocidade por fase e é movido pelo BossSystem.
+            if (! $enemy->isActive() || $enemy->health()->isDead() || $enemy->isBoss()) {
                 continue;
             }
             $self = $crowd->find($enemy->id())
