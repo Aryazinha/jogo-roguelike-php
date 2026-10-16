@@ -39,3 +39,25 @@ frente a elas, levar para `CONTRATOS.md` com a concordância da equipe.
 
 `Health` é substituída quando a vida máxima muda; consumidores devem sempre chamar
 `$player->health()` em vez de guardar a referência.
+
+## B3 — experiência e nível (RF11, RF12, RF13)
+
+- `LevelFormula::requiredXp($nivel)` devolve o XP para sair do nível: `2n + 7` até 15,
+  `5n - 38` de 16 a 30 e `9n - 158` a partir de 31 (fórmula sugerida no RF13).
+- `Experience` guarda nível, XP no nível atual e XP total; um único ganho pode subir vários
+  níveis e o excedente é preservado.
+- `ExperienceSystem` assina `EnemyKilled`, sorteia o XP na faixa do tipo com o `RandomIndex`
+  injetado (mesma seed, mesma progressão) e ignora uma segunda morte do mesmo `enemyId`.
+- `EnemyXpConfigLoader` lê somente `xp.min`/`xp.max` de `enemies.json`; o restante do arquivo
+  pertence à Frente C.
+- `LevelUp(playerId, level, totalXp, elapsedSeconds)` é publicado uma vez por nível alcançado.
+  O payload é proposta da B e precisa ser confirmado com a D (`CONTRATOS.md` §3).
+
+### Decisões técnicas da B3
+
+| Ponto | Decisão | Motivo |
+| --- | --- | --- |
+| Nível inicial | 1 | `enemies.json` usa `nivelMinimoAparicao: 1` para o primeiro inimigo |
+| Nível usado na fórmula | O nível atual: sair do 1 custa `2 × 1 + 7 = 9` | Leitura direta da tabela do RF13 |
+| XP direto ou por gemas | Direto, no momento da morte | Gemas físicas e raio de coleta dependem de base ainda indefinida; `grant()` já permite trocar a origem do XP |
+| Vários níveis de uma vez | Um `LevelUp` por nível, em ordem | Cada nível deve gerar sua própria escolha no RF14 |
