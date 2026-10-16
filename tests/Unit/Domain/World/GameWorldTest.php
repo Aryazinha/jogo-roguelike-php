@@ -48,6 +48,25 @@ final class GameWorldTest extends TestCase
             static fn (WorldEntity $r) => [$r->entity->id(), $r->kind, $r->isAlive], $records));
     }
 
+    public function test_snapshots_list_active_entities_with_kind_and_life(): void
+    {
+        $world = self::world();
+        $alive = self::zombie('enemy-1');
+        $dead = self::zombie('enemy-2');
+        $gone = self::zombie('enemy-3');
+        foreach ([$alive, $dead, $gone] as $enemy) {
+            $world->addEnemy($enemy);
+        }
+        $dead->health()->damage(100.0);
+        $gone->deactivate();
+
+        $views = $world->snapshots();
+
+        self::assertSame([['player-1', 'player', true], ['enemy-1', 'enemy', true], ['enemy-2', 'enemy', false]],
+            array_map(static fn ($v) => [$v->id, $v->kind, $v->isAlive], $views));
+        self::assertTrue($views[1]->position->equals(new Vector2(100.0, 100.0)));
+    }
+
     public function test_repeated_ids_are_rejected(): void
     {
         $world = self::world();

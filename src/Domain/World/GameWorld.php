@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jogo\Domain\World;
 
 use InvalidArgumentException;
+use Jogo\Domain\Ai\EntityView;
 use Jogo\Domain\Ai\SpatialWorldView;
 use Jogo\Domain\Ai\WorldEntity;
 use Jogo\Domain\Ai\WorldEntityProvider;
@@ -12,6 +13,7 @@ use Jogo\Domain\Enemy\Enemy;
 use Jogo\Domain\Entity\Damageable;
 use Jogo\Domain\Entity\Entity;
 use Jogo\Domain\Spatial\SpatialHash;
+use Jogo\Domain\Value\Vector2;
 use Jogo\Domain\Weapon\EnemyTarget;
 use Jogo\Domain\Weapon\EnemyTargetResolver;
 
@@ -136,6 +138,26 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
         foreach ($this->enemies() as $enemy) {
             yield new WorldEntity($enemy, 'enemy', ! $enemy->health()->isDead());
         }
+    }
+
+    /**
+     * Retratos das entidades ativas, montados direto, sem passar por WorldEntity.
+     * É o que a IA usa a cada passo; com 300 inimigos isso pesa (RNF06).
+     *
+     * @return list<EntityView>
+     */
+    public function snapshots(): array
+    {
+        $views = [];
+        foreach ([$this->player, ...$this->enemies] as $entity) {
+            if ($entity->isActive()) {
+                $position = $entity->position();
+                $views[] = new EntityView($entity->id(), new Vector2($position->x(), $position->y()),
+                    $entity->collisionRadius(), $entity === $this->player ? 'player' : 'enemy', ! $entity->health()->isDead());
+            }
+        }
+
+        return $views;
     }
 
     /** Visão de leitura da A sobre este mundo; chame refresh() nela depois de mover entidades. */
