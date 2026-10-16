@@ -130,3 +130,31 @@ frente a elas, levar para `CONTRATOS.md` com a concordância da equipe.
 | Onde a evolução aparece | Como a melhoria da arma no level up; os baús (B7) usam o mesmo serviço | RF19: "durante o level up ou em baús"; RF14 continua com três tipos |
 | Nível da arma evoluída | Mantém o nível alcançado e não recebe mais upgrades | `upgrades.json` só tem níveis para as armas base |
 | Efeitos depois da evolução | Upgrades descartados (decisão A8); passivos e passivas reaplicados | Os passivos continuam adquiridos; os upgrades eram da arma base |
+
+## B7 — itens, cura e bônus temporários (RF19, RF26, RF27, RF35, RF38)
+
+A Frente C decide quando e onde baús, drops e eventos aparecem; a B aplica o efeito.
+
+- `RewardConfigLoader` lê apenas `cura` de `chests.json` (Steak cura 5) e `bonusTemporarios`
+  de `scenery.json` (Fúria, Pressa e Agilidade, 15 s cada).
+- `PickupService` aplica cura, bônus ou XP; cada `pickupId` tem efeito uma única vez,
+  jogador morto não coleta e, depois de aplicar, publica `ItemPicked(playerId, pickupId,
+  itemId, elapsedSeconds)` para o feedback da D.
+- `TemporaryBonuses` conta a duração com `Cooldown`, pelo tempo lógico; `update()` é chamado a
+  cada passo fixo e, portanto, para durante a pausa. Ao expirar, `ProgressionEffects::revoke()`
+  remove só as origens do bônus, inclusive de armas adquiridas durante ele.
+- `ChestRewardService::grantWeaponUpgrades($bauId, $quantidade)` aplica os "N upgrades de arma"
+  do RF26 uma única vez por baú.
+- `ExperienceSystem::setXpMultiplier()` atende a Chuva de XP: a C liga com `2.0` (efeito
+  `xpDropado +100%`) e restaura `1.0` ao fim do evento.
+
+### Decisões técnicas da B7
+
+| Ponto | Decisão | Motivo |
+| --- | --- | --- |
+| Coletar bônus já ativo | Renova a duração, sem acumular o efeito | Evita Fúria multiplicando o dano a cada caixote |
+| Upgrade de baú | Evolução elegível tem prioridade; senão, melhoria sorteada com seed | RF19 cita evoluções "em baús" |
+| Baú sem melhoria possível | Aplica as que houver e devolve a lista do que foi concedido | Não inventar recompensa substituta |
+| XP com multiplicador | Arredondado para o inteiro mais próximo | XP é inteiro na B3 |
+| `item_especial` e quantidade de `xp_pequeno` | **Pendente da Frente C**; `collectXp()` já recebe a quantidade | Nenhum arquivo define esses valores |
+| `ChestOpened` | Não criado pela B; a C publica e chama `grantWeaponUpgrades` | O evento pertence à C (`CONTRATOS.md` §3) |
