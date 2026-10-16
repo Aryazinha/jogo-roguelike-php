@@ -2,10 +2,10 @@
 
 | Campo | Definição |
 | --- | --- |
-| Responsável | `[NOME C]` |
+| Responsável | Lara Fernandes |
 | Escopo | Inimigos, IA, spawn, boss, ondas, baús, eventos e elementos quebráveis |
 | Requisitos principais | RF03, RF05, RF08–RF09, RF11, RF22, RF26–RF29, RF35–RF36, RF38, RNF03 e RNF06 |
-| Estado | Planejado; configurações existem, mas o conteúdo real ainda deve ser implementado |
+| Estado | C1 concluída ([INIMIGOS_ARQUETIPOS.md](INIMIGOS_ARQUETIPOS.md)); C2 a C11 planejadas |
 
 Este documento organiza o trabalho da Frente C. Ele não substitui o enunciado nem
 `docs/PLANO.md`. A Frente C define o conteúdo e decide quando seus comportamentos acontecem;
