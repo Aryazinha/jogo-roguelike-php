@@ -74,6 +74,11 @@ frente a elas, levar para `CONTRATOS.md` com a concordância da equipe.
 - `CharacterPassiveSystem` assina `LevelUp`: Steve recebe `dano +10%` nos níveis múltiplos de 5
   e Alex `cooldown -0,2 s` nos múltiplos de 4. Como há um `LevelUp` por nível, nenhum marco é
   pulado num ganho grande de XP.
+- **Ponto seguro (correção da revisão do PR):** `LevelUp` pode chegar no meio de
+  `WeaponAttackSystem::update()`, quando a Frente A proíbe alterar armas. O marco é apenas
+  enfileirado (`pendingLevels()`) e `applyPending()` concede o efeito depois do combate.
+  `CombatProgressionSafePointTest` cobre uma morte real em combate que sobe o nível e ativa a
+  passiva sem exceção, com todos os `LevelUp` publicados.
 - Origens: `passivo:<id>:<nivel>:<indice>` e `personagem:<passiva>:<nivel>`.
 
 ### Decisões técnicas da B4
@@ -137,9 +142,11 @@ A Frente C decide quando e onde baús, drops e eventos aparecem; a B aplica o ef
 
 - `RewardConfigLoader` lê apenas `cura` de `chests.json` (Steak cura 5) e `bonusTemporarios`
   de `scenery.json` (Fúria, Pressa e Agilidade, 15 s cada).
-- `PickupService` aplica cura, bônus ou XP; cada `pickupId` tem efeito uma única vez,
-  jogador morto não coleta e, depois de aplicar, publica `ItemPicked(playerId, pickupId,
-  itemId, elapsedSeconds)` para o feedback da D.
+- `PickupService` aplica cura, bônus ou XP; cada `pickupId` tem efeito uma única vez e
+  jogador morto não coleta. O pickup só é marcado como coletado **depois** que o efeito foi
+  aplicado com sucesso: bônus desconhecido, XP negativo, tempo inválido ou falha ao conceder o
+  efeito deixam o pickup disponível. Em seguida publica `ItemPicked(playerId, pickupId, itemId,
+  elapsedSeconds)` para o feedback da D.
 - `TemporaryBonuses` conta a duração com `Cooldown`, pelo tempo lógico; `update()` é chamado a
   cada passo fixo e, portanto, para durante a pausa. Ao expirar, `ProgressionEffects::revoke()`
   remove só as origens do bônus, inclusive de armas adquiridas durante ele.
@@ -208,22 +215,29 @@ SQLite, FFI, Raylib, `Core/Config`, `Application` ou `Infrastructure`.
 ### Como as outras frentes usam a B
 
 ```php
-$b = ProgressionSession::start('config', 'steve', 'player', $posicao, $raio, $seed, $eventBus,
-    $weaponAttackSystem, $weaponAttackSystem);
+$b = ProgressionSession::start('config', 'steve', 'player', $posicao, $raioColisao,
+    $velocidadeBase, $raioColetaBase, $seed, $eventBus, $weaponAttackSystem, $weaponAttackSystem);
 ```
+
+`$velocidadeBase` (px/s) e `$raioColetaBase` (px) não existem no enunciado nem nos JSON; quem
+compõe a partida os informa. Com eles, Feather e Agilidade alteram `$b->player->movementSpeed()`,
+que é a velocidade passada ao `MovementSystem` da A, e Magnet altera `$b->player->pickupRadius()`,
+usado por `$b->canReach($posicaoDoPickup)`.
 
 | Quem | Quando | Chamada |
 | --- | --- | --- |
-| Application | A cada passo fixo | `$b->update($dt)` (regeneração, bônus e tempo) |
+| Application | A cada passo fixo, **depois** do combate da A | `$b->update($dt)`: aplica pendências (passivas), regeneração, bônus e tempo |
+| Application | A cada passo fixo | `MovementSystem::update(..., $b->player->movementSpeed(), ...)` |
 | Application | Depois de cada passo | se `$b->levelUps->hasPendingChoice()`, pausar o `GameLoop` |
 | D | Tela de level up | `$b->levelUps->currentOffer()` e `$b->levelUps->choose($i, $slot)`; lista vazia = não pausar |
 | D | HUD | `$b->player->health()`, `$b->experience->experience()`, `$b->bonuses->remainingSeconds($id)` |
+| C | Pickup encostou no jogador | `$b->canReach($posicao)` para decidir se coleta |
 | C | Steak coletado | `$b->pickups->collectHealing($pickupId, $b->steak, $tempo)` |
 | C | Bônus coletado | `$b->pickups->collectBonus($pickupId, $bonusId, $tempo)` |
 | C | Baú aberto | `$b->chests->grantWeaponUpgrades($bauId, $quantidade)` |
 | C | Chuva de XP | `$b->experience->setXpMultiplier(2.0)` no início e `1.0` no fim |
 | A | Inimigo e jogador morrem | nada a fazer: `EnemyKilled` e `PlayerDied` já chegam pelo `EventBus` |
-| D | Fim da partida | `$b->run->summary()` e `$b->finish(new PlayerName($nome), $repositorio)` |
+| D | Fim da partida | `$b->run->summary()` e `$b->finish(new PlayerName($nome), $repositorio)`; chamar de novo não grava outra linha |
 | D | Tela de ranking | `SqliteScoreRepository::ranking(10)` depois de `Migrator::migrate()` |
 
 ### Pendências que dependem de outras frentes
@@ -233,6 +247,15 @@ $b = ProgressionSession::start('config', 'steve', 'player', $posicao, $raio, $se
 | Payload de `LevelUp` e `LevelUpOption` | D | Proposto pela B; confirmar antes da tela de level up |
 | Payload de `ItemPicked` | C/D | Proposto pela B |
 | `item_especial` e quantidade de `xp_pequeno` | C | Sem definição em `scenery.json` |
-| Bases de `velocidadeJogador` e `raioColeta` | A/B/C | Sem valor no enunciado; Feather, Magnet e Agilidade ficam sem efeito até lá |
+| Valores de `velocidadeJogador` e `raioColeta` | A/B/C | `ProgressionSession::start()` exige os dois; falta a equipe escolher os números |
 | Cooldown do arco da Alex no nível 36 | Todas | Ver alerta na B4 |
-| Teste da A que depende de `pcre.jit` | A | `WeaponConfigLoaderTest` falha com o JIT ligado (padrão do PHP); passa com `-d pcre.jit=0` |
+
+## Correções da revisão do PR
+
+| Pedido | Correção |
+| --- | --- |
+| Não alterar armas durante `WeaponAttackSystem::update()` | Passivas de personagem enfileiradas e aplicadas em `ProgressionSession::update()`/`applyPending()`, depois do combate |
+| `velocidadeJogador` e `raioColeta` reais | `ProgressionSession::start()` recebe e repassa ao `PlayerFactory`; `Player::movementSpeed()`, `pickupRadius()` e `reaches()` |
+| `finish()` idempotente | O resultado é guardado após gravar; chamadas seguintes não criam outra linha; falha na gravação permite repetir |
+| Pickup marcado só após sucesso | `PickupService` valida, aplica, marca e só então publica `ItemPicked` |
+| `composer check` com JIT ligado | O teste de falha da varredura de chaves da A agora usa uma string longa, que falha com e sem PCRE JIT |
