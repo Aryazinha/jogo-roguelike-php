@@ -22,18 +22,22 @@ final readonly class PlayerFactory
         }
     }
 
-    /** @param callable(WeaponDefinition): bool $execute Executor de ataques fornecido pela Frente A. */
+    /**
+     * @param  callable(WeaponDefinition): bool  $execute  Executor de ataques fornecido pela Frente A.
+     * @param  array<string, float>  $optionalBaseStats  velocidadeJogador/raioColeta, quando a equipe definir.
+     */
     public function create(
         string $characterId,
         string $playerId,
         Vector2 $position,
         float $collisionRadius,
         callable $execute,
+        array $optionalBaseStats = [],
     ): Player {
         $character = $this->characters->get($characterId);
         $inventory = new CombatInventory;
         $inventory->add($this->weapons->get($character->startingWeaponId), $execute);
 
-        return new Player($playerId, $position, $collisionRadius, $character, $inventory);
+        return new Player($playerId, $position, $collisionRadius, $character, $inventory, $optionalBaseStats);
     }
 }
