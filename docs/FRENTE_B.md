@@ -61,3 +61,29 @@ frente a elas, levar para `CONTRATOS.md` com a concordância da equipe.
 | Nível usado na fórmula | O nível atual: sair do 1 custa `2 × 1 + 7 = 9` | Leitura direta da tabela do RF13 |
 | XP direto ou por gemas | Direto, no momento da morte | Gemas físicas e raio de coleta dependem de base ainda indefinida; `grant()` já permite trocar a origem do XP |
 | Vários níveis de uma vez | Um `LevelUp` por nível, em ordem | Cada nível deve gerar sua própria escolha no RF14 |
+
+## B4 — itens passivos e passivas de personagem (RF21, RF39)
+
+- `PassiveConfigLoader` lê os seis itens de `passives.json`; `PassiveInventory::acquire($id)`
+  sobe um nível por vez até `niveisMaximos` e recusa o excedente sem alterar nada.
+- `ProgressionEffects` encaminha cada efeito: `vidaMaxima`, `velocidadeJogador` e `raioColeta`
+  vão para o `Player`; os demais vão, por `WeaponProgressionService`, a toda arma equipada que
+  possua o atributo. Gunpowder não altera a espada, que não tem `raioExplosao`.
+- Os efeitos de arma ficam registrados: `syncWeapon($slot)` deve ser chamado depois de adquirir
+  uma arma nova ou de uma evolução, que descarta os modificadores antigos (decisão da A8).
+- `CharacterPassiveSystem` assina `LevelUp`: Steve recebe `dano +10%` nos níveis múltiplos de 5
+  e Alex `cooldown -0,2 s` nos múltiplos de 4. Como há um `LevelUp` por nível, nenhum marco é
+  pulado num ganho grande de XP.
+- Origens: `passivo:<id>:<nivel>:<indice>` e `personagem:<passiva>:<nivel>`.
+
+### Decisões técnicas da B4
+
+| Ponto | Decisão | Motivo |
+| --- | --- | --- |
+| Limite de passivos diferentes | Nenhum | O enunciado não define; não inventar requisito |
+| Efeito que tornaria a arma inválida | Ignorado só naquela arma, mantendo-se registrado | `CONTRATOS.md` §7.2 proíbe clamp e limite mínimo inventado |
+| Cooldown resultante muito próximo de zero | Tratado como zero (tolerância `1e-9`) | `1,8 - 9 × 0,2` dá `2e-16` em ponto flutuante e faria a arma atacar em todo passo |
+
+> **Para a equipe:** com o RF39 aplicado literalmente, o cooldown de 1,8 s do arco da Alex
+> chega a zero no nível 36. A partir daí a passiva deixa de alcançar o arco. Vale decidir em
+> conjunto se isso é aceitável ou se o balanceamento das armas deve mudar.
