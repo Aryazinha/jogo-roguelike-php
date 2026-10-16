@@ -192,9 +192,9 @@ os nomes informados na confirmação; seus nomes completos ainda precisam ser fo
 | Frente | Responsabilidade | Integrante |
 | --- | --- | --- |
 | A — Núcleo e combate | Loop, entrada, movimentação, colisão, dano, armas | Thales |
-| B — Progressão e dados | XP, níveis, upgrades, personagens, pontuação, ranking | [NOME B] |
-| C — Conteúdo e dificuldade | Inimigos, boss, ondas, baús, eventos | [NOME C] |
-| D — Apresentação | Renderização, menus, HUD, áudio, feedback | [NOME D] |
+| B — Progressão e dados | XP, níveis, upgrades, personagens, pontuação, ranking | [Carol] |
+| C — Conteúdo e dificuldade | Inimigos, boss, ondas, baús, eventos | [Lara] |
+| D — Apresentação | Renderização, menus, HUD, áudio, feedback | [Bia] |
 
 A frente define responsabilidade, não propriedade: qualquer um pode mexer em qualquer parte,
 desde que abra PR e a revisão venha de outra frente.
