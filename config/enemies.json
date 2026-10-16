@@ -92,8 +92,10 @@
       "distanciaIdeal": 200,
       "margemHisterese": 40,
       "cooldownTiroSegundos": 2.2,
+      "velocidadeFlechaPixels": 260,
+      "raioFlecha": 4,
       "_fonte": "provisorio",
-      "_nota": "Inimigo a distancia, o segundo especial exigido pelo RF36."
+      "_nota": "Inimigo a distancia, o segundo especial exigido pelo RF36. A flecha voa ate 1,5 vez a distancia maxima de tiro."
     }
   },
   "boss": {

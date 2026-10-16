@@ -8,7 +8,7 @@ use InvalidArgumentException;
 use Jogo\Domain\Value\CombatValidation;
 
 /**
- * Parâmetros do comportamento manter_distancia (Skeleton, RF36).
+ * Parâmetros do comportamento manter_distancia e da flecha (Skeleton, RF36).
  *
  * A histerese cria uma faixa morta em volta da distância ideal para o
  * inimigo não ficar alternando entre avançar e recuar a cada passo.
@@ -19,10 +19,14 @@ final readonly class RangedSettings
         public float $idealDistance,
         public float $hysteresis,
         public float $shotCooldownSeconds,
+        public float $projectileSpeed = 260.0,
+        public float $projectileRadius = 4.0,
     ) {
         CombatValidation::positive($idealDistance, 'idealDistance');
         CombatValidation::nonNegative($hysteresis, 'hysteresis');
         CombatValidation::positive($shotCooldownSeconds, 'shotCooldownSeconds');
+        CombatValidation::positive($projectileSpeed, 'projectileSpeed');
+        CombatValidation::positive($projectileRadius, 'projectileRadius');
         if ($hysteresis >= $idealDistance) {
             throw new InvalidArgumentException('hysteresis deve ser menor que idealDistance.');
         }
@@ -36,5 +40,11 @@ final readonly class RangedSettings
     public function maxDistance(): float
     {
         return $this->idealDistance + $this->hysteresis;
+    }
+
+    /** Até onde a flecha voa antes de sumir: um pouco além da faixa de tiro. */
+    public function projectileRange(): float
+    {
+        return $this->maxDistance() * 1.5;
     }
 }

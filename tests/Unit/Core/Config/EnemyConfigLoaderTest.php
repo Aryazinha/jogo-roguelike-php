@@ -75,7 +75,9 @@ final class EnemyConfigLoaderTest extends TestCase
 
         $ranged = $catalog->get('skeleton')->ranged;
         self::assertNotNull($ranged);
-        self::assertSame([200.0, 40.0, 2.2], [$ranged->idealDistance, $ranged->hysteresis, $ranged->shotCooldownSeconds]);
+        self::assertSame([200.0, 40.0, 2.2, 260.0, 4.0], [$ranged->idealDistance, $ranged->hysteresis,
+            $ranged->shotCooldownSeconds, $ranged->projectileSpeed, $ranged->projectileRadius]);
+        self::assertSame(360.0, $ranged->projectileRange());
 
         $warden = $catalog->boss();
         self::assertSame(600.0, $warden->spawnAtSeconds);
@@ -100,6 +102,8 @@ final class EnemyConfigLoaderTest extends TestCase
         yield 'split to nothing' => ['especiais', 'slime', 'aoMorrer', (object) ['gera' => 'creeper', 'quantidade' => 2], 'slime se divide em um inimigo inexistente'];
         yield 'split zero' => ['especiais', 'slime', 'aoMorrer', (object) ['gera' => 'slime_pequeno', 'quantidade' => 0], 'slime: aoMorrer.quantidade da divisão'];
         yield 'flag as text' => ['especiais', 'slime_pequeno', 'geradoApenasPorDivisao', 'sim', 'geradoApenasPorDivisao deve ser true ou false'];
+        yield 'arrow without speed' => ['especiais', 'skeleton', 'velocidadeFlechaPixels', null, 'skeleton.velocidadeFlechaPixels deve ser um número'];
+        yield 'arrow zero radius' => ['especiais', 'skeleton', 'raioFlecha', 0, 'skeleton: raioFlecha deve ser maior que zero'];
         yield 'ranged incomplete' => ['especiais', 'skeleton', 'margemHisterese', null, 'skeleton.margemHisterese deve ser um número'];
         yield 'ranged on chaser' => ['comuns', 'spider', 'distanciaIdeal', 100, 'spider.margemHisterese deve ser um número'];
         yield 'boss without phases' => ['boss', 'warden', 'fases', null, 'warden.fases deve ser um objeto'];

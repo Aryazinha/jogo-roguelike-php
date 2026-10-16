@@ -79,6 +79,7 @@ final class EnemyArchetypeTest extends TestCase
         yield 'split with zero children' => [static fn () => new SplitRule('child', 0)];
         yield 'hysteresis wider than distance' => [static fn () => new RangedSettings(40.0, 40.0, 2.0)];
         yield 'zero shot cooldown' => [static fn () => new RangedSettings(200.0, 40.0, 0.0)];
+        yield 'zero arrow speed' => [static fn () => new RangedSettings(200.0, 40.0, 2.0, 0.0)];
     }
 
     /** @param callable(): mixed $build */

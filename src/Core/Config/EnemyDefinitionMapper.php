@@ -22,14 +22,16 @@ final class EnemyDefinitionMapper
 {
     private const BASE_FIELDS = ['nome', 'vida', 'dano', 'xp', 'velocidade', 'raioColisao', 'comportamento'];
 
-    private const RANGED_FIELDS = ['distanciaIdeal', 'margemHisterese', 'cooldownTiroSegundos'];
+    private const RANGED_FIELDS = ['distanciaIdeal', 'margemHisterese', 'cooldownTiroSegundos',
+        'velocidadeFlechaPixels', 'raioFlecha'];
 
     /** Nomes usados no domínio trocados pelos do JSON nas mensagens de erro. */
     private const JSON_NAMES = [
         'maxHealth' => 'vida', 'damage' => 'dano', 'speed' => 'velocidade', 'collisionRadius' => 'raioColisao',
         'behaviorId' => 'comportamento', 'minLevel' => 'nivelMinimoAparicao', 'spawnAtSeconds' => 'surgeAosSegundos',
         'idealDistance' => 'distanciaIdeal', 'hysteresis' => 'margemHisterese',
-        'shotCooldownSeconds' => 'cooldownTiroSegundos', 'childTypeId' => 'aoMorrer.gera', 'count' => 'aoMorrer.quantidade',
+        'shotCooldownSeconds' => 'cooldownTiroSegundos', 'projectileSpeed' => 'velocidadeFlechaPixels',
+        'projectileRadius' => 'raioFlecha', 'childTypeId' => 'aoMorrer.gera', 'count' => 'aoMorrer.quantidade',
     ];
 
     public function map(mixed $decoded, string $source = 'enemies.json'): EnemyCatalog
@@ -137,6 +139,8 @@ final class EnemyDefinitionMapper
             ConfigSchema::number($entry, 'distanciaIdeal', $path),
             ConfigSchema::number($entry, 'margemHisterese', $path),
             ConfigSchema::number($entry, 'cooldownTiroSegundos', $path),
+            ConfigSchema::number($entry, 'velocidadeFlechaPixels', $path),
+            ConfigSchema::number($entry, 'raioFlecha', $path),
         );
     }
 
