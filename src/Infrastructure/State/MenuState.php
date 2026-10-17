@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jogo\Infrastructure\State;
 
 use Jogo\Infrastructure\Menu\MenuScreenContext;
+use Jogo\Infrastructure\Results\ResultsScreenContext;
 
 final class MenuState extends ScreenState
 {
@@ -12,6 +13,7 @@ final class MenuState extends ScreenState
 
     public function __construct(
         private readonly ?MenuScreenContext $ui = null,
+        private readonly ?ResultsScreenContext $results = null,
     ) {}
 
     public function name(): string
@@ -55,7 +57,9 @@ final class MenuState extends ScreenState
                 break;
 
             case 1:
-                $states->push(new RankingState($this->ui));
+                $states->push(
+                    new RankingState($this->ui, $this->results)
+                );
                 break;
 
             case 2:
