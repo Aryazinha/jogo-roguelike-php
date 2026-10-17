@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jogo\Infrastructure\State;
 
 use Closure;
+use Jogo\Infrastructure\Play\PlayFramePresenter;
 
 final class PlayState extends ScreenState
 {
@@ -21,6 +22,7 @@ final class PlayState extends ScreenState
     public function __construct(
         ?callable $onUpdate = null,
         ?callable $onRender = null,
+        private readonly ?PlayFramePresenter $presenter = null,
     ) {
         $this->onUpdate = $onUpdate === null
             ? null
@@ -45,6 +47,8 @@ final class PlayState extends ScreenState
 
     public function render(float $alpha, StateStack $states): void
     {
+        $this->presenter?->render($alpha);
+
         if ($this->onRender !== null) {
             ($this->onRender)($alpha);
         }

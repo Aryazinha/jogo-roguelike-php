@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jogo\Infrastructure\Rendering;
 
 use Jogo\Domain\Value\Vector2;
+use Jogo\Infrastructure\Play\PlayHudSnapshot;
 
 final readonly class FrameSnapshot
 {
@@ -17,6 +18,7 @@ final readonly class FrameSnapshot
         public Vector2 $currentFocus,
         public array $items = [],
         public array $hud = [],
+        public ?PlayHudSnapshot $playHud = null,
     ) {}
 
     /** @return list<RenderItem> */
