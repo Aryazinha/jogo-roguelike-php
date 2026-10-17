@@ -75,6 +75,23 @@ final readonly class RaylibRenderer implements RendererInterface
                 );
             }
 
+            foreach ($frame->feedbackLabels as $label) {
+                $screen = $this->camera->worldToScreen(
+                    $label->position,
+                    $focus
+                );
+
+                $this->raylib->drawText(
+                    $label->text,
+                    (int) round($screen->x()),
+                    (int) round($screen->y()),
+                    18,
+                    $label->red,
+                    $label->green,
+                    $label->blue
+                );
+            }
+
             if ($frame->playHud !== null) {
                 $this->drawPlayHud($frame->playHud);
             }
