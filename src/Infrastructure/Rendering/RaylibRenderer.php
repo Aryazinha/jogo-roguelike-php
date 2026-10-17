@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jogo\Infrastructure\Rendering;
 
 use Jogo\Infrastructure\Ffi\RaylibBinding;
+use Jogo\Infrastructure\Overlay\OverlaySnapshot;
 use Jogo\Infrastructure\Play\PlayHudSnapshot;
 
 final readonly class RaylibRenderer implements RendererInterface
@@ -92,6 +93,10 @@ final readonly class RaylibRenderer implements RendererInterface
                 } else {
                     $this->raylib->drawText($line, 15, $y, 20);
                 }
+            }
+
+            if ($frame->overlay !== null) {
+                $this->drawOverlay($frame->overlay);
             }
         } finally {
             $this->raylib->endDrawing();
@@ -219,6 +224,104 @@ final readonly class RaylibRenderer implements RendererInterface
                 55
             );
         }
+    }
+
+    private function drawOverlay(OverlaySnapshot $overlay): void
+    {
+        $this->raylib->drawRectangle(
+            86,
+            29,
+            628,
+            391,
+            18,
+            27,
+            38
+        );
+
+        $this->raylib->drawRectangle(
+            86,
+            29,
+            628,
+            6,
+            80,
+            185,
+            105
+        );
+
+        $this->raylib->drawText(
+            mb_strimwidth($overlay->title, 0, 29, '...'),
+            115,
+            50,
+            29
+        );
+
+        $this->raylib->drawText(
+            mb_strimwidth($overlay->message, 0, 65, '...'),
+            115,
+            96,
+            16,
+            210,
+            220,
+            210
+        );
+
+        foreach ($overlay->options as $index => $option) {
+            if ($index >= 3) {
+                break;
+            }
+
+            $y = 130 + $index * 79;
+            $active = $index === $overlay->selected;
+
+            $this->raylib->drawRectangle(
+                115,
+                $y,
+                570,
+                71,
+                $active ? 67 : 40,
+                $active ? 131 : 55,
+                $active ? 84 : 72
+            );
+
+            $this->raylib->drawText(
+                ($active ? '> ' : '  ')
+                    .mb_strimwidth($option->title, 0, 38, '...'),
+                128,
+                $y + 7,
+                19
+            );
+
+            if ($option->description !== '') {
+                $this->raylib->drawText(
+                    mb_strimwidth($option->description, 0, 67, '...'),
+                    129,
+                    $y + 31,
+                    15
+                );
+            }
+
+            if ($option->effect !== '') {
+                $this->raylib->drawText(
+                    mb_strimwidth($option->effect, 0, 67, '...'),
+                    129,
+                    $y + 52,
+                    14,
+                    205,
+                    226,
+                    155
+                );
+            }
+        }
+
+        $this->raylib->drawText(
+            mb_strimwidth($overlay->footer, 0, 74, '...'),
+            115,
+            393,
+            15,
+            190,
+            205,
+            190
+        );
     }
 
     private function drawBar(

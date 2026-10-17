@@ -47,6 +47,16 @@ final class PlayState extends ScreenState
 
     public function render(float $alpha, StateStack $states): void
     {
+        // Com overlay grafico, ele desenha jogo e UI no mesmo quadro.
+        $top = $states->top();
+
+        if (
+            ($top instanceof PauseState && $top->ownsFrame())
+            || ($top instanceof LevelUpState && $top->ownsFrame())
+        ) {
+            return;
+        }
+
         $this->presenter?->render($alpha);
 
         if ($this->onRender !== null) {
