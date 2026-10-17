@@ -87,6 +87,8 @@ final class RaylibBinding
         bool IsMouseButtonPressed(int button);
         int GetMouseX(void);
         int GetMouseY(void);
+        int GetCharPressed(void);
+        void SetExitKey(int key);
 
         Texture2D LoadTexture(const char *fileName);
         bool IsTextureValid(Texture2D texture);
@@ -278,6 +280,22 @@ final class RaylibBinding
 
         // @phpstan-ignore method.notFound (funcao nativa declarada no HEADER)
         return $this->raylib->GetMouseY();
+    }
+
+    public function getCharPressed(): int
+    {
+        $this->requireWindow();
+
+        // @phpstan-ignore method.notFound (funcao nativa declarada no HEADER)
+        return $this->raylib->GetCharPressed();
+    }
+
+    public function setExitKey(int $key): void
+    {
+        $this->requireWindow();
+
+        // @phpstan-ignore method.notFound (funcao nativa declarada no HEADER)
+        $this->raylib->SetExitKey($key);
     }
 
     public function beginDrawing(): void
