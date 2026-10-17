@@ -75,3 +75,16 @@ mas a ausencia de vazamentos de memoria ainda precisa
 ser validada por medicao.
 
 O desempenho do jogo completo sera validado na D12.
+
+## Validacao final - 17/10/2026
+
+- Raylib DLL: versao 5.5.0.
+- Testes automatizados: composer check aprovado.
+- Teste grafico: aprovado.
+- Teste de recursos: 600 ciclos concluidos.
+- Memoria privada inicial amostrada: 0.61 MB.
+- Memoria privada final amostrada: 101.59 MB.
+- Pico de memoria privada: 101.69 MB.
+- A leitura inicial ocorreu antes da estabilizacao do processo.
+- Nao foram observadas falhas de carregamento ou descarregamento.
+- A medicao nao comprova ausencia completa de vazamentos.
