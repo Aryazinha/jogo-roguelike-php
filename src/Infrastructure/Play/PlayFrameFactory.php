@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace Jogo\Infrastructure\Play;
 
+use Jogo\Infrastructure\Feedback\VisualFeedbackPool;
 use Jogo\Infrastructure\Rendering\FrameSnapshot;
 use Jogo\Infrastructure\Rendering\RenderItem;
 
 final readonly class PlayFrameFactory
 {
+    public function __construct(
+        private ?VisualFeedbackPool $feedback = null,
+    ) {}
+
     public function create(PlaySnapshot $snapshot): FrameSnapshot
     {
         $world = $snapshot->world;
-
         $items = [];
 
         foreach ($world->entities as $entity) {
@@ -30,7 +34,9 @@ final readonly class PlayFrameFactory
                 'pickup' => ['pickups', 'circle', 250, 210, 55],
                 'breakable' => ['scenery', 'rectangle', 145, 105, 70],
                 'effect' => ['effects', 'circle', 70, 190, 250],
-                default => throw new \LogicException('Tipo visual nao suportado.'),
+                default => throw new \LogicException(
+                    'Tipo visual nao suportado.'
+                ),
             };
 
             $items[] = new RenderItem(
@@ -45,7 +51,6 @@ final readonly class PlayFrameFactory
             );
         }
 
-        // O jogador e sempre derivado do foco do snapshot.
         $items[] = new RenderItem(
             'entities',
             'circle',
@@ -57,12 +62,23 @@ final readonly class PlayFrameFactory
             35
         );
 
+        $feedbackFrame = $this->feedback?->frame();
+
+        $feedbackLabels = [];
+
+        if ($feedbackFrame !== null) {
+            $items = array_merge($items, $feedbackFrame->items);
+            $feedbackLabels = $feedbackFrame->labels;
+        }
+
         return new FrameSnapshot(
             $world->previousPlayer,
             $world->currentPlayer,
             $items,
             [],
             $snapshot->hud,
+            null,
+            $feedbackLabels,
         );
     }
 }

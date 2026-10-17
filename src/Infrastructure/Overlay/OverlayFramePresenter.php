@@ -31,6 +31,7 @@ final readonly class OverlayFramePresenter
                 $frame->hud,
                 $frame->playHud,
                 $overlay,
+                $frame->feedbackLabels,
             ),
             $alpha
         );
