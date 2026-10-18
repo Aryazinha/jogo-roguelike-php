@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Jogo\Infrastructure\Results;
 
+use Jogo\Infrastructure\Assets\AssetCatalog;
 use Jogo\Infrastructure\Ffi\RaylibBinding;
+use Jogo\Infrastructure\Rendering\RaylibResourceCache;
 
 final readonly class RaylibResultsRenderer implements ResultsScreenRendererInterface
 {
     public function __construct(
         private RaylibBinding $raylib,
+        private ?AssetCatalog $catalog = null,
+        private ?RaylibResourceCache $assets = null,
     ) {}
 
     public function drawFinish(
@@ -30,6 +34,19 @@ final readonly class RaylibResultsRenderer implements ResultsScreenRendererInter
             $run->victory ? 193 : 65,
             55
         );
+
+        if ($this->catalog !== null && $this->assets !== null) {
+            $icon = $run->victory ? 'victory' : 'defeat';
+
+            $this->raylib->drawTextureCentered(
+                $this->assets->texture(
+                    $this->catalog->sprite($icon)
+                ),
+                710.0,
+                76.0,
+                76.0
+            );
+        }
 
         $this->raylib->drawText(
             $run->victory ? 'VITORIA!' : 'GAME OVER',
