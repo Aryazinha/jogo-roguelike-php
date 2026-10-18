@@ -93,6 +93,7 @@ final class RaylibBinding
         Texture2D LoadTexture(const char *fileName);
         bool IsTextureValid(Texture2D texture);
         void DrawTexture(Texture2D texture, int x, int y, Color tint);
+        void DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);
         void UnloadTexture(Texture2D texture);
         Font LoadFont(const char *fileName);
         bool IsFontValid(Font font);
@@ -465,6 +466,63 @@ final class RaylibBinding
         );
     }
 
+    /**
+     * Desenha uma textura com origem no centro.
+     * O tamanho visual corresponde ao diametro da entidade.
+     */
+    public function drawTextureCentered(
+        string $id,
+        float $x,
+        float $y,
+        float $size,
+    ): void {
+        $this->requireDrawing();
+
+        if (
+            ! is_finite($x)
+            || ! is_finite($y)
+            || ! is_finite($size)
+            || $size <= 0.0
+        ) {
+            throw new InvalidArgumentException(
+                'Posicao ou tamanho da textura invalido.'
+            );
+        }
+
+        $texture = $this->textures[$id]
+            ?? throw new InvalidArgumentException(
+                'Textura desconhecida: '.$id
+            );
+
+        $source = $this->rectangle(
+            0.0,
+            0.0,
+            // @phpstan-ignore property.notFound
+            (float) $texture->width,
+            // @phpstan-ignore property.notFound
+            (float) $texture->height,
+        );
+
+        $destination = $this->rectangle(
+            $x,
+            $y,
+            $size,
+            $size,
+        );
+
+        $origin = $this->point($size / 2.0, $size / 2.0);
+
+        // @phpstan-ignore method.notFound (funcao nativa declarada no HEADER)
+        $this->raylib->DrawTexturePro(
+            $texture,
+            $source,
+            $destination,
+            $origin,
+            0.0,
+            $this->color(255, 255, 255)
+        );
+    }
+
     public function unloadTexture(string $id): void
     {
         $this->requireWindow();
@@ -813,6 +871,29 @@ final class RaylibBinding
         );
 
         return $point;
+    }
+
+    private function rectangle(
+        float $x,
+        float $y,
+        float $width,
+        float $height,
+    ): CData {
+        $rectangle = $this->raylib->new('Rectangle');
+
+        if ($rectangle === null) {
+            throw new RuntimeException(
+                'Falha ao alocar Rectangle.'
+            );
+        }
+
+        FFI::memcpy(
+            $rectangle,
+            pack('g4', $x, $y, $width, $height),
+            16
+        );
+
+        return $rectangle;
     }
 
     private function color(

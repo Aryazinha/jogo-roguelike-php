@@ -1,0 +1,39 @@
+{
+    "version": 1,
+    "font": "raylib_builtin",
+    "sprites": {
+        "map": "assets/sprites/map.png",
+        "scenery": "assets/sprites/scenery.png",
+        "player": "assets/sprites/player.png",
+        "enemy": "assets/sprites/enemy.png",
+        "special_enemy": "assets/sprites/special_enemy.png",
+        "boss": "assets/sprites/boss.png",
+        "projectile": "assets/sprites/projectile.png",
+        "sword": "assets/sprites/sword.png",
+        "tnt": "assets/sprites/tnt.png",
+        "pulse": "assets/sprites/pulse.png",
+        "chest": "assets/sprites/chest.png",
+        "pickup": "assets/sprites/pickup.png",
+        "breakable": "assets/sprites/breakable.png",
+        "effect": "assets/sprites/effect.png",
+        "hud_heart": "assets/sprites/hud_heart.png",
+        "hud_xp": "assets/sprites/hud_xp.png",
+        "menu_emblem": "assets/sprites/menu_emblem.png",
+        "menu_panel": "assets/sprites/menu_panel.png",
+        "victory": "assets/sprites/victory.png",
+        "defeat": "assets/sprites/defeat.png"
+    },
+    "effects": {
+        "player_damaged": "assets/audio/player_damaged.wav",
+        "enemy_hit": "assets/audio/enemy_hit.wav",
+        "enemy_killed": "assets/audio/enemy_killed.wav",
+        "level_up": "assets/audio/level_up.wav",
+        "chest_opened": "assets/audio/chest_opened.wav",
+        "player_died": "assets/audio/player_died.wav",
+        "item_picked": "assets/audio/item_picked.wav"
+    },
+    "tracks": {
+        "menu": "assets/audio/menu.wav",
+        "game": "assets/audio/game.wav"
+    }
+}
