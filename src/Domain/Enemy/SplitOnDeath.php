@@ -43,9 +43,11 @@ final class SplitOnDeath
 
         $distance = $parent->collisionRadius() * self::SPREAD;
         $bounds = $this->world->layout()->bounds();
-        for ($i = 0; $i < $rule->count; $i++) {
+        // O pai já morreu e liberou a vaga dele; com o mundo cheio, nascem só os que cabem (RNF06).
+        $count = min($rule->count, $this->world->freeEnemySlots());
+        for ($i = 0; $i < $count; $i++) {
             // Filhos espalhados em ângulos iguais, para não nascerem empilhados.
-            $angle = 2.0 * M_PI * $i / $rule->count;
+            $angle = 2.0 * M_PI * $i / $count;
             $offset = new Vector2(cos($angle) * $distance, sin($angle) * $distance);
             $position = $bounds->clamp($event->position->add($offset));
             $this->world->queueEnemy($this->factory->create($rule->childTypeId, $position));

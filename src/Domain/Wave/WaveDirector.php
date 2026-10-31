@@ -77,7 +77,7 @@ final class WaveDirector
         // A dívida nunca passa do teto: com o mundo cheio por muito tempo, não vira uma enxurrada depois.
         $this->owed = min($this->owed, $this->settings->maxAlive);
 
-        $free = $this->settings->maxAlive - $this->world->aliveEnemyCount();
+        $free = min($this->settings->maxAlive - $this->world->aliveEnemyCount(), $this->world->freeEnemySlots());
         $types = $this->eligibleTypes($band, $playerLevel);
         // Sem nenhum tipo liberado para o nível, a dívida espera o jogador subir.
         $count = $types === [] ? 0 : max(0, min($this->owed, $free));

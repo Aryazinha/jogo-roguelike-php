@@ -32,8 +32,8 @@ comportamento.
 - Nascem em ângulos iguais em volta do ponto da morte, a meio raio do Slime, e dentro do mapa.
 - **Sem divisão infinita.** O `EnemyCatalog` (C1) recusa um filho que também se divida, e o
   `DamageSystem` publica a morte uma vez só, então golpes extras não geram mais filhos.
-- A divisão não respeita o teto de 300: ela é consequência de uma morte, e não um spawn
-  novo. Quem segura o teto são as ondas (C7).
+- **Teto de 300.** Com o mundo cheio, nascem só os filhos que cabem (`GameWorld::freeEnemySlots()`).
+  O Slime morto já liberou a vaga dele, então pelo menos um filho sempre nasce.
 
 ## Skeleton
 

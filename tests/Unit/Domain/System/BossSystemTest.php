@@ -96,6 +96,22 @@ final class BossSystemTest extends TestCase
         }
     }
 
+    public function test_summons_respect_the_enemy_cap(): void
+    {
+        [$world, $system] = $this->setUpBoss();
+        $world->setEnemyCap(4);
+        $system->update(1 / 60, 600.0);
+        $boss = $system->boss();
+        self::assertNotNull($boss);
+        $boss->health()->damage(300.0);
+
+        $system->update(1 / 60, 600.1);
+        $world->flush();
+
+        // O boss ocupa uma das 4 vagas: dos 8 Zombies, cabem 3.
+        self::assertCount(4, $world->enemies());
+    }
+
     public function test_defeat_is_recorded_from_the_boss_kill_event(): void
     {
         [$world, $system] = $this->setUpBoss();

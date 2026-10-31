@@ -102,6 +102,20 @@ final class GameWorldTest extends TestCase
         }
     }
 
+    public function test_free_slots_follow_the_cap_and_the_queue(): void
+    {
+        $world = self::world();
+        self::assertGreaterThan(1_000_000, $world->freeEnemySlots(), 'sem teto definido');
+
+        $world->setEnemyCap(3);
+        $world->addEnemy(self::zombie('enemy-1'));
+        $world->queueEnemy(self::zombie('enemy-2'));
+
+        self::assertSame(1, $world->freeEnemySlots());
+        $world->queueEnemy(self::zombie('enemy-3'));
+        self::assertSame(0, $world->freeEnemySlots());
+    }
+
     public function test_repeated_ids_are_rejected(): void
     {
         $world = self::world();

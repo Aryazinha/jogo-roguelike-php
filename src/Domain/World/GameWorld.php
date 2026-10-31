@@ -51,6 +51,9 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
     /** @var array<string, Pickup> */
     private array $pickups = [];
 
+    /** Teto de inimigos vivos (RNF06); sem limite até a partida definir. */
+    private int $enemyCap = PHP_INT_MAX;
+
     public function __construct(
         private readonly Entity&Damageable $player,
         private readonly MapLayout $layout,
@@ -197,6 +200,21 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
         }
 
         return $alive + count($this->queued);
+    }
+
+    /** Define o teto de waves.json (300); ondas, divisões e invocações consultam as vagas. */
+    public function setEnemyCap(int $cap): void
+    {
+        if ($cap < 1) {
+            throw new InvalidArgumentException('o teto de inimigos deve ser maior ou igual a um.');
+        }
+        $this->enemyCap = $cap;
+    }
+
+    /** Quantos inimigos ainda cabem antes do teto. */
+    public function freeEnemySlots(): int
+    {
+        return max(0, $this->enemyCap - $this->aliveEnemyCount());
     }
 
     public function resolve(string $id): ?EnemyTarget

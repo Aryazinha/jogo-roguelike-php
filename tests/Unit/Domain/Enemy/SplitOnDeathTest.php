@@ -70,6 +70,21 @@ final class SplitOnDeathTest extends TestCase
         self::assertSame([], $world->enemies());
     }
 
+    public function test_full_world_only_gets_the_children_that_fit(): void
+    {
+        [$world, $factory, $damage] = self::setUpWorld();
+        $world->setEnemyCap(2);
+        $slime = $factory->create('slime', new Vector2(500.0, 500.0));
+        $world->addEnemy($slime);
+        $world->addEnemy($factory->create('zombie', new Vector2(800.0, 800.0)));
+
+        self::kill($damage, $slime);
+        $world->flush();
+
+        // Teto 2: o Zombie ocupa uma vaga e o Slime morto libera a dele, então nasce um filho só.
+        self::assertSame(['zombie', 'slime_pequeno'], array_map(static fn (Enemy $e) => $e->typeId(), $world->enemies()));
+    }
+
     public function test_common_enemy_leaves_nothing(): void
     {
         [$world, $factory, $damage] = self::setUpWorld();

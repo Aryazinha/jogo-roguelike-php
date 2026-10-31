@@ -127,6 +127,8 @@ final class BossSystem
     {
         $distance = $boss->collisionRadius() + self::SUMMON_GAP;
         $bounds = $this->world->layout()->bounds();
+        // Respeita o teto de inimigos; o boss em si sempre nasce, mas os invocados só se couberem.
+        $count = min($count, $this->world->freeEnemySlots());
         for ($i = 0; $i < $count; $i++) {
             $angle = 2.0 * M_PI * $i / $count;
             $offset = new Vector2(cos($angle) * $distance, sin($angle) * $distance);

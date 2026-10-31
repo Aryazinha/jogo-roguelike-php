@@ -46,6 +46,7 @@ partir de 25% de vida, até o fim da luta. Anda 30% mais rápido (a investida va
   a subir e descer.
 - **Golpe grande.** Um golpe que leva de 100% para 30% cruza dois limiares: são duas
   invocações seguidas.
+- **Teto de 300.** Os invocados respeitam as vagas do mundo; com o mundo cheio, nascem menos.
 - **Não interrompe a investida.** Uma invocação devida espera o Warden voltar a perseguir.
 - **Pausa.** Com passo zero, nenhum relógio de fase anda.
 - **Determinismo.** O `WardenBrain` não sorteia nada; só o ponto de surgimento usa o RNG da

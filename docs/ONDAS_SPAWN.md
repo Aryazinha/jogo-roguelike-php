@@ -60,7 +60,7 @@ A dificuldade cresce de quatro jeitos, os quatro citados no enunciado:
 | --- | --- |
 | Evento `WaveStarted` | Não foi criado: está pendente de ratificação no `CONTRATOS.md`. A Frente D lê `currentBandIndex()` |
 | Diretor adaptativo | Continua fora (`diretorAdaptativo: false`); o loader recusa `true` |
-| Divisões e invocações acima do teto | Não são barradas, porque são consequência de uma morte ou do boss. O teto vale para as ondas |
+| Divisões e invocações acima do teto | Também respeitam o teto: o `GameWorld` guarda o limite e cada um cria só o que cabe. Só o próprio Warden nasce mesmo com o mundo cheio, porque a vitória depende dele |
 
 ## Testes
 
