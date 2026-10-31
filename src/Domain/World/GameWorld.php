@@ -14,6 +14,8 @@ use Jogo\Domain\Enemy\Enemy;
 use Jogo\Domain\Enemy\EnemyProjectile;
 use Jogo\Domain\Entity\Damageable;
 use Jogo\Domain\Entity\Entity;
+use Jogo\Domain\Scenery\Breakable;
+use Jogo\Domain\Scenery\Pickup;
 use Jogo\Domain\Spatial\SpatialHash;
 use Jogo\Domain\Value\Vector2;
 use Jogo\Domain\Weapon\EnemyTarget;
@@ -42,6 +44,12 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
 
     /** @var array<string, Chest> */
     private array $chests = [];
+
+    /** @var array<string, Breakable> */
+    private array $breakables = [];
+
+    /** @var array<string, Pickup> */
+    private array $pickups = [];
 
     public function __construct(
         private readonly Entity&Damageable $player,
@@ -94,6 +102,35 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
         return array_values($this->chests);
     }
 
+    public function addBreakable(Breakable $breakable): void
+    {
+        $this->assertFreeId($breakable->id());
+        $this->breakables['id:'.$breakable->id()] = $breakable;
+    }
+
+    /** @return list<Breakable> */
+    public function breakables(): array
+    {
+        return array_values($this->breakables);
+    }
+
+    public function breakable(string $id): ?Breakable
+    {
+        return $this->breakables['id:'.$id] ?? null;
+    }
+
+    public function addPickup(Pickup $pickup): void
+    {
+        $this->assertFreeId($pickup->id());
+        $this->pickups['id:'.$pickup->id()] = $pickup;
+    }
+
+    /** @return list<Pickup> */
+    public function pickups(): array
+    {
+        return array_values($this->pickups);
+    }
+
     /** Agenda o inimigo para o próximo flush(); seguro de chamar dentro de listeners. */
     public function queueEnemy(Enemy $enemy): void
     {
@@ -103,7 +140,8 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
 
     /**
      * Ponto seguro do passo: insere os agendados e retira mortos, inativos e
-     * projéteis que já acertaram ou chegaram ao fim do alcance, e baús já abertos.
+     * projéteis que já acertaram ou chegaram ao fim do alcance, baús já abertos,
+     * quebráveis destruídos e itens já pegos.
      *
      * @return list<Enemy> Inimigos retirados, para quem precisar reagir à saída.
      */
@@ -120,6 +158,8 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
 
         $this->projectiles = array_filter($this->projectiles, static fn (EnemyProjectile $p) => $p->isActive());
         $this->chests = array_filter($this->chests, static fn (Chest $c) => $c->isActive());
+        $this->breakables = array_filter($this->breakables, static fn (Breakable $b) => $b->isActive() && ! $b->health()->isDead());
+        $this->pickups = array_filter($this->pickups, static fn (Pickup $p) => $p->isActive());
 
         $queued = $this->queued;
         $this->queued = [];
@@ -176,6 +216,12 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
         foreach ($this->chests() as $chest) {
             yield new WorldEntity($chest, 'chest', null);
         }
+        foreach ($this->breakables() as $breakable) {
+            yield new WorldEntity($breakable, 'breakable', ! $breakable->health()->isDead());
+        }
+        foreach ($this->pickups() as $pickup) {
+            yield new WorldEntity($pickup, 'pickup', null);
+        }
     }
 
     /**
@@ -208,6 +254,20 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
                     $chest->collisionRadius(), 'chest', null);
             }
         }
+        foreach ($this->breakables as $breakable) {
+            if ($breakable->isActive()) {
+                $position = $breakable->position();
+                $views[] = new EntityView($breakable->id(), new Vector2($position->x(), $position->y()),
+                    $breakable->collisionRadius(), 'breakable', ! $breakable->health()->isDead());
+            }
+        }
+        foreach ($this->pickups as $pickup) {
+            if ($pickup->isActive()) {
+                $position = $pickup->position();
+                $views[] = new EntityView($pickup->id(), new Vector2($position->x(), $position->y()),
+                    $pickup->collisionRadius(), 'pickup', null);
+            }
+        }
 
         return $views;
     }
@@ -221,7 +281,8 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
     private function assertFreeId(string $id): void
     {
         if ($id === $this->player->id() || isset($this->enemies['id:'.$id])
-            || isset($this->projectiles['id:'.$id]) || isset($this->chests['id:'.$id]) || $this->isQueued($id)) {
+            || isset($this->projectiles['id:'.$id]) || isset($this->chests['id:'.$id])
+            || isset($this->breakables['id:'.$id]) || isset($this->pickups['id:'.$id]) || $this->isQueued($id)) {
             throw new InvalidArgumentException("ID já usado no mundo: {$id}.");
         }
     }
