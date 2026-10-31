@@ -9,6 +9,7 @@ use Jogo\Domain\Ai\EntityView;
 use Jogo\Domain\Ai\SpatialWorldView;
 use Jogo\Domain\Ai\WorldEntity;
 use Jogo\Domain\Ai\WorldEntityProvider;
+use Jogo\Domain\Chest\Chest;
 use Jogo\Domain\Enemy\Enemy;
 use Jogo\Domain\Enemy\EnemyProjectile;
 use Jogo\Domain\Entity\Damageable;
@@ -38,6 +39,9 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
 
     /** @var array<string, EnemyProjectile> */
     private array $projectiles = [];
+
+    /** @var array<string, Chest> */
+    private array $chests = [];
 
     public function __construct(
         private readonly Entity&Damageable $player,
@@ -78,6 +82,18 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
         return array_values($this->projectiles);
     }
 
+    public function addChest(Chest $chest): void
+    {
+        $this->assertFreeId($chest->id());
+        $this->chests['id:'.$chest->id()] = $chest;
+    }
+
+    /** @return list<Chest> */
+    public function chests(): array
+    {
+        return array_values($this->chests);
+    }
+
     /** Agenda o inimigo para o próximo flush(); seguro de chamar dentro de listeners. */
     public function queueEnemy(Enemy $enemy): void
     {
@@ -87,7 +103,7 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
 
     /**
      * Ponto seguro do passo: insere os agendados e retira mortos, inativos e
-     * projéteis que já acertaram ou chegaram ao fim do alcance.
+     * projéteis que já acertaram ou chegaram ao fim do alcance, e baús já abertos.
      *
      * @return list<Enemy> Inimigos retirados, para quem precisar reagir à saída.
      */
@@ -103,6 +119,7 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
         }
 
         $this->projectiles = array_filter($this->projectiles, static fn (EnemyProjectile $p) => $p->isActive());
+        $this->chests = array_filter($this->chests, static fn (Chest $c) => $c->isActive());
 
         $queued = $this->queued;
         $this->queued = [];
@@ -156,6 +173,9 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
         foreach ($this->projectiles() as $projectile) {
             yield new WorldEntity($projectile, 'projectile', null);
         }
+        foreach ($this->chests() as $chest) {
+            yield new WorldEntity($chest, 'chest', null);
+        }
     }
 
     /**
@@ -181,6 +201,13 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
                     $projectile->collisionRadius(), 'projectile', null);
             }
         }
+        foreach ($this->chests as $chest) {
+            if ($chest->isActive()) {
+                $position = $chest->position();
+                $views[] = new EntityView($chest->id(), new Vector2($position->x(), $position->y()),
+                    $chest->collisionRadius(), 'chest', null);
+            }
+        }
 
         return $views;
     }
@@ -194,7 +221,7 @@ final class GameWorld implements EnemyTargetResolver, WorldEntityProvider
     private function assertFreeId(string $id): void
     {
         if ($id === $this->player->id() || isset($this->enemies['id:'.$id])
-            || isset($this->projectiles['id:'.$id]) || $this->isQueued($id)) {
+            || isset($this->projectiles['id:'.$id]) || isset($this->chests['id:'.$id]) || $this->isQueued($id)) {
             throw new InvalidArgumentException("ID já usado no mundo: {$id}.");
         }
     }
