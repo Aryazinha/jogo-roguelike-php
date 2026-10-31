@@ -66,10 +66,11 @@ tamanho do raio de separação e deixa a separação somar direto nesses arrays.
 | --- | --- | --- | --- |
 | Cerco em volta do jogador, de 10 a 20 s | 85–250 ms | mediana 23 ms, p95 30 ms | mediana 16 ms, p95 21 ms |
 
-Na mesma máquina, o benchmark A10 da Frente A dá p95 de 26,5 ms, contra 7,6 ms na máquina
-de referência. Ou seja, esta máquina é cerca de 3,5 vezes mais lenta, e o passo de IA
-deve ficar perto de 5–7 ms na referência. O orçamento conjunto (A + C) é medido de novo na
-C11.
+**Remedido na C11.** Com a máquina sem outra carga, o mesmo cerco deu mediana de 5,5 ms e
+p95 de 8,0 ms sem OPcache, e o benchmark A10 deu p95 de 5,3 ms (7,6 ms na máquina de
+referência). A medição acima foi feita com a máquina ocupada por outros processos, então os
+números de "Depois" estavam inflados. O orçamento conjunto está em
+[INTEGRACAO_CONTEUDO.md](INTEGRACAO_CONTEUDO.md).
 
 ## Testes
 
