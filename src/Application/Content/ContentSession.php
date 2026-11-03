@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jogo\Application\Content;
 
+use Closure;
 use Jogo\Core\Config\BossConfigLoader;
 use Jogo\Core\Config\ChestConfigLoader;
 use Jogo\Core\Config\ContactConfigLoader;
@@ -126,10 +127,15 @@ final class ContentSession
     }
 
     /**
-     * Um passo fixo da parte da C. As armas do jogador (A) devem rodar entre o
-     * movimento e o flush, no mesmo passo, usando $this->world como resolver.
+     * Um passo fixo da parte da C.
+     *
+     * $playerAttacks é onde entram as armas do jogador (A): roda depois que os
+     * inimigos andaram e antes do dano de contato e do ponto seguro, no mesmo
+     * passo, para que um inimigo morto pela arma não chegue a encostar.
+     *
+     * @param  (Closure(): void)|null  $playerAttacks
      */
-    public function step(float $deltaSeconds, float $elapsedSeconds, int $playerLevel): void
+    public function step(float $deltaSeconds, float $elapsedSeconds, int $playerLevel, ?Closure $playerAttacks = null): void
     {
         $this->events->update($elapsedSeconds);
         $this->chests->setChanceMultiplier($this->events->chestChanceMultiplier());
@@ -140,6 +146,9 @@ final class ContentSession
         $this->blocker->update($this->world);
         $this->ranged->update($this->world, $deltaSeconds);
         $this->projectiles->update($this->world, $deltaSeconds, $elapsedSeconds);
+        if ($playerAttacks !== null) {
+            $playerAttacks();
+        }
         $this->attacks->update($this->world, $elapsedSeconds);
         $this->chests->update($elapsedSeconds);
         $this->breakables->update($elapsedSeconds);
