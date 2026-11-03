@@ -8,6 +8,7 @@ use Jogo\Domain\Random\SeededRandomIndex;
 use Jogo\Domain\Scenery\Breakable;
 use Jogo\Domain\Scenery\BreakableType;
 use Jogo\Domain\Scenery\DropChance;
+use Jogo\Domain\Scenery\SceneryItems;
 use Jogo\Domain\Scenery\SceneryPlacer;
 use Jogo\Domain\Scenery\ScenerySettings;
 use Jogo\Domain\Scenery\TemporaryBonus;
@@ -74,6 +75,7 @@ final class SceneryPlacerTest extends TestCase
         return new ScenerySettings($density, [
             new BreakableType('grass', 'Grama', 1.0, 12.0, false, [new DropChance('nenhum', 1.0)]),
             new BreakableType('crate', 'Caixote', 3.0, 18.0, true, [new DropChance('steak', 1.0)]),
-        ], [new TemporaryBonus('furia', 'Furia', 15.0, [new StatModifier('dano', ModifierType::PERCENT, 0.5, 'teste')])]);
+        ], [new TemporaryBonus('furia', 'Furia', 15.0, [new StatModifier('dano', ModifierType::PERCENT, 0.5, 'teste')])],
+            new SceneryItems('Orbe de XP', 5, 'Livro Encantado', 1));
     }
 }

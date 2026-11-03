@@ -38,6 +38,8 @@ final class SceneryConfigLoaderTest extends TestCase
             ['agilidade', 15.0, [['velocidadeJogador', 'PERCENT', 0.3]]],
         ], array_map(static fn (TemporaryBonus $b) => [$b->id, $b->durationSeconds, array_map(
             static fn (StatModifier $m) => [$m->attribute, $m->type->value, $m->value], $b->modifiers)], $settings->bonuses()));
+        self::assertSame(['Orbe de XP', 5, 'Livro Encantado', 1], [$settings->items->smallXpName, $settings->items->smallXp,
+            $settings->items->specialItemName, $settings->items->specialItemUpgrades]);
     }
 
     public function test_drop_table_limits(): void
@@ -73,6 +75,15 @@ final class SceneryConfigLoaderTest extends TestCase
             $bonus = ConfigSchema::object(ConfigSchema::object($r->bonusTemporarios, 'test')->furia, 'test');
             ConfigSchema::object(ConfigSchema::list($bonus->modificadores, 'test')[0], 'test')->atributo = 'sorte';
         }, 'Atributo desconhecido: sorte'];
+        yield 'zero small xp' => [static function (stdClass $r): void {
+            ConfigSchema::object(ConfigSchema::object($r->itens, 'test')->xp_pequeno, 'test')->xp = 0;
+        }, 'o XP pequeno deve valer pelo menos 1'];
+        yield 'fractional upgrades' => [static function (stdClass $r): void {
+            ConfigSchema::object(ConfigSchema::object($r->itens, 'test')->item_especial, 'test')->upgradesDeArma = 1.5;
+        }, 'item_especial.upgradesDeArma deve ser um número inteiro'];
+        yield 'missing items' => [static function (stdClass $r): void {
+            unset($r->itens);
+        }, 'itens'];
     }
 
     /** @param callable(stdClass): void $change */

@@ -9,6 +9,7 @@ use Jogo\Domain\Random\RandomIndex;
 use Jogo\Domain\Scenery\Breakable;
 use Jogo\Domain\Scenery\BreakableType;
 use Jogo\Domain\Scenery\DropChance;
+use Jogo\Domain\Scenery\SceneryItems;
 use Jogo\Domain\Scenery\ScenerySettings;
 use Jogo\Domain\Scenery\TemporaryBonus;
 use Jogo\Domain\System\BreakableSystem;
@@ -99,7 +100,8 @@ final class BreakableSystemTest extends TestCase
         $type = $grass ? new BreakableType('grass', 'Grama', 1.0, 12.0, false, [new DropChance('nenhum', 1.0)]) : self::crate();
         $world->addBreakable(new Breakable($type->id.'-1', $type, new Vector2(300.0, 300.0)));
         $settings = new ScenerySettings(8.0, [self::crate()],
-            [new TemporaryBonus('furia', 'Furia', 15.0, [new StatModifier('dano', ModifierType::PERCENT, 0.5, 'teste')])]);
+            [new TemporaryBonus('furia', 'Furia', 15.0, [new StatModifier('dano', ModifierType::PERCENT, 0.5, 'teste')])],
+            new SceneryItems('Orbe de XP', 5, 'Livro Encantado', 1));
 
         // Mesmo número em todo sorteio, mas dentro da faixa: no sorteio do bônus (1 opção) vira 0.
         $random = new class($roll) implements RandomIndex
