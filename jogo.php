@@ -2,19 +2,15 @@
 
 declare(strict_types=1);
 
-use Jogo\Application\Graphical\ProgressionSnapshotProvider;
-use Jogo\Application\Progression\ProgressionSession;
+use Jogo\Application\Play\PlaySession;
+use Jogo\Application\Play\PlaySessionSnapshotProvider;
+use Jogo\Core\Config\MapConfigLoader;
 use Jogo\Core\EventBus;
 use Jogo\Core\GameLoop;
 use Jogo\Domain\Event\PlayerDied;
 use Jogo\Domain\Progression\LevelUp\LevelUpOptionKind;
-use Jogo\Domain\System\MovementSystem;
-use Jogo\Domain\Value\Facing;
 use Jogo\Domain\Value\InputState;
-use Jogo\Domain\Value\MapBounds;
 use Jogo\Domain\Value\Vector2;
-use Jogo\Domain\Weapon\WeaponDefinition;
-use Jogo\Domain\Weapon\WeaponMutationGuard;
 use Jogo\Infrastructure\Assets\AssetCatalog;
 use Jogo\Infrastructure\Audio\AudioEventSubscriber;
 use Jogo\Infrastructure\Audio\RaylibAudio;
@@ -56,14 +52,14 @@ use Jogo\Infrastructure\Time\MonotonicClock;
 
 require __DIR__.'/vendor/autoload.php';
 
-// D12: bootstrap do nucleo ja integrado A/B + interface D.
-// Enquanto a Frente C nao for mesclada, o mapa e apenas visual.
+// D12: bootstrap do jogo. A partida (armas A, progressao B, conteudo C) vem da PlaySession.
 // --demo habilita F8 (XP de teste) e F9 (fim artificial de teste).
 $demo = in_array('--demo', $argv ?? [], true);
 $startedAt = hrtime(true);
 $root = __DIR__;
 $catalog = AssetCatalog::fromProject($root);
 $catalog->assertReady();
+$layout = (new MapConfigLoader)->load($root.'/config/map.json');
 
 $pdo = SqliteConnection::open($root.'/database/jogo.sqlite');
 (new Migrator($pdo, $root.'/database/migrations'))->migrate();
@@ -82,7 +78,7 @@ $audio = RaylibAudio::fromRaylib(
 );
 $renderer = new RaylibRenderer(
     $raylib,
-    new Camera(800, 450, new MapBounds(0, 0, 1600, 1000)),
+    new Camera(800, 450, $layout->bounds()),
     $assets,
     null,
     $catalog,
@@ -160,9 +156,9 @@ try {
 $startupMs = (hrtime(true) - $startedAt) / 1_000_000;
 echo sprintf("D12 - menu pronto em %.2f ms\n", $startupMs);
 echo "WASD mover | P pausar | Q menu\n";
-echo $demo
-    ? "MODO DEMO: F8 concede XP real, F9 simula evento de morte.\n"
-    : "Aviso: a logica da Frente C ainda nao esta integrada. Use --demo para o fluxo de teste.\n";
+if ($demo) {
+    echo "MODO DEMO: F8 concede XP real, F9 simula evento de morte.\n";
+}
 
 try {
     $audio->playMusic('menu');
@@ -269,24 +265,9 @@ try {
             if (str_starts_with($command, 'start:')) {
                 $character = substr($command, 6);
                 $events = new EventBus; // Uma instancia independente por partida.
-                $guard = new class implements WeaponMutationGuard
-                {
-                    public function assertSafe(): void {}
-                };
-                $session = ProgressionSession::start(
-                    $root.'/config',
-                    $character,
-                    'player-'.bin2hex(random_bytes(8)),
-                    new Vector2(800.0, 500.0),
-                    18.0,
-                    160.0, // base provisoria de movimento, pendente de ratificacao
-                    35.0,  // base provisoria de coleta, pendente de ratificacao
-                    random_int(1, 1000000000),
-                    $events,
-                    static fn (WeaponDefinition $definition): bool => false,
-                    $guard,
-                );
-                $provider = new ProgressionSnapshotProvider($session);
+                $play = PlaySession::start($root, $character, random_int(1, 100000000), $events);
+                $session = $play->progression;
+                $provider = new PlaySessionSnapshotProvider($play);
                 $feedback = new VisualFeedbackPool($clock);
                 (new FeedbackSubscribers(
                     new AudioEventSubscriber($audio),
@@ -302,23 +283,14 @@ try {
                 $factory = new PlayFrameFactory($feedback, $catalog);
                 $presenter = new PlayFramePresenter($provider, $factory, $renderer);
                 $overlayPresenter = new OverlayFramePresenter($provider, $factory, $renderer);
-                $movement = new MovementSystem(new MapBounds(0, 0, 1600, 1000));
-                $facing = new Facing(new Vector2(0.0, -1.0));
                 $states->push(new PlayState(
-                    static function (float $dt) use (
-                        $session, $provider, $movement, $facing, &$input
-                    ): void {
+                    static function (float $dt) use ($play, $provider, &$input, &$request): void {
                         $provider->capturePrevious();
-                        $movement->update(
-                            $session->player,
-                            $facing,
-                            $input,
-                            $session->player->movementSpeed(),
-                            $dt,
-                            ! $session->run->isEnded(),
-                        );
-                        // A etapa de combate da A/C sera conectada antes deste update.
-                        $session->update($dt);
+                        $play->step($dt, $input);
+                        // Vitoria (Warden derrotado e bau aberto) ou morte encerram a partida.
+                        if ($play->isOver() && $request === '') {
+                            $request = 'end';
+                        }
                     },
                     null,
                     $presenter,

@@ -33,10 +33,15 @@ final class SceneryEntitiesTest extends TestCase
     {
         $steak = new Pickup('pickup-1', Vector2::zero(), 'steak', new HealingItem('steak', 'Steak', 5.0));
         self::assertSame(5.0, $steak->healing()?->heal);
+        self::assertSame(5, (new Pickup('pickup-3', Vector2::zero(), 'xp_pequeno', xp: 5))->xp());
+        self::assertSame(1, (new Pickup('pickup-4', Vector2::zero(), 'item_especial', weaponUpgrades: 1))->weaponUpgrades());
 
-        foreach ([['nenhum', null], ['steak', null], ['xp_pequeno', new HealingItem('steak', 'Steak', 5.0)]] as [$item, $healing]) {
+        $heal = new HealingItem('steak', 'Steak', 5.0);
+        foreach ([['nenhum', null, null, null], ['steak', null, null, null], ['xp_pequeno', $heal, 5, null],
+            ['xp_pequeno', null, null, null], ['xp_pequeno', null, 0, null], ['item_especial', null, null, null],
+            ['steak', $heal, 5, null], ['item_especial', null, null, 0]] as [$item, $healing, $xp, $upgrades]) {
             try {
-                new Pickup('pickup-2', Vector2::zero(), $item, $healing);
+                new Pickup('pickup-2', Vector2::zero(), $item, $healing, null, $xp, $upgrades);
                 self::fail("{$item} deveria ser recusado.");
             } catch (InvalidArgumentException) {
             }
@@ -49,7 +54,7 @@ final class SceneryEntitiesTest extends TestCase
             new MapLayout(1000.0, 1000.0, 10.0, 100.0, 200.0));
         $crate = new Breakable('crate-1', self::crate(), new Vector2(100.0, 100.0));
         $ore = new Breakable('ore-1', self::crate(), new Vector2(200.0, 100.0));
-        $pickup = new Pickup('pickup-1', new Vector2(300.0, 100.0), 'xp_pequeno');
+        $pickup = new Pickup('pickup-1', new Vector2(300.0, 100.0), 'xp_pequeno', xp: 5);
         $world->addBreakable($crate);
         $world->addBreakable($ore);
         $world->addPickup($pickup);
@@ -74,7 +79,7 @@ final class SceneryEntitiesTest extends TestCase
 
         $this->expectExceptionMessage('ID já usado no mundo: x-1');
 
-        $world->addPickup(new Pickup('x-1', Vector2::zero(), 'item_especial'));
+        $world->addPickup(new Pickup('x-1', Vector2::zero(), 'item_especial', weaponUpgrades: 1));
     }
 
     private static function crate(): BreakableType

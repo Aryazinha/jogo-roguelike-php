@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Jogo\Tests\Integration;
 
 use Jogo\Application\Content\ContentSession;
+use Jogo\Core\Config\EnemyConfigLoader;
 use Jogo\Core\EventBus;
+use Jogo\Domain\Enemy\EnemyFactory;
 use Jogo\Domain\Event\EnemyKilled;
 use Jogo\Domain\Scenery\Pickup;
 use Jogo\Domain\Value\Damage;
@@ -35,6 +37,27 @@ final class ContentSessionTest extends TestCase
         self::assertTrue($match['bossDefeated'], 'o Warden surge aos 600 s e cai antes dos 720 s');
         self::assertGreaterThanOrEqual(1, $match['chestRewards']);
         self::assertGreaterThan(0, $match['pickedItems']);
+    }
+
+    public function test_player_attacks_run_inside_the_step_before_contact_damage(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $player = new FakeDamageable('player-1', new Vector2(2000.0, 2000.0), 16.0, new Health(20.0));
+        $session = ContentSession::fromProject($root, $player, 7, new EventBus);
+        $zombie = (new EnemyFactory((new EnemyConfigLoader)->load("{$root}/config/enemies.json"), 'teste'))
+            ->create('zombie', new Vector2(2010.0, 2000.0));
+        $session->world->addEnemy($zombie);
+        $calls = 0;
+
+        // O Zombie está encostado: se a arma rodasse depois do contato, o jogador apanharia.
+        $session->step(1 / 20, 0.05, 6, static function () use (&$calls, $zombie): void {
+            $calls++;
+            $zombie->health()->damage(1000.0);
+        });
+
+        self::assertSame(1, $calls);
+        self::assertSame(20.0, $player->health()->current());
+        self::assertNull($session->world->enemy($zombie->id()), 'o morto sai no ponto seguro do mesmo passo');
     }
 
     public function test_same_seed_repeats_the_match_and_another_seed_does_not(): void

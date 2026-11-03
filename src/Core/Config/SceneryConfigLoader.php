@@ -7,13 +7,14 @@ namespace Jogo\Core\Config;
 use InvalidArgumentException;
 use Jogo\Domain\Scenery\BreakableType;
 use Jogo\Domain\Scenery\DropChance;
+use Jogo\Domain\Scenery\SceneryItems;
 use Jogo\Domain\Scenery\ScenerySettings;
 use Jogo\Domain\Scenery\TemporaryBonus;
 use Jogo\Domain\Value\ModifierType;
 use Jogo\Domain\Value\StatModifier;
 use stdClass;
 
-/** Lê scenery.json: densidade, elementos quebráveis e bônus temporários. */
+/** Lê scenery.json: densidade, elementos quebráveis, valor dos itens e bônus temporários. */
 final class SceneryConfigLoader
 {
     public function load(string $file): ScenerySettings
@@ -29,7 +30,7 @@ final class SceneryConfigLoader
     private function map(mixed $decoded, string $source): ScenerySettings
     {
         $root = ConfigSchema::object($decoded, $source);
-        ConfigSchema::fields($root, ['densidadePorMil', 'elementos', 'bonusTemporarios'], $source);
+        ConfigSchema::fields($root, ['densidadePorMil', 'elementos', 'itens', 'bonusTemporarios'], $source);
         $meta = ConfigSchema::object($root->_meta ?? null, "{$source}: _meta");
         if (ConfigSchema::string($meta, 'arquivo', "{$source}: _meta") !== 'scenery.json') {
             throw new InvalidArgumentException("{$source}: _meta.arquivo deve ser scenery.json.");
@@ -47,7 +48,8 @@ final class SceneryConfigLoader
         }
 
         try {
-            return new ScenerySettings(ConfigSchema::number($root, 'densidadePorMil', $source), $types, $bonuses);
+            return new ScenerySettings(ConfigSchema::number($root, 'densidadePorMil', $source), $types, $bonuses,
+                $this->items(ConfigSchema::object($root->itens ?? null, "{$source}: itens"), "{$source}: itens"));
         } catch (InvalidArgumentException $error) {
             if (str_starts_with($error->getMessage(), $source)) {
                 throw $error;
@@ -81,6 +83,39 @@ final class SceneryConfigLoader
             }
             throw new InvalidArgumentException("{$path}: {$error->getMessage()}", 0, $error);
         }
+    }
+
+    private function items(stdClass $entry, string $path): SceneryItems
+    {
+        ConfigSchema::fields($entry, [DropChance::SMALL_XP, DropChance::SPECIAL_ITEM], $path);
+        $xp = ConfigSchema::object($entry->{DropChance::SMALL_XP} ?? null, "{$path}.".DropChance::SMALL_XP);
+        ConfigSchema::fields($xp, ['nome', 'xp'], "{$path}.".DropChance::SMALL_XP);
+        $special = ConfigSchema::object($entry->{DropChance::SPECIAL_ITEM} ?? null, "{$path}.".DropChance::SPECIAL_ITEM);
+        ConfigSchema::fields($special, ['nome', 'upgradesDeArma'], "{$path}.".DropChance::SPECIAL_ITEM);
+
+        try {
+            return new SceneryItems(
+                ConfigSchema::string($xp, 'nome', "{$path}.".DropChance::SMALL_XP),
+                self::wholeNumber($xp, 'xp', "{$path}.".DropChance::SMALL_XP),
+                ConfigSchema::string($special, 'nome', "{$path}.".DropChance::SPECIAL_ITEM),
+                self::wholeNumber($special, 'upgradesDeArma', "{$path}.".DropChance::SPECIAL_ITEM),
+            );
+        } catch (InvalidArgumentException $error) {
+            if (str_starts_with($error->getMessage(), $path)) {
+                throw $error;
+            }
+            throw new InvalidArgumentException("{$path}: {$error->getMessage()}", 0, $error);
+        }
+    }
+
+    private static function wholeNumber(stdClass $entry, string $field, string $path): int
+    {
+        $value = $entry->{$field} ?? null;
+        if (! is_int($value)) {
+            throw new InvalidArgumentException("{$path}.{$field} deve ser um número inteiro.");
+        }
+
+        return $value;
     }
 
     private function bonus(string $id, stdClass $entry, string $path): TemporaryBonus
