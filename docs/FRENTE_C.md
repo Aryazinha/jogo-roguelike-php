@@ -49,6 +49,27 @@ cenário → tiros e flechas → dano de contato → baús e itens → ponto seg
 - **D:** desenha a partir de `world->snapshots()` e consulta `boss->phase()`,
   `events->active()` e `waves->currentBandIndex()`.
 
+### Partida jogável (`PlaySession`)
+
+`Application/Play/PlaySession` junta as três partes num passo só, e é o que o `jogo.php` usa:
+
+```php
+$partida = PlaySession::start($raiz, 'steve', $seed, $barramento);
+
+// a cada passo fixo:
+$partida->step($dt, $entrada);   // anda, roda a C, as armas atacam, aplica itens e baús
+$partida->isOver();              // vitória ou derrota
+```
+
+- As armas do jogador (A) rodam dentro do passo da C, depois que os inimigos andam e antes do
+  dano de contato. Cada golpe também acerta os quebráveis no alcance da arma.
+- Itens pegos e baús abertos viram efeito nos serviços da B (`collectHealing`, `collectBonus`,
+  `collectXp`, `grantWeaponUpgrades`), e a Chuva de XP liga o multiplicador do XP.
+- **Vitória:** derrotar o Warden. A partida segue até o jogador abrir um baú ou por 20 s, para a
+  recompensa do boss (RF26) não se perder. Morrer nesse intervalo ainda conta como vitória.
+- `PlaySessionSnapshotProvider` entrega para a D o que está perto do jogador, com a onda, o evento
+  ativo e a vida do Warden no HUD.
+
 ## Regras importantes
 
 **Inimigos (C1).** Os dados fixos de cada tipo ficam no arquétipo, compartilhado por todas as
@@ -124,7 +145,7 @@ grupo uma vez por passo (`CrowdWorldView`). Falta medir junto com o desenho da D
 
 | Pendência | Com quem |
 | --- | --- |
-| Ligar as armas ao passo e ao dano nos quebráveis (hoje elas só miram em inimigos) | A |
+| Calibrar as ondas jogando: parado, o jogador morre em uns 13 s no começo | C, com todos testando |
 | Confirmar os 0,5 s de invulnerabilidade | A |
 | Formato de `ChestOpened` e `ItemPicked` (até lá, saem por `takeOpened()` e `takePicked()`) | B, D |
 | Tamanho da tela, para confirmar a distância de spawn | D |
