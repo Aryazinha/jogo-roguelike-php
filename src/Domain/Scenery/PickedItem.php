@@ -16,6 +16,8 @@ final readonly class PickedItem
         public ?HealingItem $healing,
         public ?TemporaryBonus $bonus,
         public float $pickedAtSeconds,
+        public ?int $xp = null,
+        public ?int $weaponUpgrades = null,
     ) {
         CombatValidation::requiredId($pickupId, 'pickupId');
         CombatValidation::requiredId($itemId, 'itemId');

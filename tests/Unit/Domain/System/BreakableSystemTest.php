@@ -54,6 +54,20 @@ final class BreakableSystemTest extends TestCase
         self::assertSame('furia', $world->pickups()[0]->bonus()?->id);
     }
 
+    public function test_small_xp_drop_reaches_the_pickup_record_with_its_value(): void
+    {
+        [$world, $system] = self::setUpScenery(0);
+        $orb = new BreakableType('grass', 'Grama', 1.0, 12.0, false, [new DropChance('xp_pequeno', 1.0)]);
+        $world->addBreakable(new Breakable('grass-9', $orb, new Vector2(500.0, 500.0)));
+
+        $system->damage('grass-9', 1.0);
+        $world->player()->moveTo(new Vector2(500.0, 500.0));
+        $system->update(4.0);
+        $picked = $system->takePicked();
+
+        self::assertSame(['xp_pequeno', 5, null], [$picked[0]->itemId, $picked[0]->xp, $picked[0]->weaponUpgrades]);
+    }
+
     public function test_nothing_drop_leaves_the_floor_empty(): void
     {
         [$world, $system] = self::setUpScenery(0, grass: true);
@@ -70,6 +84,7 @@ final class BreakableSystemTest extends TestCase
 
         self::assertSame(1, $system->damageArea(new Vector2(330.0, 300.0), 20.0, 10.0));
         self::assertSame('item_especial', $world->pickups()[0]->itemId());
+        self::assertSame(1, $world->pickups()[0]->weaponUpgrades());
         self::assertFalse($world->breakables()[1]->health()->isDead());
     }
 

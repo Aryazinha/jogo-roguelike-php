@@ -85,7 +85,8 @@ final class BreakableSystem
         foreach ($this->world->pickups() as $pickup) {
             if ($pickup->isActive() && $this->collision->intersects($pickup, $player)) {
                 $pickup->deactivate();
-                $this->picked[] = new PickedItem($pickup->id(), $pickup->itemId(), $pickup->healing(), $pickup->bonus(), $elapsedSeconds);
+                $this->picked[] = new PickedItem($pickup->id(), $pickup->itemId(), $pickup->healing(), $pickup->bonus(),
+                    $elapsedSeconds, $pickup->xp(), $pickup->weaponUpgrades());
             }
         }
     }
@@ -117,6 +118,8 @@ final class BreakableSystem
             $item,
             $item === DropChance::STEAK ? $this->healing : null,
             $item === DropChance::TEMPORARY_BONUS ? $bonuses[$this->random->nextIndex(count($bonuses))] : null,
+            $item === DropChance::SMALL_XP ? $this->settings->items->smallXp : null,
+            $item === DropChance::SPECIAL_ITEM ? $this->settings->items->specialItemUpgrades : null,
         ));
     }
 }
