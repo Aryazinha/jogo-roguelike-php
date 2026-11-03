@@ -4,6 +4,12 @@
     "requisitos": ["RF19", "RF26", "RF27"],
     "nota": "O RF26 manda gerar baus apos derrotar o boss e da madeira (85%) e bronze (10%) como exemplo. Os 5% restantes nao estao no enunciado; a equipe acrescentou o bau de ouro para fechar 100%."
   },
+  "geracao": {
+    "bausAoDerrotarBoss": 1,
+    "chancePorInimigoAbatido": 0.004,
+    "_fonte": "provisorio",
+    "_nota": "O RF26 manda gerar bau ao derrotar o boss. A chance por inimigo abatido e acrescimo da equipe, para o evento Tesouro (RF35) ter o que aumentar."
+  },
   "raridades": [
     {
       "id": "madeira",

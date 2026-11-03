@@ -1,0 +1,16 @@
+{
+  "_meta": {
+    "arquivo": "map.json",
+    "requisitos": ["RF03", "RF05"],
+    "nota": "O RF03 manda criar o mapa e posicionar o personagem ao iniciar a partida, mas nao define tamanho. Todos os valores sao provisorios e podem ser calibrados."
+  },
+  "mapa": {
+    "larguraPixels": 4000,
+    "alturaPixels": 4000,
+    "margemBordaPixels": 32,
+    "distanciaMinimaSpawnPixels": 760,
+    "distanciaMaximaSpawnPixels": 960,
+    "_fonte": "provisorio",
+    "_nota": "A distancia minima de spawn fica acima da meia diagonal de uma tela 1280x720 (cerca de 734 px), para o inimigo nao surgir visivel. Confirmar o tamanho da tela com a Frente D."
+  }
+}

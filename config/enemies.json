@@ -4,6 +4,18 @@
     "requisitos": ["RF05", "RF22-a", "RF22-b", "RF28", "RF36"],
     "nota": "RF22-a exige no minimo 3 inimigos comuns com atributos proprios. RF36 exige no minimo 2 inimigos especiais. RF22-b exige um boss com atributos distintos dos comuns."
   },
+  "separacao": {
+    "raioPixels": 40,
+    "pesoPerseguir": 1.0,
+    "pesoSeparacao": 1.4,
+    "_fonte": "provisorio",
+    "_nota": "PLANO.md 4.1: pesos e raio da separacao entre inimigos. Nao vem do enunciado; ajustar pelo teste de 50 inimigos e pelo olho na tela."
+  },
+  "contato": {
+    "invulnerabilidadeSegundos": 0.5,
+    "_fonte": "provisorio",
+    "_nota": "RF08: tempo em que o jogador nao recebe outro dano depois de um golpe. Sem isso, 20 inimigos encostados tirariam 20 golpes por quadro. Confirmar com a Frente A."
+  },
   "comuns": {
     "zombie": {
       "nome": "Zombie",
@@ -80,8 +92,10 @@
       "distanciaIdeal": 200,
       "margemHisterese": 40,
       "cooldownTiroSegundos": 2.2,
+      "velocidadeFlechaPixels": 260,
+      "raioFlecha": 4,
       "_fonte": "provisorio",
-      "_nota": "Inimigo a distancia, o segundo especial exigido pelo RF36."
+      "_nota": "Inimigo a distancia, o segundo especial exigido pelo RF36. A flecha voa ate 1,5 vez a distancia maxima de tiro."
     }
   },
   "boss": {
@@ -99,7 +113,7 @@
         "investindo": { "duracaoSegundos": 1.0, "multiplicadorVelocidade": 3.0 },
         "recuperando": { "duracaoSegundos": 1.0 },
         "cooldownInvestidaSegundos": 8.0,
-        "invocando": { "emVidaPercentual": [0.7, 0.4], "quantidade": 8, "tipo": "zombie" },
+        "invocando": { "emVidaPercentual": [0.7, 0.4], "quantidade": 8, "tipo": "zombie", "duracaoSegundos": 1.0 },
         "enfurecido": {
           "emVidaPercentual": 0.25,
           "modificadores": [

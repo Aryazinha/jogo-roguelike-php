@@ -5,7 +5,7 @@
     "nota": "O RF38 exige elementos do cenario que, quando quebrados, deixam itens: Steak, itens especiais e bonus temporarios. Os tres tipos abaixo cobrem os tres casos. Quantidades e probabilidades sao provisorias."
   },
   "densidadePorMil": 8,
-  "_notaDensidade": "Elementos quebraveis por mil unidades quadradas de mapa, no inicio da partida.",
+  "_notaDensidade": "Elementos quebraveis por bloco de 1000 x 1000 px de mapa, no inicio da partida. Lido assim porque 8 por 1000 px quadrados dariam 128 mil elementos.",
   "elementos": {
     "grass": {
       "nome": "Tufo de grama",
