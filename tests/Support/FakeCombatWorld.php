@@ -28,6 +28,9 @@ final class FakeCombatWorld implements AttackContextProvider, EnemyTargetResolve
     /** @var array<string, bool> */
     public array $bosses = [];
 
+    /** @var array<string, string> Tipo de conteúdo por ID; sem entrada, vale `fake_type`. */
+    public array $types = [];
+
     public Vector2 $origin;
 
     public Vector2 $facing;
@@ -59,7 +62,7 @@ final class FakeCombatWorld implements AttackContextProvider, EnemyTargetResolve
         $entity = $this->targets[$id] ?? null;
 
         return $entity === null || isset($this->unresolved[$id]) || $this->kinds[$id] !== 'enemy'
-            ? null : new EnemyTarget($entity, 'fake_type', $this->bosses[$id] ?? false);
+            ? null : new EnemyTarget($entity, $this->types[$id] ?? 'fake_type', $this->bosses[$id] ?? false);
     }
 
     public function context(float $range): TargetingContext

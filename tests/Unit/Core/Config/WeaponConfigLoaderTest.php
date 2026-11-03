@@ -210,7 +210,10 @@ final class WeaponConfigLoaderTest extends TestCase
     {
         $previous = ini_get('pcre.backtrack_limit');
         self::assertIsString($previous);
-        [$root] = self::document();
+        [$root, $weapon] = self::document();
+        // Com o PCRE JIT (padrão do PHP) o backtrack_limit é ignorado; a string longa esgota a
+        // pilha do JIT. Sem JIT, esgota o backtrack_limit. A varredura falha nos dois modos.
+        $weapon->nome = str_repeat('a', 2_000_000);
         $json = json_encode($root, JSON_THROW_ON_ERROR);
         ini_set('pcre.backtrack_limit', '1');
         try {
