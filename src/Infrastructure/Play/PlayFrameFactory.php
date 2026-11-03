@@ -4,15 +4,21 @@ declare(strict_types=1);
 
 namespace Jogo\Infrastructure\Play;
 
+use Jogo\Infrastructure\Assets\AssetCatalog;
+use Jogo\Infrastructure\Feedback\VisualFeedbackPool;
 use Jogo\Infrastructure\Rendering\FrameSnapshot;
 use Jogo\Infrastructure\Rendering\RenderItem;
 
 final readonly class PlayFrameFactory
 {
+    public function __construct(
+        private ?VisualFeedbackPool $feedback = null,
+        private ?AssetCatalog $catalog = null,
+    ) {}
+
     public function create(PlaySnapshot $snapshot): FrameSnapshot
     {
         $world = $snapshot->world;
-
         $items = [];
 
         foreach ($world->entities as $entity) {
@@ -30,32 +36,48 @@ final readonly class PlayFrameFactory
                 'pickup' => ['pickups', 'circle', 250, 210, 55],
                 'breakable' => ['scenery', 'rectangle', 145, 105, 70],
                 'effect' => ['effects', 'circle', 70, 190, 250],
-                default => throw new \LogicException('Tipo visual nao suportado.'),
+                default => throw new \LogicException(
+                    'Tipo visual nao suportado.'
+                ),
             };
+
+            $sprite = $this->catalog?->sprite($entity->kind);
 
             $items[] = new RenderItem(
                 $layer,
-                $shape,
+                $sprite !== null ? 'texture' : $shape,
                 $entity->previous,
                 $entity->current,
                 $entity->radius * 2.0,
                 $red,
                 $green,
-                $blue
+                $blue,
+                $sprite,
             );
         }
 
-        // O jogador e sempre derivado do foco do snapshot.
+        $playerSprite = $this->catalog?->sprite('player');
+
         $items[] = new RenderItem(
             'entities',
-            'circle',
+            $playerSprite !== null ? 'texture' : 'circle',
             $world->previousPlayer,
             $world->currentPlayer,
             $world->playerRadius * 2.0,
             250,
             210,
-            35
+            35,
+            $playerSprite,
         );
+
+        $feedbackFrame = $this->feedback?->frame();
+
+        $feedbackLabels = [];
+
+        if ($feedbackFrame !== null) {
+            $items = array_merge($items, $feedbackFrame->items);
+            $feedbackLabels = $feedbackFrame->labels;
+        }
 
         return new FrameSnapshot(
             $world->previousPlayer,
@@ -63,6 +85,8 @@ final readonly class PlayFrameFactory
             $items,
             [],
             $snapshot->hud,
+            null,
+            $feedbackLabels,
         );
     }
 }

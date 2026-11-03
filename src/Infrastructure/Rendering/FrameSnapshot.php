@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jogo\Infrastructure\Rendering;
 
 use Jogo\Domain\Value\Vector2;
+use Jogo\Infrastructure\Feedback\FeedbackLabel;
 use Jogo\Infrastructure\Overlay\OverlaySnapshot;
 use Jogo\Infrastructure\Play\PlayHudSnapshot;
 
@@ -13,6 +14,7 @@ final readonly class FrameSnapshot
     /**
      * @param  list<RenderItem>  $items
      * @param  list<string>  $hud
+     * @param  list<FeedbackLabel>  $feedbackLabels
      */
     public function __construct(
         public Vector2 $previousFocus,
@@ -21,6 +23,7 @@ final readonly class FrameSnapshot
         public array $hud = [],
         public ?PlayHudSnapshot $playHud = null,
         public ?OverlaySnapshot $overlay = null,
+        public array $feedbackLabels = [],
     ) {}
 
     /** @return list<RenderItem> */

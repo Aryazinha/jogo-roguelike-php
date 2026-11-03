@@ -11,6 +11,7 @@ use Jogo\Domain\Event\ItemPicked;
 use Jogo\Domain\Event\LevelUp;
 use Jogo\Domain\Event\PlayerDamaged;
 use Jogo\Domain\Event\PlayerDied;
+use Jogo\Infrastructure\Feedback\ChestOpenedNotice;
 use Throwable;
 use WeakMap;
 
@@ -70,6 +71,13 @@ final class AudioEventSubscriber
             ItemPicked::class,
             function (ItemPicked $event): void {
                 $this->safePlay('item_picked');
+            }
+        );
+
+        $events->subscribe(
+            ChestOpenedNotice::class,
+            function (ChestOpenedNotice $event): void {
+                $this->safePlay('chest_opened');
             }
         );
 

@@ -189,6 +189,8 @@ final class StateStack
                 && (
                     $state instanceof PauseState
                     || $state instanceof LevelUpState
+                    || $state instanceof GameOverState
+                    || $state instanceof VictoryState
                 )
             ) {
                 return true;
