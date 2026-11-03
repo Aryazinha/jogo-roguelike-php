@@ -8,7 +8,7 @@ use InvalidArgumentException;
 use Jogo\Domain\Value\CombatValidation;
 
 /**
- * Regras de scenery.json: densidade, tipos de quebrável e bônus temporários.
+ * Regras de scenery.json: densidade, tipos de quebrável, valor dos itens e bônus temporários.
  *
  * A densidade é lida como elementos por bloco de 1000 × 1000 px. "Por mil
  * unidades quadradas", ao pé da letra, daria 8 por 1000 px² e 128 mil
@@ -29,7 +29,7 @@ final readonly class ScenerySettings
      * @param  list<BreakableType>  $types
      * @param  list<TemporaryBonus>  $bonuses
      */
-    public function __construct(public float $density, array $types, array $bonuses)
+    public function __construct(public float $density, array $types, array $bonuses, public SceneryItems $items)
     {
         CombatValidation::nonNegative($density, 'density');
         if ($types === [] || $bonuses === []) {

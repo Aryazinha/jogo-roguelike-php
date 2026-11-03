@@ -40,6 +40,11 @@
       ]
     }
   },
+  "itens": {
+    "_nota": "Valor dos drops que nao sao Steak nem bonus. O XP pequeno entra pelo collectXp() da Frente B; o item especial da upgrades de arma pelo mesmo servico dos baus.",
+    "xp_pequeno": { "nome": "Orbe de XP", "xp": 5, "_fonte": "provisorio" },
+    "item_especial": { "nome": "Livro Encantado", "upgradesDeArma": 1, "_fonte": "provisorio" }
+  },
   "bonusTemporarios": {
     "furia": {
       "nome": "Furia",
