@@ -163,7 +163,7 @@ A Frente C decide quando e onde baús, drops e eventos aparecem; a B aplica o ef
 | Upgrade de baú | Evolução elegível tem prioridade; senão, melhoria sorteada com seed | RF19 cita evoluções "em baús" |
 | Baú sem melhoria possível | Aplica as que houver e devolve a lista do que foi concedido | Não inventar recompensa substituta |
 | XP com multiplicador | Arredondado para o inteiro mais próximo | XP é inteiro na B3 |
-| `item_especial` e quantidade de `xp_pequeno` | **Pendente da Frente C**; `collectXp()` já recebe a quantidade | Nenhum arquivo define esses valores |
+| Orbe de XP e Livro Encantado | Orbe (`xp_pequeno`) → `collectXp()` com 5 XP; Livro (`item_especial`) → `grantWeaponUpgrades()` com 1 upgrade, usando o `pickupId` como ID | Valores definidos pela C em `scenery.json` (`itens`, provisórios) e ligados em `PlaySession::applyRewards()` |
 | `ChestOpened` | Não criado pela B; a C publica e chama `grantWeaponUpgrades` | O evento pertence à C (`CONTRATOS.md` §3) |
 
 ## B8 — estado, fim e resumo da partida (RF09, RF30)
@@ -246,7 +246,6 @@ usado por `$b->canReach($posicaoDoPickup)`.
 | --- | --- | --- |
 | Payload de `LevelUp` e `LevelUpOption` | D | Proposto pela B; confirmar antes da tela de level up |
 | Payload de `ItemPicked` | C/D | Proposto pela B |
-| `item_especial` e quantidade de `xp_pequeno` | C | Sem definição em `scenery.json` |
 | Valores de `velocidadeJogador` e `raioColeta` | A/B/C | `ProgressionSession::start()` exige os dois; falta a equipe escolher os números |
 | Cooldown do arco da Alex no nível 36 | Todas | Ver alerta na B4 |
 
