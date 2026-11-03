@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jogo\Infrastructure\Play;
 
+use Jogo\Infrastructure\Assets\AssetCatalog;
 use Jogo\Infrastructure\Feedback\VisualFeedbackPool;
 use Jogo\Infrastructure\Rendering\FrameSnapshot;
 use Jogo\Infrastructure\Rendering\RenderItem;
@@ -12,6 +13,7 @@ final readonly class PlayFrameFactory
 {
     public function __construct(
         private ?VisualFeedbackPool $feedback = null,
+        private ?AssetCatalog $catalog = null,
     ) {}
 
     public function create(PlaySnapshot $snapshot): FrameSnapshot
@@ -39,27 +41,33 @@ final readonly class PlayFrameFactory
                 ),
             };
 
+            $sprite = $this->catalog?->sprite($entity->kind);
+
             $items[] = new RenderItem(
                 $layer,
-                $shape,
+                $sprite !== null ? 'texture' : $shape,
                 $entity->previous,
                 $entity->current,
                 $entity->radius * 2.0,
                 $red,
                 $green,
-                $blue
+                $blue,
+                $sprite,
             );
         }
 
+        $playerSprite = $this->catalog?->sprite('player');
+
         $items[] = new RenderItem(
             'entities',
-            'circle',
+            $playerSprite !== null ? 'texture' : 'circle',
             $world->previousPlayer,
             $world->currentPlayer,
             $world->playerRadius * 2.0,
             250,
             210,
-            35
+            35,
+            $playerSprite,
         );
 
         $feedbackFrame = $this->feedback?->frame();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jogo\Infrastructure\Rendering;
 
+use Jogo\Infrastructure\Assets\AssetCatalog;
 use Jogo\Infrastructure\Ffi\RaylibBinding;
 use Jogo\Infrastructure\Overlay\OverlaySnapshot;
 use Jogo\Infrastructure\Play\PlayHudSnapshot;
@@ -15,6 +16,7 @@ final readonly class RaylibRenderer implements RendererInterface
         private Camera $camera,
         private RaylibResourceCache $assets,
         private ?string $hudFontPath = null,
+        private ?AssetCatalog $catalog = null,
     ) {}
 
     public function render(FrameSnapshot $frame, float $alpha): void
@@ -40,10 +42,11 @@ final readonly class RaylibRenderer implements RendererInterface
                 $screen = $this->camera->worldToScreen($world, $focus);
 
                 if ($item->kind === 'texture' && $item->assetPath !== null) {
-                    $this->raylib->drawTexture(
+                    $this->raylib->drawTextureCentered(
                         $this->assets->texture($item->assetPath),
-                        (int) round($screen->x()),
-                        (int) round($screen->y())
+                        $screen->x(),
+                        $screen->y(),
+                        $item->size
                     );
 
                     continue;
@@ -123,6 +126,26 @@ final readonly class RaylibRenderer implements RendererInterface
     private function drawPlayHud(PlayHudSnapshot $hud): void
     {
         $this->raylib->drawRectangle(8, 8, 305, 138, 19, 24, 36);
+
+        if ($this->catalog !== null) {
+            $this->raylib->drawTextureCentered(
+                $this->assets->texture(
+                    $this->catalog->sprite('hud_heart')
+                ),
+                294.0,
+                29.0,
+                22.0
+            );
+
+            $this->raylib->drawTextureCentered(
+                $this->assets->texture(
+                    $this->catalog->sprite('hud_xp')
+                ),
+                294.0,
+                77.0,
+                22.0
+            );
+        }
 
         $this->raylib->drawText(
             sprintf('VIDA %.0f / %.0f', $hud->health, $hud->maxHealth),

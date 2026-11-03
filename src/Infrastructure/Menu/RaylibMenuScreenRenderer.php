@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Jogo\Infrastructure\Menu;
 
+use Jogo\Infrastructure\Assets\AssetCatalog;
 use Jogo\Infrastructure\Ffi\RaylibBinding;
+use Jogo\Infrastructure\Rendering\RaylibResourceCache;
 
 final readonly class RaylibMenuScreenRenderer implements MenuScreenRendererInterface
 {
     public function __construct(
         private RaylibBinding $raylib,
+        private ?AssetCatalog $catalog = null,
+        private ?RaylibResourceCache $assets = null,
     ) {}
 
     /**
@@ -33,6 +37,26 @@ final readonly class RaylibMenuScreenRenderer implements MenuScreenRendererInter
             180,
             100
         );
+
+        if ($this->catalog !== null && $this->assets !== null) {
+            $this->raylib->drawTextureCentered(
+                $this->assets->texture(
+                    $this->catalog->sprite('menu_panel')
+                ),
+                746.0,
+                57.0,
+                70.0
+            );
+
+            $this->raylib->drawTextureCentered(
+                $this->assets->texture(
+                    $this->catalog->sprite('menu_emblem')
+                ),
+                746.0,
+                57.0,
+                50.0
+            );
+        }
 
         $this->raylib->drawText(
             $title,
